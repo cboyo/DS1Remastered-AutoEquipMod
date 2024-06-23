@@ -101,7 +101,6 @@ struct Addresses{
     void* ring_id;
     void* ring_slot;
     void* in_game;
-
 };
 
 enum class AppState{
@@ -274,20 +273,20 @@ std::vector<uint64_t> scan_process(Process process,const Pattern& pattern){
     uint64_t total_size = 0;
     // std::cout<<"Do stuff\n";
     std::vector<uint8_t> buffer;
-    size_t buffer_bytes_read=0;
-    auto read=0;
+    SIZE_T buffer_bytes_read=0;
     uint64_t scanned_size=0;
     std::cout<<"STARTING SCAN\n";
     while(VirtualQueryEx(process.handle, p, &info, sizeof(info))){
         total_size+=info.RegionSize;
         if(info.State==MEM_COMMIT&&(info.Type==MEM_PRIVATE||info.Type==MEM_IMAGE)){
             // std::cout<<protect_to_string(info.Protect)<<'\n';
-            std::cout<<"SCANNING: "<<(uint32_t*)info.BaseAddress<<" "<<(uint32_t*)info.BaseAddress+info.RegionSize<<'\r';
-            buffer.resize(info.RegionSize);
-            read = ReadProcessMemory(process.handle, p, buffer.data(), info.RegionSize, &buffer_bytes_read);
             auto base = (uint64_t)info.BaseAddress;
-            for(const auto& offset:pattern_scan(buffer,pattern)){
-                result_addresses.push_back(base+offset);
+            std::cout<<"SCANNING: "<<base<<" "<<base+info.RegionSize<<'\r';
+            buffer.resize(info.RegionSize);
+            if(ReadProcessMemory(process.handle, p, buffer.data(), info.RegionSize, &buffer_bytes_read)){
+                for(const auto& offset:pattern_scan(buffer,pattern)){
+                    result_addresses.push_back(base+offset);
+                }
             }
             scanned_size+=info.RegionSize;
         }
@@ -306,7 +305,7 @@ std::vector<uint64_t> find_inventory_address(Process process){
     std::vector<uint64_t> final_addresses;
     for(size_t i = 0;i<possible_addresses.size();i++){
         uint32_t value=0;
-        size_t read_bytes=0;
+        SIZE_T read_bytes=0;
         // std::cout<<"Result "<<i<<": "<<(uint64_t*)addresses[i]<<'\n';
         LPCVOID pointer = (void*)possible_addresses[i];
         if(ReadProcessMemory(process.handle,pointer,&value,sizeof(uint32_t),&read_bytes)){
@@ -407,10 +406,13 @@ void execute_change(Change change,State& state,size_t index){
         slot = (void*)((uint64_t)addrs.ring_slot+offset);
     }
     if(id&&slot){
-        auto success=true;
-        success&=WriteProcessMemory(state.process.handle,id,&current.id,4,nullptr);
-        success&=WriteProcessMemory(state.process.handle,slot,&index,4,nullptr);
-        if(!success)std::cout<<"Failed to equip item :*(\n";
+        if(!WriteProcessMemory(state.process.handle,id,&current.id,4,nullptr)){
+            std::cout<<"Failed to write item id, item not equipped\n";
+        }
+        //Writing the slot is more a convenience than anything
+        if(!WriteProcessMemory(state.process.handle,slot,&index,4,nullptr)){
+            std::cout<<"Failed to write item slot(Not much of a problem)\n";
+        }
     }
 }
 
@@ -431,7 +433,7 @@ void setup_addresses(State& state,uint64_t signature_address){
     state.addrs.in_game    = (void*)(signature_address-0x660);
 }
 bool read_inventory(Process process,void* addr,inv_t& inv){
-    size_t read=0;
+    SIZE_T read=0;
     if(ReadProcessMemory(process.handle,addr,inv .data(),sizeof(inv),&read)){
         return read==sizeof(inv);
     }
@@ -439,7 +441,7 @@ bool read_inventory(Process process,void* addr,inv_t& inv){
 }
 bool in_main_menu(State& state){
     uint32_t menu = -1;
-    uint64_t read=0;
+    SIZE_T read=0;
     if(ReadProcessMemory(state.process.handle,state.addrs.in_game,&menu,sizeof(menu),&read)){
         if(read!=sizeof(menu))return true;
         return menu==-1u;

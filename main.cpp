@@ -121,7 +121,7 @@ enum class ItemType :uint32_t{
 enum class ArmorType: uint32_t{
     Head  =0,
     Chest =1,
-    Hands  =2,
+    Hands =2,
     Legs  =3,
     Unknown
 };
@@ -162,7 +162,7 @@ struct InvSlot{
     ItemType type;
     uint32_t id;
     uint32_t count;
-    uint32_t mysterious_number;//As to do with display order but other than that im clueless
+    uint32_t mysterious_number;//Has to do with display order but other than that im clueless
     uint32_t valid;
     uint32_t durability;
     uint32_t hits;
@@ -173,13 +173,19 @@ struct InvSlot{
     }
 };
 using inv_t = std::array<InvSlot,2048>;
+struct RingSlots{
+    uint32_t left_id{0xFFFFFFFF};
+    uint32_t right_id{0xFFFFFFFF};
+    uint32_t left_slot{0xFFFFFFFF};
+    uint32_t right_slot{0xFFFFFFFF};
+};
 struct State{
     AppState state;
     Process process;
     Addresses addrs;
     inv_t inventory;
     inv_t inventory_copy;
-    int ring_slot{0};
+    //int ring_slot{0};  Removed as of v0.3 update
 };
 enum class Change{
     Null=0,EquipWeapon,EquipArmor,EquipRing
@@ -348,15 +354,45 @@ Change identify_change(const InvSlot& old,const InvSlot& current){
     //Default to null
     return Change::Null;
 }
+void write_id_and_slot(State& state,uint32_t item_id,void* id_ptr,uint32_t slot,void* slot_ptr){
+    if(id_ptr&&slot_ptr){
+        if(!WriteProcessMemory(state.process.handle,id_ptr,&item_id,sizeof(uint32_t),nullptr)){
+            std::cout<<"Failed to write item id, item not equipped\n";
+        }
+        //Writing the slot is more a convenience than anything
+        if(!WriteProcessMemory(state.process.handle,slot_ptr,&slot,sizeof(uint32_t),nullptr)){
+            std::cout<<"Failed to write item slot(Not much of a problem)\n";
+        }
+    }
+}
+void write_rings_slots(State& state,RingSlots& rings){
+    if(!WriteProcessMemory(state.process.handle,state.addrs.ring_id,&rings.left_id,sizeof(uint32_t)*2,nullptr)){
+        std::cout<<"Failed to write ring id, ring not equipped\n";
+    }
+    //Writing the slot is more a convenience than anything
+    if(!WriteProcessMemory(state.process.handle,state.addrs.ring_slot,&rings.left_slot,sizeof(uint32_t)*2,nullptr)){
+        std::cout<<"Failed to write ring slot(Not much of a problem)\n";
+    }
+}
 
-void execute_change(Change change,State& state,size_t index){
+bool read_ring_slots(State& state,RingSlots& ring_slot){
+    if(!ReadProcessMemory(state.process.handle,state.addrs.ring_id,&ring_slot.left_id,sizeof(uint32_t)*2u,nullptr)){
+        return false;
+    }
+    if(!ReadProcessMemory(state.process.handle,state.addrs.ring_slot,&ring_slot.left_slot,sizeof(uint32_t)*2u,nullptr)){
+        return false;
+    }
+    return true;
+}
+
+void execute_change(Change change,State& state,size_t inv_index){
     if(change==Change::Null)return;//Also redundant
-    auto& current = state.inventory_copy[index];
-    auto& addrs   = state.addrs;
-    void* id=nullptr;
-    void* slot=nullptr;
+    uint32_t& item_id = state.inventory_copy[inv_index].id;
+    Addresses& addrs   = state.addrs;
+    void* id_ptr=nullptr;
+    void* slot_ptr=nullptr;
     if(change==Change::EquipArmor){
-        auto armor_type = armor_type_from_id(current.id);
+        auto armor_type = armor_type_from_id(item_id);
         if(armor_type==ArmorType::Unknown){
             std::cout<<"Unknown armor type, no action executed\n";
         }else{
@@ -370,49 +406,58 @@ void execute_change(Change change,State& state,size_t index){
                 std::cout<<"Equip pantalons\n";
             }
             auto offset = 4*(int)armor_type;
-            id  = (void*)((uint64_t)addrs.armor_id+offset);
-            slot= (void*)((uint64_t)addrs.armor_slot+offset);
+            id_ptr   = (void*)((uint64_t)addrs.armor_id+offset);
+            slot_ptr = (void*)((uint64_t)addrs.armor_slot+offset);
+            write_id_and_slot(state,item_id,id_ptr,inv_index,slot_ptr);
         }
     }else if(change==Change::EquipWeapon){
-        auto weapon_type = weapon_type_from_id(current.id);
-        auto offset=0;
-        if(weapon_type==WeaponType::Arrow){
-            offset=16;
-            std::cout<<"Equip arrows\n";
-        }else if(weapon_type==WeaponType::Bolt){
-            offset=20;
-            std::cout<<"Equip bolts\n";
-        }else if(weapon_type==WeaponType::RightHand){
-            std::cout<<"Equip right hand weapon\n";
-            offset = 4;
-        }else if(weapon_type==WeaponType::LeftHand){
-            std::cout<<"Equip left hand weapon\n";
-            offset = 0;//Redundant
-        }
-        id = (void*)((uint64_t)addrs.weapon_id+offset);
-        slot = (void*)((uint64_t)addrs.weapon_slot+offset);
-    }else if(change==Change::EquipRing){
-        auto offset = 0;
-        if(state.ring_slot==1){
-            std::cout<<"Equip ring in right slot\n";
-            offset=4;
-            state.ring_slot=0;
+        auto weapon_type = weapon_type_from_id(item_id);
+        if(weapon_type==WeaponType::Unknown){
+            std::cout<<"Unknown weapon type, no action executed\n";
         }else{
-            std::cout<<"Equip ring in left slot\n";
-            state.ring_slot=1;
+            auto offset=0;
+            if(weapon_type==WeaponType::Arrow){
+                offset=16;
+                std::cout<<"Equip arrows\n";
+            }else if(weapon_type==WeaponType::Bolt){
+                offset=20;
+                std::cout<<"Equip bolts\n";
+            }else if(weapon_type==WeaponType::RightHand){
+                std::cout<<"Equip right hand weapon\n";
+                offset = 4;
+            }else if(weapon_type==WeaponType::LeftHand){
+                std::cout<<"Equip left hand weapon\n";
+                offset = 0;//Redundant
+            }
+            id_ptr   = (void*)((uint64_t)addrs.weapon_id+offset);
+            slot_ptr = (void*)((uint64_t)addrs.weapon_slot+offset);
+            write_id_and_slot(state,item_id,id_ptr,inv_index,slot_ptr);
         }
-
-        id = (void*)((uint64_t)addrs.ring_id+offset);
-        slot = (void*)((uint64_t)addrs.ring_slot+offset);
-    }
-    if(id&&slot){
-        if(!WriteProcessMemory(state.process.handle,id,&current.id,4,nullptr)){
-            std::cout<<"Failed to write item id, item not equipped\n";
+    }else if(change==Change::EquipRing){
+        //V0.3 change
+        //Now rings equip as a FIFO queue
+        //New rings go to the left slot and the previous ring gets pushed into right slot
+        //Also now avoids equiping repeated rings
+        //No need to know ring slot and let us know the last ring equipped
+        //even between sessions!!
+        RingSlots ring_slots;
+        if(!read_ring_slots(state,ring_slots)){
+            std::cout<<"Failed to read ring slots\n";
+            return;
         }
-        //Writing the slot is more a convenience than anything
-        if(!WriteProcessMemory(state.process.handle,slot,&index,4,nullptr)){
-            std::cout<<"Failed to write item slot(Not much of a problem)\n";
+        if(ring_slots.left_id==item_id){
+            std::cout<<"Ring duplicate detected, ring not equipped\n";
+            return;
         }
+        std::cout<<"Equip ring\n";
+        //If left slot is empty and right is not, only no need to push first ring
+        if(!(ring_slots.left_id==0xFFFFFFFF&&ring_slots.right_id!=0xFFFFFFFF)){
+            ring_slots.right_id=ring_slots.left_id;
+            ring_slots.right_slot=ring_slots.left_slot;
+        }
+        ring_slots.left_id=item_id;
+        ring_slots.left_slot=inv_index;
+        write_rings_slots(state,ring_slots); 
     }
 }
 
@@ -423,7 +468,7 @@ bool try_find_process(Process& process){
     return process.handle;
 }
 void setup_addresses(State& state,uint64_t signature_address){
-    state.addrs.inv        = (void*)(signature_address+16);
+    state.addrs.inv        = (void*)(signature_address+0X010);
     state.addrs.armor_id   = (void*)(signature_address-0x32C);
     state.addrs.weapon_id  = (void*)(signature_address-0x34C);
     state.addrs.armor_slot = (void*)(signature_address-0x3AC);
@@ -493,9 +538,9 @@ void update_loop(State& state){
             auto good = read_inventory(state.process,state.addrs.inv,state.inventory);
             if(good){
                 state.state=AppState::InvUpdate;
-                std::cout<<"Initial scan successful\n";
+                std::cout<<"Initial inventory read successful\n";
             }else{
-                std::cout<<"Initial scan failed, trying again\n";
+                std::cout<<"Initial inventory read failed, trying again\n";
                 Sleep(1000);
             }
         }else if(state.state==AppState::MainMenu){
@@ -533,8 +578,17 @@ void update_loop(State& state){
 
 int main()
 {
+    const std::string mutex_name = "chainsboyo_AutoEquip_DSR";
+    HANDLE hHandle = CreateMutex( NULL, TRUE, mutex_name.c_str());
+    if(ERROR_ALREADY_EXISTS == GetLastError()){
+        std::cout<<"Another instance of AutoEquip_DSR is already running\n";
+        std::cout<<"This console will close in 5 seconds\n";
+        Sleep(5000);
+        return 1;
+    }
     State state;
     update_loop(state);
-    std::cout<<"Out??\n";
+    ReleaseMutex( hHandle ); 
+    CloseHandle( hHandle );//Will never reach here but idk
     return 0;
 }

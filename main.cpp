@@ -160,24 +160,16 @@ WeaponType weapon_type_from_id(uint32_t weapon_id){
 
 uint32_t get_weapon_id_for_level(uint32_t weapon_id, int level){
     if(level==0)return weapon_id;
-    if(unupgradeable_weapons.find(weapon_id) != unupgradeable_weapons.end()){
-        return weapon_id;
-    }
-    if(unique_weapons.find(weapon_id) != unique_weapons.end()){
-        return weapon_id + (level / 3);
-    }
     if(weapon_ids.find(weapon_id) != weapon_ids.end()){
-        std::string weapon_label = weapon_ids.at(weapon_id);
-        int space_pos = weapon_label.rfind(' ');
-        if(space_pos != std::string::npos){
-            std::string infusion = weapon_label.substr(0, space_pos);
-            if(infusion.compare("Crystal") == 0 || infusion.compare("Lightning") == 0 || infusion.compare("Occult") == 0 || infusion.compare("Chaos") == 0 || infusion.compare("Enchanted") == 0 || infusion.compare("Raw") == 0){
-                return weapon_id + (level / 3);
-            }
-            else if(infusion.compare("Divine") == 0 || infusion.compare("Magic") == 0 || infusion.compare("Fire") == 0
-            ){
-                return weapon_id + ((level * 2) / 3);
-            }
+        WeaponInfusionType weapon_type = weapon_ids.at(weapon_id);
+        if(weapon_type == WeaponInfusionType::NO_UPGRADE){
+            return weapon_id;
+        }
+        else if(weapon_type == WeaponInfusionType::UNIQUE || weapon_type == WeaponInfusionType::CRYSTAL || weapon_type == WeaponInfusionType::LIGHTNING || weapon_type == WeaponInfusionType::OCCULT || weapon_type == WeaponInfusionType::CHAOS || weapon_type == WeaponInfusionType::RAW){
+            return weapon_id + (level / 3);
+        }
+        else if(weapon_type == WeaponInfusionType::DIVINE || weapon_type == WeaponInfusionType::MAGIC || weapon_type == WeaponInfusionType::FIRE){
+            return weapon_id + ((level * 2) / 3);
         }
         return weapon_id + level;
     }
@@ -186,36 +178,23 @@ uint32_t get_weapon_id_for_level(uint32_t weapon_id, int level){
 }
 
 int weapon_level_from_id(uint32_t weapon_id){
-    if(unupgradeable_weapons.find(weapon_id) != unupgradeable_weapons.end()){
-        return 0;
-    }
-
     int i;
     for(i = 0; i < 15; i++){
-        if(i <= 5 && unique_weapons.find(weapon_id-i) != unique_weapons.end()){
-            // Levels are from 0-5, so should be scaled up to 15
-            return i * 3;
-        }
         if(weapon_ids.find(weapon_id-i) != weapon_ids.end()){
             // Found base (+0) weapon, now determine infusion type to calculate level
             weapon_id = weapon_id - i;
-            std::string weapon_label = weapon_ids.at(weapon_id);
-            int space_pos = weapon_label.rfind(' ');
-            if(space_pos != std::string::npos){
-                std::string infusion = weapon_label.substr(0, space_pos);
-                if(infusion.compare("Crystal") == 0 || infusion.compare("Lightning") == 0 || infusion.compare("Occult") == 0 || infusion.compare("Chaos") == 0 || infusion.compare("Enchanted") == 0 || infusion.compare("Raw") == 0){
-                    return i * 3;
-                }
-                if(infusion.compare("Divine") == 0 || 
-                    infusion.compare("Magic") == 0 ||
-                    infusion.compare("Fire") == 0
-                ){
-                    return (i * 3) / 2;
-                }
+
+            WeaponInfusionType weapon_type = weapon_ids.at(weapon_id);
+            if(weapon_type == WeaponInfusionType::NO_UPGRADE){
+                return weapon_id;
             }
-            else{
-                return i;
+            else if(weapon_type == WeaponInfusionType::UNIQUE || weapon_type == WeaponInfusionType::CRYSTAL || weapon_type == WeaponInfusionType::LIGHTNING || weapon_type == WeaponInfusionType::OCCULT || weapon_type == WeaponInfusionType::CHAOS || weapon_type == WeaponInfusionType::RAW){
+                return i * 3;
             }
+            else if(weapon_type == WeaponInfusionType::DIVINE || weapon_type == WeaponInfusionType::MAGIC || weapon_type == WeaponInfusionType::FIRE){
+                return (i * 3) / 2;
+            }
+            return i;
         }
     }
     std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";

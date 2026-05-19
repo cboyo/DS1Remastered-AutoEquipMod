@@ -4,8 +4,22 @@
 
 #include <unordered_map>
 #include <string>
-extern std::unordered_map<uint64_t, std::string> weapon_ids;
-extern std::unordered_map<uint64_t, std::string> unupgradeable_weapons;
-extern std::unordered_map<uint64_t, std::string> unique_weapons;
+
+enum class WeaponInfusionType{
+    STANDARD,
+    CRYSTAL,
+    LIGHTNING,
+    RAW,
+    MAGIC,
+    ENCHANTED,
+    DIVINE,
+    OCCULT,
+    FIRE,
+    CHAOS,
+    UNIQUE,
+    NO_UPGRADE
+};
+
+extern std::unordered_map<uint64_t, WeaponInfusionType> weapon_ids;
 
 #endif

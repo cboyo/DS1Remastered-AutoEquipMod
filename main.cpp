@@ -11,6 +11,7 @@
 #include <string>
 #include <array>
 #include <sstream>
+#include "weapon_ids.h"
 
 struct Process{DWORD id{0};HANDLE handle{0};};
 struct Pattern{
@@ -157,6 +158,64 @@ WeaponType weapon_type_from_id(uint32_t weapon_id){
     return WeaponType::RightHand;
 }
 
+uint32_t get_weapon_id_for_level(uint32_t weapon_id, int level){
+    if(level==0)return weapon_id;
+    if(unupgradeable_weapons.find(weapon_id) != unupgradeable_weapons.end()){
+        return weapon_id;
+    }
+    if(unique_weapons.find(weapon_id) != unique_weapons.end()){
+        // Levels are from 0-5, so should be scaled up to 15
+        return weapon_id + (level / 3);
+    }
+    if(weapon_ids.find(weapon_id) != weapon_ids.end()){
+        std::string weapon_label = unique_weapons.at(weapon_id);
+        int space_pos = weapon_label.rfind(' ');
+        if(space_pos != std::string::npos){
+            std::string infusion = weapon_label.substr(0, space_pos);
+            if(infusion.compare("Crystal") == 0 || infusion.compare("Lighning") == 0 || infusion.compare("Occult") == 0 || infusion.compare("Chaos") == 0 || infusion.compare("Enchanted") == 0 || infusion.compare("Raw") == 0){
+                return weapon_id + (level / 3);
+            }
+            if(infusion.compare("Divine") == 0 || infusion.compare("Magic") == 0 || infusion.compare("Fire") == 0
+            ){
+                return weapon_id + ((level * 2) / 3);
+            }
+        }
+    }
+    std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
+    return weapon_id;
+}
+
+int weapon_level_from_id(uint32_t weapon_id){
+    int i;
+    for(i = 0; i < 15; i++){
+        if(unupgradeable_weapons.find(weapon_id) != unupgradeable_weapons.end()){
+            return 0;
+        }
+        if(unique_weapons.find(weapon_id) != unique_weapons.end()){
+            // Levels are from 0-5, so should be scaled up to 15
+            return i * 3;
+        }
+        if(weapon_ids.find(weapon_id) != weapon_ids.end()){
+            std::string weapon_label = unique_weapons.at(weapon_id);
+            int space_pos = weapon_label.rfind(' ');
+            if(space_pos != std::string::npos){
+                std::string infusion = weapon_label.substr(0, space_pos);
+                if(infusion.compare("Crystal") == 0 || infusion.compare("Lighning") == 0 || infusion.compare("Occult") == 0 || infusion.compare("Chaos") == 0 || infusion.compare("Enchanted") == 0 || infusion.compare("Raw") == 0){
+                    return i * 3;
+                }
+                if(infusion.compare("Divine") == 0 || 
+                    infusion.compare("Magic") == 0 ||
+                    infusion.compare("Fire") == 0
+                ){
+                    return (i * 3) / 2;
+                }
+            }
+        }
+    }
+    std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
+    return 0;
+}
+
 
 struct InvSlot{
     ItemType type;
@@ -170,6 +229,9 @@ struct InvSlot{
 
     bool operator ==(const InvSlot& rhs)const{
         return type==rhs.type && id==rhs.id && count==rhs.count && mysterious_number==rhs.mysterious_number&& valid==rhs.valid && durability==rhs.durability && hits==rhs.hits;
+    }
+    bool operator !=(const InvSlot& rhs)const{
+        return !(*this == rhs);
     }
 };
 using inv_t = std::array<InvSlot,2048>;
@@ -411,6 +473,8 @@ void execute_change(Change change,State& state,size_t inv_index){
             write_id_and_slot(state,item_id,id_ptr,inv_index,slot_ptr);
         }
     }else if(change==Change::EquipWeapon){
+        // Get current weapon level
+        int existing_weapon_level = weapon_level_from_id(state.inventory[inv_index].id);
         auto weapon_type = weapon_type_from_id(item_id);
         if(weapon_type==WeaponType::Unknown){
             std::cout<<"Unknown weapon type, no action executed\n";
@@ -425,9 +489,11 @@ void execute_change(Change change,State& state,size_t inv_index){
             }else if(weapon_type==WeaponType::RightHand){
                 std::cout<<"Equip right hand weapon\n";
                 offset = 4;
+                item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
             }else if(weapon_type==WeaponType::LeftHand){
                 std::cout<<"Equip left hand weapon\n";
                 offset = 0;//Redundant
+                item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
             }
             id_ptr   = (void*)((uint64_t)addrs.weapon_id+offset);
             slot_ptr = (void*)((uint64_t)addrs.weapon_slot+offset);
@@ -578,7 +644,7 @@ void update_loop(State& state){
 
 int main()
 {
-    const std::string mutex_name = "chainsboyo_AutoEquip_DSR";
+    const std::string mutex_name = "birthdayattack_AutoEquip_DSR";
     HANDLE hHandle = CreateMutex( NULL, TRUE, mutex_name.c_str());
     if(ERROR_ALREADY_EXISTS == GetLastError()){
         std::cout<<"Another instance of AutoEquip_DSR is already running\n";

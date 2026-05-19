@@ -164,43 +164,46 @@ uint32_t get_weapon_id_for_level(uint32_t weapon_id, int level){
         return weapon_id;
     }
     if(unique_weapons.find(weapon_id) != unique_weapons.end()){
-        // Levels are from 0-5, so should be scaled up to 15
         return weapon_id + (level / 3);
     }
     if(weapon_ids.find(weapon_id) != weapon_ids.end()){
-        std::string weapon_label = unique_weapons.at(weapon_id);
+        std::string weapon_label = weapon_ids.at(weapon_id);
         int space_pos = weapon_label.rfind(' ');
         if(space_pos != std::string::npos){
             std::string infusion = weapon_label.substr(0, space_pos);
-            if(infusion.compare("Crystal") == 0 || infusion.compare("Lighning") == 0 || infusion.compare("Occult") == 0 || infusion.compare("Chaos") == 0 || infusion.compare("Enchanted") == 0 || infusion.compare("Raw") == 0){
+            if(infusion.compare("Crystal") == 0 || infusion.compare("Lightning") == 0 || infusion.compare("Occult") == 0 || infusion.compare("Chaos") == 0 || infusion.compare("Enchanted") == 0 || infusion.compare("Raw") == 0){
                 return weapon_id + (level / 3);
             }
-            if(infusion.compare("Divine") == 0 || infusion.compare("Magic") == 0 || infusion.compare("Fire") == 0
+            else if(infusion.compare("Divine") == 0 || infusion.compare("Magic") == 0 || infusion.compare("Fire") == 0
             ){
                 return weapon_id + ((level * 2) / 3);
             }
         }
+        return weapon_id + level;
     }
     std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
     return weapon_id;
 }
 
 int weapon_level_from_id(uint32_t weapon_id){
+    if(unupgradeable_weapons.find(weapon_id) != unupgradeable_weapons.end()){
+        return 0;
+    }
+
     int i;
     for(i = 0; i < 15; i++){
-        if(unupgradeable_weapons.find(weapon_id) != unupgradeable_weapons.end()){
-            return 0;
-        }
-        if(unique_weapons.find(weapon_id) != unique_weapons.end()){
+        if(i <= 5 && unique_weapons.find(weapon_id-i) != unique_weapons.end()){
             // Levels are from 0-5, so should be scaled up to 15
             return i * 3;
         }
-        if(weapon_ids.find(weapon_id) != weapon_ids.end()){
-            std::string weapon_label = unique_weapons.at(weapon_id);
+        if(weapon_ids.find(weapon_id-i) != weapon_ids.end()){
+            // Found base (+0) weapon, now determine infusion type to calculate level
+            weapon_id = weapon_id - i;
+            std::string weapon_label = weapon_ids.at(weapon_id);
             int space_pos = weapon_label.rfind(' ');
             if(space_pos != std::string::npos){
                 std::string infusion = weapon_label.substr(0, space_pos);
-                if(infusion.compare("Crystal") == 0 || infusion.compare("Lighning") == 0 || infusion.compare("Occult") == 0 || infusion.compare("Chaos") == 0 || infusion.compare("Enchanted") == 0 || infusion.compare("Raw") == 0){
+                if(infusion.compare("Crystal") == 0 || infusion.compare("Lightning") == 0 || infusion.compare("Occult") == 0 || infusion.compare("Chaos") == 0 || infusion.compare("Enchanted") == 0 || infusion.compare("Raw") == 0){
                     return i * 3;
                 }
                 if(infusion.compare("Divine") == 0 || 
@@ -210,12 +213,14 @@ int weapon_level_from_id(uint32_t weapon_id){
                     return (i * 3) / 2;
                 }
             }
+            else{
+                return i;
+            }
         }
     }
     std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
     return 0;
 }
-
 
 struct InvSlot{
     ItemType type;
@@ -349,7 +354,7 @@ std::vector<uint64_t> scan_process(Process process,const Pattern& pattern){
         if(info.State==MEM_COMMIT&&(info.Type==MEM_PRIVATE||info.Type==MEM_IMAGE)){
             // std::cout<<protect_to_string(info.Protect)<<'\n';
             auto base = (uint64_t)info.BaseAddress;
-            std::cout<<"SCANNING: "<<base<<" "<<base+info.RegionSize<<'\r';
+            //std::cout<<"SCANNING: "<<base<<" "<<base+info.RegionSize<<'\r';
             buffer.resize(info.RegionSize);
             if(ReadProcessMemory(process.handle, p, buffer.data(), info.RegionSize, &buffer_bytes_read)){
                 for(const auto& offset:pattern_scan(buffer,pattern)){
@@ -447,6 +452,22 @@ bool read_ring_slots(State& state,RingSlots& ring_slot){
     return true;
 }
 
+bool read_weapon_slot(State& state, uint32_t* weapon_id){
+    // read currently equipped weapon id from right hand slot (offset +4)
+    void* weapon_id_ptr = (void *)((uint64_t)state.addrs.weapon_id + 4);
+    if(!ReadProcessMemory(state.process.handle,weapon_id_ptr, weapon_id,sizeof(uint32_t)*2u,nullptr)){
+        return false;
+    }
+    return true;
+}
+
+void write_inv_slot(State& state,InvSlot& slot,size_t inv_index){
+    void* inv_slot_ptr = (void *)((uint64_t)state.addrs.inv + (inv_index * sizeof(InvSlot)));
+    if(!WriteProcessMemory(state.process.handle,inv_slot_ptr,&slot,sizeof(InvSlot),nullptr)){
+        std::cout<<"Failed to write inventory slot back\n";
+    }
+}
+
 void execute_change(Change change,State& state,size_t inv_index){
     if(change==Change::Null)return;//Also redundant
     uint32_t& item_id = state.inventory_copy[inv_index].id;
@@ -473,8 +494,6 @@ void execute_change(Change change,State& state,size_t inv_index){
             write_id_and_slot(state,item_id,id_ptr,inv_index,slot_ptr);
         }
     }else if(change==Change::EquipWeapon){
-        // Get current weapon level
-        int existing_weapon_level = weapon_level_from_id(state.inventory[inv_index].id);
         auto weapon_type = weapon_type_from_id(item_id);
         if(weapon_type==WeaponType::Unknown){
             std::cout<<"Unknown weapon type, no action executed\n";
@@ -489,12 +508,28 @@ void execute_change(Change change,State& state,size_t inv_index){
             }else if(weapon_type==WeaponType::RightHand){
                 std::cout<<"Equip right hand weapon\n";
                 offset = 4;
-                item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
+                // Get current weapon level
+                // TODO: naive impl of using state.inventory vs state.inventory_copy is not working, need to dive deep on getting it.
+                uint32_t equipped_weapon_id;
+                if(read_weapon_slot(state, &equipped_weapon_id)){
+                    int existing_weapon_level = weapon_level_from_id(equipped_weapon_id);
+                    std::cout<<"Detected existing weapon level: "<<existing_weapon_level<<"\n";
+                    
+                    item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
+                    std::cout<<"Attempting to equip weapon id: "<<item_id<<"\n";
+                    
+                    state.inventory_copy[inv_index].id = item_id;
+                    write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
+                }
+                else{
+                    std::cout<<"Failed to read currently equipped weapon, equipping incoming weapon unmodified\n";
+                }
+                
             }else if(weapon_type==WeaponType::LeftHand){
                 std::cout<<"Equip left hand weapon\n";
                 offset = 0;//Redundant
-                item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
             }
+            // c72ec90
             id_ptr   = (void*)((uint64_t)addrs.weapon_id+offset);
             slot_ptr = (void*)((uint64_t)addrs.weapon_slot+offset);
             write_id_and_slot(state,item_id,id_ptr,inv_index,slot_ptr);

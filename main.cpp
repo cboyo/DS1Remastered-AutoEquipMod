@@ -160,18 +160,22 @@ WeaponType weapon_type_from_id(uint32_t weapon_id){
 
 uint32_t get_weapon_id_for_level(uint32_t weapon_id, int level){
     if(level==0)return weapon_id;
-    if(weapon_ids.find(weapon_id) != weapon_ids.end()){
-        WeaponInfusionType weapon_type = weapon_ids.at(weapon_id);
-        if(weapon_type == WeaponInfusionType::NO_UPGRADE){
-            return weapon_id;
+    int i;
+    for(i = 0; i <= 15; i++){
+        uint32_t search_weapon_id = weapon_id - i; 
+        if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
+            WeaponInfusionType weapon_type = weapon_ids.at(search_weapon_id);
+            if(weapon_type == WeaponInfusionType::NO_UPGRADE){
+                return search_weapon_id;
+            }
+            else if(weapon_type == WeaponInfusionType::UNIQUE || weapon_type == WeaponInfusionType::CRYSTAL || weapon_type == WeaponInfusionType::LIGHTNING || weapon_type == WeaponInfusionType::OCCULT || weapon_type == WeaponInfusionType::CHAOS || weapon_type == WeaponInfusionType::RAW){
+                return search_weapon_id + (level / 3);
+            }
+            else if(weapon_type == WeaponInfusionType::DIVINE || weapon_type == WeaponInfusionType::MAGIC || weapon_type == WeaponInfusionType::FIRE){
+                return search_weapon_id + ((level * 2) / 3);
+            }
+            return search_weapon_id + level;
         }
-        else if(weapon_type == WeaponInfusionType::UNIQUE || weapon_type == WeaponInfusionType::CRYSTAL || weapon_type == WeaponInfusionType::LIGHTNING || weapon_type == WeaponInfusionType::OCCULT || weapon_type == WeaponInfusionType::CHAOS || weapon_type == WeaponInfusionType::RAW){
-            return weapon_id + (level / 3);
-        }
-        else if(weapon_type == WeaponInfusionType::DIVINE || weapon_type == WeaponInfusionType::MAGIC || weapon_type == WeaponInfusionType::FIRE){
-            return weapon_id + ((level * 2) / 3);
-        }
-        return weapon_id + level;
     }
     std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
     return weapon_id;
@@ -179,25 +183,35 @@ uint32_t get_weapon_id_for_level(uint32_t weapon_id, int level){
 
 int weapon_level_from_id(uint32_t weapon_id){
     int i;
-    for(i = 0; i < 15; i++){
+    for(i = 0; i <= 15; i++){
         if(weapon_ids.find(weapon_id-i) != weapon_ids.end()){
             // Found base (+0) weapon, now determine infusion type to calculate level
             weapon_id = weapon_id - i;
 
             WeaponInfusionType weapon_type = weapon_ids.at(weapon_id);
             if(weapon_type == WeaponInfusionType::NO_UPGRADE){
-                return weapon_id;
+                return 0;
             }
-            else if(weapon_type == WeaponInfusionType::UNIQUE || weapon_type == WeaponInfusionType::CRYSTAL || weapon_type == WeaponInfusionType::LIGHTNING || weapon_type == WeaponInfusionType::OCCULT || weapon_type == WeaponInfusionType::CHAOS || weapon_type == WeaponInfusionType::RAW){
+            else if(i <= 5 && weapon_type == WeaponInfusionType::UNIQUE){
+                // Scale unique levels 1-5 up to 15.
                 return i * 3;
             }
-            else if(weapon_type == WeaponInfusionType::DIVINE || weapon_type == WeaponInfusionType::MAGIC || weapon_type == WeaponInfusionType::FIRE){
-                return (i * 3) / 2;
+            else if(i <= 5 && weapon_type == WeaponInfusionType::RAW){
+                // Raw infusion caps at +5 for 10 total levels
+                return i + 5;
+            }
+            else if(i <= 5 && (weapon_type == WeaponInfusionType::CRYSTAL || weapon_type == WeaponInfusionType::LIGHTNING || weapon_type == WeaponInfusionType::OCCULT || weapon_type == WeaponInfusionType::CHAOS || weapon_type == WeaponInfusionType::ENCHANTED)){
+                // Infusions already effectively at +10
+                return i + 10;
+            }
+            else if(i <= 10 && (weapon_type == WeaponInfusionType::DIVINE || weapon_type == WeaponInfusionType::MAGIC || weapon_type == WeaponInfusionType::FIRE)){
+                // Infusions already effectively at +5
+                return i + 5;
             }
             return i;
         }
     }
-    std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
+    std::cout<<"Unable to find matching level for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
     return 0;
 }
 
@@ -333,7 +347,7 @@ std::vector<uint64_t> scan_process(Process process,const Pattern& pattern){
         if(info.State==MEM_COMMIT&&(info.Type==MEM_PRIVATE||info.Type==MEM_IMAGE)){
             // std::cout<<protect_to_string(info.Protect)<<'\n';
             auto base = (uint64_t)info.BaseAddress;
-            //std::cout<<"SCANNING: "<<base<<" "<<base+info.RegionSize<<'\r';
+            std::cout<<"SCANNING: "<<base<<" "<<base+info.RegionSize<<'\r';
             buffer.resize(info.RegionSize);
             if(ReadProcessMemory(process.handle, p, buffer.data(), info.RegionSize, &buffer_bytes_read)){
                 for(const auto& offset:pattern_scan(buffer,pattern)){
@@ -487,15 +501,13 @@ void execute_change(Change change,State& state,size_t inv_index){
             }else if(weapon_type==WeaponType::RightHand){
                 std::cout<<"Equip right hand weapon\n";
                 offset = 4;
-                // Get current weapon level
-                // TODO: naive impl of using state.inventory vs state.inventory_copy is not working, need to dive deep on getting it.
+
                 uint32_t equipped_weapon_id;
                 if(read_weapon_slot(state, &equipped_weapon_id)){
                     int existing_weapon_level = weapon_level_from_id(equipped_weapon_id);
-                    std::cout<<"Detected existing weapon level: "<<existing_weapon_level<<"\n";
+                    std::cout<<"Detected existing weapon level (scaled 0-15): "<<existing_weapon_level<<"\n";
                     
                     item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
-                    std::cout<<"Attempting to equip weapon id: "<<item_id<<"\n";
                     
                     state.inventory_copy[inv_index].id = item_id;
                     write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
@@ -658,10 +670,10 @@ void update_loop(State& state){
 
 int main()
 {
-    const std::string mutex_name = "birthdayattack_AutoEquip_DSR";
+    const std::string mutex_name = "birthdayattack_AutoEquipAutoUpgrade_DSR";
     HANDLE hHandle = CreateMutex( NULL, TRUE, mutex_name.c_str());
     if(ERROR_ALREADY_EXISTS == GetLastError()){
-        std::cout<<"Another instance of AutoEquip_DSR is already running\n";
+        std::cout<<"Another instance of AutoEquipAutoUpgrade_DSR is already running\n";
         std::cout<<"This console will close in 5 seconds\n";
         Sleep(5000);
         return 1;

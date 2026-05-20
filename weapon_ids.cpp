@@ -2,9 +2,27 @@
 #include <string>
 #include "weapon_ids.h"
 
-// TODO missing Cleansing Greatshield, Abyss Greatsword
-// Guardian Tail, Four-Pronged Plow
 std::unordered_map<uint64_t, WeaponInfusionType> weapon_ids = {
+{ 0x00899E78, WeaponInfusionType::STANDARD }, // Standard Guardian Tail
+{ 0x00899EDC, WeaponInfusionType::CRYSTAL }, // Crystal Guardian Tail
+{ 0x00899F40, WeaponInfusionType::LIGHTNING }, // Lightning Guardian Tail
+{ 0x00899FA4, WeaponInfusionType::RAW }, // Raw Guardian Tail
+{ 0x0089A008, WeaponInfusionType::MAGIC }, // Magic Guardian Tail
+{ 0x0089A06C, WeaponInfusionType::ENCHANTED }, // Enchanted Guardian Tail
+{ 0x0089A0D0, WeaponInfusionType::DIVINE }, // Divine Guardian Tail
+{ 0x0089A134, WeaponInfusionType::OCCULT }, // Occult Guardian Tail
+{ 0x0089A198, WeaponInfusionType::FIRE }, // Fire Guardian Tail
+{ 0x0089A1FC, WeaponInfusionType::CHAOS }, // Chaos Guardian Tail
+{ 0x008992C0, WeaponInfusionType::STANDARD }, // Standard Four-Pronged Plow
+{ 0x00899324, WeaponInfusionType::CRYSTAL }, // Crystal Four-Pronged Plow
+{ 0x00899388, WeaponInfusionType::LIGHTNING }, // Lightning Four-Pronged Plow
+{ 0x008993EC, WeaponInfusionType::RAW }, // Raw Four-Pronged Plow
+{ 0x00899450, WeaponInfusionType::MAGIC }, // Magic Four-Pronged Plow
+{ 0x008994B4, WeaponInfusionType::ENCHANTED }, // Enchanted Four-Pronged Plow
+{ 0x00899518, WeaponInfusionType::DIVINE }, // Divine Four-Pronged Plow
+{ 0x0089957C, WeaponInfusionType::OCCULT }, // Occult Four-Pronged Plow
+{ 0x008995E0, WeaponInfusionType::FIRE }, // Fire Four-Pronged Plow
+{ 0x00899644, WeaponInfusionType::CHAOS }, // Chaos Four-Pronged Plow
 { 0x000186A0, WeaponInfusionType::STANDARD }, // Dagger
 { 0x00018704, WeaponInfusionType::CRYSTAL }, // Crystal Dagger
 { 0x00018768, WeaponInfusionType::LIGHTNING }, // Lightning Dagger
@@ -1110,43 +1128,43 @@ std::unordered_map<uint64_t, WeaponInfusionType> weapon_ids = {
 { 0x0007AD3C, WeaponInfusionType::UNIQUE }, // Chaos Blade
 { 0x0007ADA0, WeaponInfusionType::UNIQUE }, // Chaos Blade
 { 0x0010D0B0, WeaponInfusionType::UNIQUE }, // Titanite Catch Pole
-{ 0x001587B8, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x0015881C, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158880, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x001588E4, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158948, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x001589AC, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158A10, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158A74, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158AD8, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158B3C, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158BA0, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158C04, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158C68, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158CCC, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158D30, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158D94, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158DF8, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158E5C, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158EC0, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158F24, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158F88, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00158FEC, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00159050, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x001590B4, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00159118, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x0015917C, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x001591E0, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00159244, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x001592A8, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x0015930C, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00159370, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x001593D4, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00159438, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x0015949C, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00159500, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x00159564, WeaponInfusionType::UNIQUE }, // C. Ring Shield
-{ 0x001595C8, WeaponInfusionType::UNIQUE }, // C. Ring Shield
+{ 0x001587B8, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x0015881C, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158880, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x001588E4, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158948, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x001589AC, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158A10, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158A74, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158AD8, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158B3C, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158BA0, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158C04, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158C68, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158CCC, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158D30, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158D94, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158DF8, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158E5C, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158EC0, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158F24, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158F88, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00158FEC, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00159050, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x001590B4, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00159118, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x0015917C, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x001591E0, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00159244, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x001592A8, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x0015930C, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00159370, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x001593D4, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00159438, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x0015949C, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00159500, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x00159564, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
+{ 0x001595C8, WeaponInfusionType::UNIQUE }, // Crystal Ring Shield
 { 0x000DC758, WeaponInfusionType::UNIQUE }, // Dragon Bone Fist
 { 0x000DC7BC, WeaponInfusionType::UNIQUE }, // Dragon Bone Fist
 { 0x000F59B0, WeaponInfusionType::UNIQUE }, // Silver Knight Spear
@@ -1183,4 +1201,6 @@ std::unordered_map<uint64_t, WeaponInfusionType> weapon_ids = {
 { 0x0012636C, WeaponInfusionType::UNIQUE }, // Darkmoon Bow
 { 0x001263D0, WeaponInfusionType::UNIQUE }, // Darkmoon Bow
 { 0x00126434, WeaponInfusionType::UNIQUE }, // Darkmoon Bow
+{ 0x00898320, WeaponInfusionType::UNIQUE }, // Abyss Greatsword
+{ 0x00898AF0, WeaponInfusionType::UNIQUE }, // Cleansing Greatshield
 };

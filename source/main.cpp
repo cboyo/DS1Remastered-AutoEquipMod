@@ -31,6 +31,7 @@ using f64 = double;
 #include "scanner.cpp"
 #include "yep_clock.cpp"
 #include "os_stuff.cpp"
+#include "weapon_ids.cpp"
 
 //Enums
 

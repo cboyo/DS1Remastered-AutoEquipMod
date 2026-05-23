@@ -14,6 +14,7 @@
 #include <cassert>
 #include <filesystem>
 #include <fstream>
+#include <unordered_map>
 
 using u8  = uint8_t;
 using u16 = uint16_t;
@@ -28,6 +29,7 @@ using f64 = double;
 
 
 //Other modules
+#include "utils.cpp"
 #include "scanner.cpp"
 #include "yep_clock.cpp"
 #include "os_stuff.cpp"
@@ -223,48 +225,6 @@ struct State{
 
 //Utilities
 
-bool in_range(u32 value,u32 a,u32 b){
-    return (value>=a && value<b);
-}
-
-std::string beutify_bytes(u64 bytes){
-
-
-    char suffixes[] = {'K', 'M', 'G', 'T', 'P', 'E', 'Z'};
-
-    /*
-              1B  1
-             12B  12 
-            123B  123
-          1.23KB  1234
-         12.34KB  12345 
-        123.45KB  123456
-          1.23MB  1234567
-         12.34MB  12345678 
-        123.45MB  123456789 
-          1.23GB  1234567890
-             ...
-    */
-
-    if(bytes < 1000) return std::to_string(bytes) + "B";
-
-    int power = 0;
-    while(bytes > 1'000'000){
-        bytes /= 1000;
-        power += 1;
-    }
-    //We only want 2 decimals
-    bytes /= 10;
-    u64 integral = bytes / 100;
-    u64 dec = bytes % 100;
-    return std::to_string(integral) + '.' + std::to_string(dec) + suffixes[power] + 'B';
-}
-
-template<typename T>
-void* offset_address(void* base, T offset){
-    return (void*)((u8*) base + offset);
-}
-
 ArmorType armor_type_from_id(u32 armor_id){
     u32 type = ((armor_id % 10000u) / 1000u);
     if(type < 4) return (ArmorType)type;
@@ -387,7 +347,62 @@ std::string get_weapon_enchantment_name(u64 weapon_id){
 
 }
 
+u32 get_weapon_id_for_level(u32 weapon_id, int level){
 
+    if(level == 0)return weapon_id;
+
+    for(s32 i = 0; i <= 15; i++){
+        u32 search_weapon_id = weapon_id - i; 
+        if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
+            WeaponInfusionType weapon_type = weapon_ids.at(search_weapon_id);
+            if(weapon_type == WeaponInfusionType::NoUpgrade){
+                return search_weapon_id;
+            }
+            else if(weapon_type == WeaponInfusionType::Unique || weapon_type == WeaponInfusionType::Crystal || weapon_type == WeaponInfusionType::Lightning || weapon_type == WeaponInfusionType::Occult || weapon_type == WeaponInfusionType::Chaos || weapon_type == WeaponInfusionType::Raw){
+                return search_weapon_id + (level / 3);
+            }
+            else if(weapon_type == WeaponInfusionType::Divine || weapon_type == WeaponInfusionType::Magic || weapon_type == WeaponInfusionType::Fire){
+                return search_weapon_id + ((level * 2) / 3);
+            }
+            return search_weapon_id + level;
+        }
+    }
+    std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
+    return weapon_id;
+}
+
+s32 weapon_level_from_id(u32 weapon_id){
+
+    for(s32 i = 0; i <= 15; i++){
+        if(weapon_ids.find(weapon_id-i) != weapon_ids.end()){
+            // Found base (+0) weapon, now determine infusion type to calculate level
+            weapon_id = weapon_id - i;
+            WeaponInfusionType weapon_type = weapon_ids.at(weapon_id);
+            if(weapon_type == WeaponInfusionType::NoUpgrade){
+                return 0;
+            }
+            else if(i <= 5 && weapon_type == WeaponInfusionType::Unique){
+                // Scale unique levels 1-5 up to 15.
+                return i * 3;
+            }
+            else if(i <= 5 && weapon_type == WeaponInfusionType::Raw){
+                // Raw infusion caps at +5 for 10 total levels
+                return i + 5;
+            }
+            else if(i <= 5 && (weapon_type == WeaponInfusionType::Crystal || weapon_type == WeaponInfusionType::Lightning || weapon_type == WeaponInfusionType::Occult || weapon_type == WeaponInfusionType::Chaos || weapon_type == WeaponInfusionType::Enchanted)){
+                // Infusions already effectively at +10
+                return i + 10;
+            }
+            else if(i <= 10 && (weapon_type == WeaponInfusionType::Divine || weapon_type == WeaponInfusionType::Magic || weapon_type == WeaponInfusionType::Fire)){
+                // Infusions already effectively at +5
+                return i + 5;
+            }
+            return i;
+        }
+    }
+    std::cout<<"Unable to find matching level for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
+    return 0;
+}
 
 
 
@@ -438,8 +453,8 @@ bool read_ds1r_flag(Process& process, void* flags_base_address, u64 flag_id){
 
     u32 value;
     if(read_memory(process, offset_address(flags_base_address, offset), value)){
+        // std::cout<<offset_address(flags_base_address, offset)<<" "<<value<<" "<<mask<<" "<<((value & mask) > 0)<<'\n';
         return ((value & mask) > 0);
-        std::cout<<offset_address(flags_base_address, offset)<<" "<<value<<" "<<mask<<" "<<((value & mask) > 0)<<'\n';
     }
     std::cout<<"Failed to read flag value: "<<flag_id<<'\n';
     std::cout<<"\tGroup:"<<group<<" Area:"<<area<<" Section:"<<section<<" Number:"<<number<<'\n';
@@ -606,14 +621,9 @@ bool find_addresses(State& state){
     if(inventory_address.size()>1){
         std::cout<<"Multiple signatures found, can't pin down correct address\n";
         return false;
-        std::cout<<"Try restarting the game or wait for another scan\n";
-        Sleep(5000);
     }else if(inventory_address.size()==0){
         std::cout<<"No signatures found, can't pin down correct address\n";
         return false;
-
-        std::cout<<"Try restarting the game or wait for another scan\n";
-        Sleep(5000);
     }else{
 
         if(state.config.count_bosses_defeated){
@@ -632,8 +642,29 @@ bool find_addresses(State& state){
 }
 
 
-// Program actions
 
+
+// Program actions
+bool read_weapon_slot(State& state, u32& weapon_id){
+    // read currently equipped weapon id from right hand slot (offset +4)
+    void* weapon_id_ptr = offset_address(state.addrs.weapon_id, 4);
+
+    /*
+        Why sizeof(u32)*2u? -> Bad copy paste from the rings logic?
+        if(!ReadProcessMemory(state.process.handle,weapon_id_ptr, weapon_id, sizeof(u32)*2u,nullptr)){
+    */
+    if(!ReadProcessMemory(state.process.handle,weapon_id_ptr, &weapon_id, sizeof(weapon_id), nullptr)){
+        return false;
+    }
+    return true;
+}
+
+void write_inv_slot(State& state, InvSlot& slot, u32 inv_index){
+    void* inv_slot_ptr = offset_address(state.addrs.inv, inv_index * sizeof(InvSlot));
+    if(!WriteProcessMemory(state.process.handle, inv_slot_ptr, &slot, sizeof(slot), nullptr)){
+        std::cout<<"Failed to write inventory slot back\n";
+    }
+}
 Change identify_change(const InvSlot& old,const InvSlot& current){
     if(old.valid&&!current.valid){
         //Removed item from inventory we don't care about this i think
@@ -667,7 +698,7 @@ Change identify_change(const InvSlot& old,const InvSlot& current){
 }
 
 void write_id_and_slot(State& state, u32 item_id, void* id_ptr, u32 slot, void* slot_ptr){
-    if(id_ptr&&slot_ptr){
+    if(id_ptr && slot_ptr){
         if(!WriteProcessMemory(state.process.handle, id_ptr, &item_id, sizeof(item_id), nullptr)){
             std::cout<<"Failed to write item id, item not equipped\n";
         }
@@ -689,7 +720,7 @@ void write_rings_slots(State& state, RingSlots& rings){
     }
 }
 
-bool read_ring_slots(State& state,RingSlots& ring_slot){
+bool read_ring_slots(State& state, RingSlots& ring_slot){
     //@CAUTION: Trick to read both in only one pass assumes that left and right are contiguous in memory
     if(!ReadProcessMemory(state.process.handle, state.addrs.ring_id, &ring_slot.left_id, sizeof(u32)*2u, nullptr)){
         return false;
@@ -700,7 +731,7 @@ bool read_ring_slots(State& state,RingSlots& ring_slot){
     return true;
 }
 
-void execute_change(Change change, State& state, size_t inv_index){
+void execute_change(Change change, State& state, u32 inv_index){
 
     if(change == Change::Null)return; //Also redundant
 
@@ -747,16 +778,29 @@ void execute_change(Change change, State& state, size_t inv_index){
             }else if(weapon_type == WeaponType::Bolt){
                 std::cout<<"Equip bolts\n";
                 offset=20;
-            }else if(weapon_type == WeaponType::RightHand){
-                std::cout<<"Equip right hand weapon\n";
-                offset = 4;
             }else if(weapon_type == WeaponType::LeftHand){
                 std::cout<<"Equip left hand weapon\n";
                 offset = 0;//Redundant
+            }else if(weapon_type == WeaponType::RightHand){
+                std::cout<<"Equip right hand weapon\n";
+                offset = 4;
+
+                u32 equipped_weapon_id = 0;
+                if(read_weapon_slot(state, equipped_weapon_id)){
+                    s32 existing_weapon_level = weapon_level_from_id(equipped_weapon_id);
+                    std::cout<<"Detected existing weapon level (scaled 0-15): "<<existing_weapon_level<<"\n";
+                    item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
+                    state.inventory_copy[inv_index].id = item_id;
+                    write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
+                }
+                else{
+                    std::cout<<"Failed to read currently equipped weapon, equipping incoming weapon unmodified\n";
+                }
+
             }
             id_ptr   = offset_address(addrs.weapon_id,   offset);
             slot_ptr = offset_address(addrs.weapon_slot, offset);
-            write_id_and_slot(state,item_id,id_ptr,inv_index,slot_ptr);
+            write_id_and_slot(state, item_id, id_ptr, inv_index, slot_ptr);
         }
     }else if(change==Change::EquipRing && state.config.equip_ring){
         //V0.3 change
@@ -802,7 +846,7 @@ void update_loop(State& state){
     while(true){
         if(state.state==AppState::FindingGame){
             if(!trying_to_find){
-                std::cout<<"Trying to find Darks Souls Remastered process\n";
+                std::cout<<"Trying to find Dark Souls Remastered process\n";
                 trying_to_find = true;
                 search_fails = 0;
             }
@@ -991,6 +1035,7 @@ bool read_config_file(State& state){
     }
 
     parse_confing_file(file_contents, state.config);
+    return true;
 }
 
 int exit_with_error(std::string error_message){

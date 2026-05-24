@@ -96,6 +96,7 @@ struct ConfigOptions{
     bool equip_glove = true;
     bool equip_pants = true;
     bool equip_ring = true;
+    bool auto_upgrades = false;
     bool count_bosses_defeated = false;
 
 };
@@ -179,7 +180,7 @@ u32 get_weapon_id_for_level(u32 weapon_id, f32 level){
     //We can extract the weapon level with modulo 100
 
     u32 search_weapon_id = (weapon_id / 100) * 100;
-    f32 weapon_level = (f32)(weapon_id % 100);
+
 
     if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
         f32 weapon_level_out = 0.f;
@@ -245,8 +246,8 @@ f32 get_weapon_level_from_id(u32 weapon_id){
             case WeaponUpgradePath::Raw:
                 // Levels 0-5
                 // Raw infusion caps at +5 for 10 total levels
-                weapon_level_out = weapon_level + 5.f;
-
+                // weapon_level_out = weapon_level + 5.f;
+                weapon_level_out = weapon_level * 3.f;
                 //Proposed balance weapon_level_out = weapon_level * 3;
                 break;
             case WeaponUpgradePath::Divine:
@@ -254,9 +255,9 @@ f32 get_weapon_level_from_id(u32 weapon_id){
             case WeaponUpgradePath::Fire:
                 //Levels 0-10
                 // Infusions already effectively at +5
-                weapon_level_out = weapon_level + 5.f;
-
+                // weapon_level_out = weapon_level + 5.f;
                 //Proposed balance weapon_level_out = (weapon_level * 3) / 2;
+                weapon_level_out = (weapon_level * 3.f) / 2.f;
                 break;
             case WeaponUpgradePath::Crystal: 
             case WeaponUpgradePath::Lightning:
@@ -265,9 +266,9 @@ f32 get_weapon_level_from_id(u32 weapon_id){
             case WeaponUpgradePath::Enchanted:
                 // Levels 0-5
                 // Infusions already effectively at +10
-                weapon_level_out = weapon_level + 10.f;
-
-                //Proposed balance weapon_level_out = weapon_level * 3;
+                // weapon_level_out = weapon_level + 10.f;
+                weapon_level_out = weapon_level * 3.f;
+                //Proposed balance 
                 break;
             default:
                 // Scale unique levels 0-5 up to 15.
@@ -663,22 +664,28 @@ void execute_change(Change change, State& state, u32 inv_index){
                 std::cout<<"Equip left hand weapon\n";
                 offset = 0;//Redundant
             }else if(weapon_type == WeaponType::RightHand){
-                std::cout<<"Equip right hand weapon\n";
                 offset = 4;
+                std::cout<<"Equip right hand weapon";
 
-                // u32 equipped_weapon_id = 0;
-                // if(read_weapon_slot(state, equipped_weapon_id)){
+                if(state.config.auto_upgrades){
 
-                //     f32 existing_weapon_level = get_weapon_level_from_id(equipped_weapon_id);
-                //     std::cout<<"Detected existing weapon level (scaled 0-15): "<<existing_weapon_level<<"\n";
-                //     item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
-                //     state.inventory_copy[inv_index].id = item_id;
-                //     write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
+                    u32 equipped_weapon_id = 0;
+                    if(read_weapon_slot(state, equipped_weapon_id)){
 
-                // }else{
-                //     std::cout<<"Failed to read currently equipped weapon, equipping incoming weapon unmodified\n";
-                // }
-
+                        f32 existing_weapon_level = get_weapon_level_from_id(equipped_weapon_id);
+                        // std::cout<<"Detected existing weapon level (scaled 0-15): "<<existing_weapon_level<<"\n";
+                        item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
+                        state.inventory_copy[inv_index].id = item_id;
+                        write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
+                        u32 upgrade_level = item_id %100;
+                        if(upgrade_level > 0){
+                            std::cout<<". Upgraded to +"<<upgrade_level;
+                        }
+                    }else{
+                        std::cout<<"Failed to read currently equipped weapon, equipping weapon unmodified\n";
+                    }
+                }
+                std::cout<<'\n';
             }
             id_ptr   = offset_address(addrs.weapon_id,   offset);
             slot_ptr = offset_address(addrs.weapon_slot, offset);
@@ -881,6 +888,9 @@ void parse_confing_file(std::string& buffer, ConfigOptions& config){
                 if(std::strcmp(var_name, "ring") == 0){
                     config.equip_ring = var_value;
                 }        
+                if(std::strcmp(var_name, "keep_upgrades") == 0){
+                    config.auto_upgrades = var_value;
+                }        
                 if(std::strcmp(var_name, "boss_defeated_count") == 0){
                     config.count_bosses_defeated = var_value;
                 }        
@@ -908,6 +918,7 @@ bool read_config_file(State& state){
         file_contents += "gloves 1\n";
         file_contents += "pants 1\n";
         file_contents += "ring 1\n";
+        file_contents += "keep_upgrades 0\n";
         file_contents += "boss_defeated_count 0\n";
         ///////////////////////////////////////////
         if(!std::filesystem::exists(config_file_path)){

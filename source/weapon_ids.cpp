@@ -662,7 +662,7 @@ std::unordered_map<uint64_t, WeaponUpgradePath> weapon_ids = {
 {  902900 ,            WeaponUpgradePath::Chaos }, // Claw [Chaos]
 {  903000 ,      WeaponUpgradePath::DragonGolem }, // Dragon Bone Fist [Caestus]
 {  903100 ,      WeaponUpgradePath::DragonGolem }, // Dragon Bone Fist [Claw]
-{  904000 ,         WeaponUpgradePath::Standard }, // Dark Hand
+{  904000 ,        WeaponUpgradePath::NoUpgrade }, // Dark Hand
 {  999000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Fist
 { 1000000 ,         WeaponUpgradePath::Standard }, // Spear
 { 1000100 ,          WeaponUpgradePath::Crystal }, // Spear [Crystal]

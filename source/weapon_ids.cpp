@@ -1,5 +1,6 @@
 
-enum class WeaponUpgradePath{
+enum class WeaponUpgradePath : s32{
+    Unknown = -2,
     NoUpgrade = -1,
     Standard = 0,
     Crystal = 100,
@@ -58,7 +59,7 @@ std::unordered_map<WeaponUpgradePath, std::string> upgrade_path_names = {
 };
 
 
-std::unordered_map<uint64_t, WeaponUpgradePath> weapon_ids = {
+std::unordered_map<u32, WeaponUpgradePath> weapon_ids = {
 {  100000 ,         WeaponUpgradePath::Standard }, // Dagger
 {  100100 ,          WeaponUpgradePath::Crystal }, // Dagger [Crystal]
 {  100200 ,        WeaponUpgradePath::Lightning }, // Dagger [Lightning]

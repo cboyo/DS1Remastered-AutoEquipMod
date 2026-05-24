@@ -7,6 +7,11 @@ bool in_range(u32 value,u32 a,u32 b){
     return (value>=a && value<b);
 }
 
+template<typename T>
+void make_max(T& modifiable, const T& test_value){
+    if(modifiable < test_value) modifiable = test_value;
+}
+
 std::string beutify_bytes(u64 bytes){
 
 

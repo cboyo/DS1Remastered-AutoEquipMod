@@ -70,7 +70,11 @@ enum class WeaponType:u32{
 };
 
 enum class Change{
-    Null=0,EquipWeapon,EquipArmor,EquipRing
+    Null=0,
+    EquipWeapon,
+    EquipArmor,
+    EquipRing,
+    UpgradedWeapon
 };
 
 //structs
@@ -90,13 +94,13 @@ struct Addresses{
 
 struct ConfigOptions{
 
+    s32 auto_upgrades = 0;
     bool equip_weapons = true;
     bool equip_head = true;
     bool equip_chest = true;
     bool equip_glove = true;
     bool equip_pants = true;
     bool equip_ring = true;
-    bool auto_upgrades = false;
     bool count_bosses_defeated = false;
 
 };
@@ -127,6 +131,49 @@ struct RingSlots{
     u32 right_slot{0xFFFFFFFF};
 };
 
+struct UpgradeLevels{
+    s32 standard = 0;
+    s32 crystal = 0;
+    s32 lighting = 0;
+    s32 raw = 0;
+    s32 magic = 0;
+    s32 enchanted = 0;
+    s32 divine = 0;
+    s32 occult = 0;
+    s32 fire = 0;
+    s32 chaos = 0;
+    s32 dragon = 0;
+    s32 twinkling = 0;
+    s32 demon = 0;
+
+    // NoUpgrade = -1,
+    // Standard = 0,
+    // Crystal = 100,
+    // Lightning = 200,
+    // Raw = 300,
+    // Magic = 400,
+    // Enchanted = 500,
+    // Divine = 600,
+    // Occult = 700,
+    // Fire = 800,
+    // Chaos = 900,
+    // Dragon = 1100,
+    // DragonGolem = 2200,
+    // Twinkling = 1200,
+    // DemonSif = 1300, 
+    // DemonGwyn = 1400, 
+    // DemonQuelaag = 1500,
+    // DemonOrnstein = 1600,
+    // DemonButterfly = 1700,
+    // DemonGolem = 1800,
+    // DemonSmough = 1900,
+    // DemonPriscilla = 2000,
+    // DemonGwyndolin = 2100,
+    // DemonNonBoss = 2300,
+    // DemonArtorias = 2400,
+    // DemonManus = 2500,
+};
+
 using inv_t = std::array<InvSlot,2048>;
 struct State{
     AppState state;
@@ -135,6 +182,7 @@ struct State{
     ConfigOptions config;
     inv_t inventory;
     inv_t inventory_copy;
+    UpgradeLevels upg_levels;
     //int ring_slot{0};  Removed as of v0.3 update
 };
 
@@ -167,6 +215,16 @@ WeaponType weapon_type_from_id(u32 weapon_id){
     //I should really do a better check for invalid values
     //Default to right hand
     return WeaponType::RightHand;
+}
+
+WeaponUpgradePath get_weapon_path_from_id(u32 weapon_id){
+    weapon_id = (weapon_id / 100) * 100;
+    auto f = weapon_ids.find(weapon_id);
+    if(f != weapon_ids.end()){
+        return weapon_ids[weapon_id];
+    }else{
+        return WeaponUpgradePath::Unknown;
+    }
 }
 
 u32 get_weapon_id_for_level(u32 weapon_id, f32 level){
@@ -571,9 +629,9 @@ Change identify_change(const InvSlot& old,const InvSlot& current){
             //Probably some durability or amount change we don't care about those
             return Change::Null;
         }else if(current.type==ItemType::Weapon&&old.type==current.type){
-            std::cout<<"Detected weapon upgrade\n";
             //Upgraded weapon most likely
-            return Change::Null;
+            std::cout<<"Detected weapon upgrade\n";
+            return Change::UpgradedWeapon;
         }
     }
     //Default to null
@@ -614,6 +672,72 @@ bool read_ring_slots(State& state, RingSlots& ring_slot){
     return true;
 }
 
+void update_weapon_level(State& state, u32 weapon_id){
+    s32 weapon_level = weapon_id % 100;
+    if(weapon_level > 0){
+        WeaponUpgradePath path = get_weapon_path_from_id(weapon_id);
+        switch(path){
+            case WeaponUpgradePath::Unknown:
+            case WeaponUpgradePath::NoUpgrade:
+                break;
+            case WeaponUpgradePath::Standard:
+                make_max(state.upg_levels.standard, weapon_level);
+                break;
+            case WeaponUpgradePath::Raw:
+                make_max(state.upg_levels.raw, weapon_level);
+                break;
+            case WeaponUpgradePath::Divine:
+                make_max(state.upg_levels.divine, weapon_level);
+                break;
+            case WeaponUpgradePath::Magic:
+                make_max(state.upg_levels.magic, weapon_level);
+                break;
+            case WeaponUpgradePath::Fire:
+                make_max(state.upg_levels.fire, weapon_level);
+                break;
+            case WeaponUpgradePath::Crystal: 
+                make_max(state.upg_levels.crystal, weapon_level);
+                break;
+            case WeaponUpgradePath::Lightning:
+                make_max(state.upg_levels.lighting, weapon_level);
+                break;
+            case WeaponUpgradePath::Occult:
+                make_max(state.upg_levels.occult, weapon_level);
+                break;
+            case WeaponUpgradePath::Chaos:
+                make_max(state.upg_levels.chaos, weapon_level);
+                break;
+            case WeaponUpgradePath::Enchanted:
+                make_max(state.upg_levels.enchanted, weapon_level);
+                break;
+            case WeaponUpgradePath::Twinkling:
+                make_max(state.upg_levels.twinkling, weapon_level);
+                break;
+            case WeaponUpgradePath::Dragon:
+            case WeaponUpgradePath::DragonGolem:
+                make_max(state.upg_levels.dragon, weapon_level);
+                break;
+            default:
+                make_max(state.upg_levels.demon, weapon_level);
+                break;
+        }
+        std::cout<<"Standard: "<<state.upg_levels.standard<<'\n';
+        std::cout<<"Crystal: "<<state.upg_levels.crystal<<'\n';
+        std::cout<<"Lighting: "<<state.upg_levels.lighting<<'\n';
+        std::cout<<"Raw: "<<state.upg_levels.raw<<'\n';
+        std::cout<<"Magic: "<<state.upg_levels.magic<<'\n';
+        std::cout<<"Enchanted: "<<state.upg_levels.enchanted<<'\n';
+        std::cout<<"Divine: "<<state.upg_levels.divine<<'\n';
+        std::cout<<"Occult: "<<state.upg_levels.occult<<'\n';
+        std::cout<<"Fire: "<<state.upg_levels.fire<<'\n';
+        std::cout<<"Chaos: "<<state.upg_levels.chaos<<'\n';
+        std::cout<<"Twinkling: "<<state.upg_levels.twinkling<<'\n';
+        std::cout<<"Dragon: "<<state.upg_levels.dragon<<'\n';
+        std::cout<<"Demon: "<<state.upg_levels.demon<<'\n';
+    }
+}
+
+
 void execute_change(Change change, State& state, u32 inv_index){
     if(change == Change::Null)return; //Also redundant
 
@@ -649,7 +773,7 @@ void execute_change(Change change, State& state, u32 inv_index){
             }
         }
     }else if(change == Change::EquipWeapon && state.config.equip_weapons){
-        auto weapon_type = weapon_type_from_id(item_id);
+        WeaponType weapon_type = weapon_type_from_id(item_id);
         if(weapon_type == WeaponType::Unknown){
             std::cout<<"Unknown weapon type, no action executed\n";
         }else{
@@ -667,8 +791,8 @@ void execute_change(Change change, State& state, u32 inv_index){
                 offset = 4;
                 std::cout<<"Equip right hand weapon";
 
-                if(state.config.auto_upgrades){
-
+                if(state.config.auto_upgrades == 2){
+                    
                     u32 equipped_weapon_id = 0;
                     if(read_weapon_slot(state, equipped_weapon_id)){
 
@@ -677,12 +801,69 @@ void execute_change(Change change, State& state, u32 inv_index){
                         item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
                         state.inventory_copy[inv_index].id = item_id;
                         write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
-                        u32 upgrade_level = item_id %100;
-                        if(upgrade_level > 0){
-                            std::cout<<". Upgraded to +"<<upgrade_level;
+                        u32 upgrades = item_id % 100;
+                        if(upgrades > 0){
+                            std::cout<<". Upgraded to +"<<upgrades;
                         }
                     }else{
                         std::cout<<"Failed to read currently equipped weapon, equipping weapon unmodified\n";
+                    }
+                    update_weapon_level(state, item_id);
+                }else if(state.config.auto_upgrades == 1){
+                    
+                    WeaponUpgradePath path = get_weapon_path_from_id(item_id);
+                    u32 upgrades = 0;
+                    switch(path){
+                        case WeaponUpgradePath::Unknown:
+                        case WeaponUpgradePath::NoUpgrade:
+                            break;
+                        case WeaponUpgradePath::Standard:
+                            upgrades = state.upg_levels.standard;
+                            break;
+                        case WeaponUpgradePath::Raw:
+                            upgrades = state.upg_levels.raw;
+                            break;
+                        case WeaponUpgradePath::Divine:
+                            upgrades = state.upg_levels.divine;
+                            break;
+                        case WeaponUpgradePath::Magic:
+                            upgrades = state.upg_levels.magic;
+                            break;
+                        case WeaponUpgradePath::Fire:
+                            upgrades = state.upg_levels.fire;
+                            break;
+                        case WeaponUpgradePath::Crystal: 
+                            upgrades = state.upg_levels.crystal;
+                            break;
+                        case WeaponUpgradePath::Lightning:
+                            upgrades = state.upg_levels.lighting;
+                            break;
+                        case WeaponUpgradePath::Occult:
+                            upgrades = state.upg_levels.occult;
+                            break;
+                        case WeaponUpgradePath::Chaos:
+                            upgrades = state.upg_levels.chaos;
+                            break;
+                        case WeaponUpgradePath::Enchanted:
+                            upgrades = state.upg_levels.enchanted;
+                            break;
+                        case WeaponUpgradePath::Twinkling:
+                            upgrades = state.upg_levels.twinkling;
+                            break;
+                        case WeaponUpgradePath::Dragon:
+                        case WeaponUpgradePath::DragonGolem:
+                            upgrades = state.upg_levels.dragon;
+                            break;
+                        default:
+                            upgrades = state.upg_levels.demon;
+                            break;
+                    }
+                    
+                    item_id = ((item_id / 100) * 100) + upgrades;
+                    state.inventory_copy[inv_index].id = item_id;
+                    write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
+                    if(upgrades > 0){
+                        std::cout<<". Upgraded to +"<<upgrades;
                     }
                 }
                 std::cout<<'\n';
@@ -716,11 +897,50 @@ void execute_change(Change change, State& state, u32 inv_index){
         ring_slots.left_id   = item_id;
         ring_slots.left_slot = inv_index;
         write_rings_slots(state, ring_slots); 
+    }else if(change == Change::UpgradedWeapon && state.config.auto_upgrades){
+        update_weapon_level(state, item_id);
     }
 }
 
 
+bool initial_inv_read(State& state){
 
+    if(read_inventory(state.process, state.addrs.inv, state.inventory)){
+        if(state.config.auto_upgrades){
+            //Important to reset the levels between sessions/characters
+            state.upg_levels = {};
+
+            for(s32 i = 0; i<state.inventory.size(); i++){
+                InvSlot& slot = state.inventory[i];
+                if(slot.valid && slot.type == ItemType::Weapon){
+                    update_weapon_level(state, slot.id);                   
+                }
+            }
+
+            // std::cout<<"Standard: "<<state.upg_levels.standard<<'\n';
+            // std::cout<<"Crystal: "<<state.upg_levels.crystal<<'\n';
+            // std::cout<<"Lighting: "<<state.upg_levels.lighting<<'\n';
+            // std::cout<<"Raw: "<<state.upg_levels.raw<<'\n';
+            // std::cout<<"Magic: "<<state.upg_levels.magic<<'\n';
+            // std::cout<<"Enchanted: "<<state.upg_levels.enchanted<<'\n';
+            // std::cout<<"Divine: "<<state.upg_levels.divine<<'\n';
+            // std::cout<<"Occult: "<<state.upg_levels.occult<<'\n';
+            // std::cout<<"Fire: "<<state.upg_levels.fire<<'\n';
+            // std::cout<<"Chaos: "<<state.upg_levels.chaos<<'\n';
+            // std::cout<<"Twinkling: "<<state.upg_levels.twinkling<<'\n';
+            // std::cout<<"Dragon: "<<state.upg_levels.dragon<<'\n';
+            // std::cout<<"Demon: "<<state.upg_levels.demon<<'\n';
+
+        }
+
+        return true;
+    }else{
+        return false;
+    }
+
+
+
+}
 
 // Program logic
 
@@ -783,9 +1003,9 @@ void update_loop(State& state){
             }
 
         }else if(state.state==AppState::InvStart){
-            auto good = read_inventory(state.process, state.addrs.inv, state.inventory);
+            bool good = initial_inv_read(state);
             if(good){
-                state.state=AppState::InvUpdate;
+                state.state = AppState::InvUpdate;
                 std::cout<<"Initial inventory read successful\n";
             }else{
                 std::cout<<"Initial inventory read failed, trying again\n";
@@ -867,34 +1087,33 @@ void parse_confing_file(std::string& buffer, ConfigOptions& config){
             std::sscanf(buffer_copy.data(), "%31s %i", var_name, &var_value);
 
 
-            if(var_value == 0 || var_value == 1){
 
-                std::cout<<"\""<<var_name<<"\" "<<var_value<<'\n';
-                if(std::strcmp(var_name, "weapon") == 0){
-                    config.equip_weapons = var_value;
-                }        
-                if(std::strcmp(var_name, "head") == 0){
-                    config.equip_head = var_value;
-                }        
-                if(std::strcmp(var_name, "chest") == 0){
-                    config.equip_chest = var_value;
-                }        
-                if(std::strcmp(var_name, "gloves") == 0){
-                    config.equip_glove = var_value;
-                }        
-                if(std::strcmp(var_name, "pants") == 0){
-                    config.equip_pants = var_value;
-                }        
-                if(std::strcmp(var_name, "ring") == 0){
-                    config.equip_ring = var_value;
-                }        
-                if(std::strcmp(var_name, "keep_upgrades") == 0){
-                    config.auto_upgrades = var_value;
-                }        
-                if(std::strcmp(var_name, "boss_defeated_count") == 0){
-                    config.count_bosses_defeated = var_value;
-                }        
-            }
+            std::cout<<"\""<<var_name<<"\" "<<var_value<<'\n';
+            if(std::strcmp(var_name, "weapon") == 0){
+                config.equip_weapons = var_value;
+            }        
+            if(std::strcmp(var_name, "head") == 0){
+                config.equip_head = var_value;
+            }        
+            if(std::strcmp(var_name, "chest") == 0){
+                config.equip_chest = var_value;
+            }        
+            if(std::strcmp(var_name, "gloves") == 0){
+                config.equip_glove = var_value;
+            }        
+            if(std::strcmp(var_name, "pants") == 0){
+                config.equip_pants = var_value;
+            }        
+            if(std::strcmp(var_name, "ring") == 0){
+                config.equip_ring = var_value;
+            }        
+            if(std::strcmp(var_name, "keep_upgrades") == 0){
+                config.auto_upgrades = var_value;
+            }        
+            if(std::strcmp(var_name, "boss_defeated_count") == 0){
+                config.count_bosses_defeated = var_value;
+            }        
+            
 
             buffer_copy.clear();
             memset(var_name, 0, sizeof(var_name) * sizeof(*var_name));

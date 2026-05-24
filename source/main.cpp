@@ -252,156 +252,81 @@ WeaponType weapon_type_from_id(u32 weapon_id){
     return WeaponType::RightHand;
 }
 
-std::string get_weapon_enchantment_name(u64 weapon_id){
+u32 get_weapon_id_for_level(u32 weapon_id, s32 level){
 
-    Reinforcement reinforcement_id = (Reinforcement)(weapon_id % 1000);
+    std::cout<<"Get_weapon_id_for_level: "<<weapon_id<<" "<<level<<'\n';
 
-    switch(reinforcement_id){
-        case Reinforcement::Normal_0:  return "Normal_0";break;
-        case Reinforcement::Normal_1:   return "Normal_1";break;
-        case Reinforcement::Normal_2:   return "Normal_2";break;
-        case Reinforcement::Normal_3:   return "Normal_3";break;
-        case Reinforcement::Normal_4:   return "Normal_4";break;
-        case Reinforcement::Normal_5:   return "Normal_5";break;
-        case Reinforcement::Normal_6:   return "Normal_6";break;
-        case Reinforcement::Normal_7:   return "Normal_7";break;
-        case Reinforcement::Normal_8:   return "Normal_8";break;
-        case Reinforcement::Normal_9:   return "Normal_9";break;
-        case Reinforcement::Normal_10:  return "Normal_10";break;
-        case Reinforcement::Normal_11:  return "Normal_11";break;
-        case Reinforcement::Normal_12:  return "Normal_12";break;
-        case Reinforcement::Normal_13:  return "Normal_13";break;
-        case Reinforcement::Normal_14:  return "Normal_14";break;
-        case Reinforcement::Normal_15:  return "Normal_15";break;
-        case Reinforcement::Crystal_0:  return "Crystal_0";break;
-        case Reinforcement::Crystal_1:  return "Crystal_1";break;
-        case Reinforcement::Crystal_2:  return "Crystal_2";break;
-        case Reinforcement::Crystal_3:  return "Crystal_3";break;
-        case Reinforcement::Crystal_4:  return "Crystal_4";break;
-        case Reinforcement::Crystal_5:  return "Crystal_5";break;
-        case Reinforcement::Light_0:    return "Light_0";break;
-        case Reinforcement::Light_1:    return "Light_1";break;
-        case Reinforcement::Light_2:    return "Light_2";break;
-        case Reinforcement::Light_3:    return "Light_3";break;
-        case Reinforcement::Light_4:    return "Light_4";break;
-        case Reinforcement::Light_5:    return "Light_5";break;
-        case Reinforcement::Raw_0:      return "Raw_0";break;
-        case Reinforcement::Raw_1:      return "Raw_1";break;
-        case Reinforcement::Raw_2:      return "Raw_2";break;
-        case Reinforcement::Raw_3:      return "Raw_3";break;
-        case Reinforcement::Raw_4:      return "Raw_4";break;
-        case Reinforcement::Raw_5:      return "Raw_5";break;
-        case Reinforcement::Magic_0:    return "Magic_0";break;
-        case Reinforcement::Magic_1:    return "Magic_1";break;
-        case Reinforcement::Magic_2:    return "Magic_2";break;
-        case Reinforcement::Magic_3:    return "Magic_3";break;
-        case Reinforcement::Magic_4:    return "Magic_4";break;
-        case Reinforcement::Magic_5:    return "Magic_5";break;
-        case Reinforcement::Magic_6:    return "Magic_6";break;
-        case Reinforcement::Magic_7:    return "Magic_7";break;
-        case Reinforcement::Magic_8:    return "Magic_8";break;
-        case Reinforcement::Magic_9:    return "Magic_9";break;
-        case Reinforcement::Magic_10:   return "Magic_10";break;
-        case Reinforcement::Enchanted_0: return "Enchanted_0";break;
-        case Reinforcement::Enchanted_1: return "Enchanted_1";break;
-        case Reinforcement::Enchanted_2: return "Enchanted_2";break;
-        case Reinforcement::Enchanted_3: return "Enchanted_3";break;
-        case Reinforcement::Enchanted_4: return "Enchanted_4";break;
-        case Reinforcement::Enchanted_5: return "Enchanted_5";break;
-        case Reinforcement::Divine_0:   return "Divine_0";break;
-        case Reinforcement::Divine_1:   return "Divine_1";break;
-        case Reinforcement::Divine_2:   return "Divine_2";break;
-        case Reinforcement::Divine_3:   return "Divine_3";break;
-        case Reinforcement::Divine_4:   return "Divine_4";break;
-        case Reinforcement::Divine_5:   return "Divine_5";break;
-        case Reinforcement::Divine_6:   return "Divine_6";break;
-        case Reinforcement::Divine_7:   return "Divine_7";break;
-        case Reinforcement::Divine_8:   return "Divine_8";break;
-        case Reinforcement::Divine_9:   return "Divine_9";break;
-        case Reinforcement::Divine_10:  return "Divine_10";break;
-        case Reinforcement::Occult_0:   return "Occult_0";break;
-        case Reinforcement::Occult_1:   return "Occult_1";break;
-        case Reinforcement::Occult_2:   return "Occult_2";break;
-        case Reinforcement::Occult_3:   return "Occult_3";break;
-        case Reinforcement::Occult_4:   return "Occult_4";break;
-        case Reinforcement::Occult_5:   return "Occult_5";break;
-        case Reinforcement::Fire_0:     return "Fire_0";break;
-        case Reinforcement::Fire_1:     return "Fire_1";break;
-        case Reinforcement::Fire_2:     return "Fire_2";break;
-        case Reinforcement::Fire_3:     return "Fire_3";break;
-        case Reinforcement::Fire_4:     return "Fire_4";break;
-        case Reinforcement::Fire_5:     return "Fire_5";break;
-        case Reinforcement::Fire_6:     return "Fire_6";break;
-        case Reinforcement::Fire_7:     return "Fire_7";break;
-        case Reinforcement::Fire_8:     return "Fire_8";break;
-        case Reinforcement::Fire_9:     return "Fire_9";break;
-        case Reinforcement::Fire_10:    return "Fire_10";break;
-        case Reinforcement::Chaos_0:    return "Chaos_0";break;
-        case Reinforcement::Chaos_1:    return "Chaos_1";break;
-        case Reinforcement::Chaos_2:    return "Chaos_2";break;
-        case Reinforcement::Chaos_3:    return "Chaos_3";break;
-        case Reinforcement::Chaos_4:    return "Chaos_4";break;
-        case Reinforcement::Chaos_5:    return "Chaos_5";break;
-        default:                        return "UNKNOWN";
-    }
+    //What if you pick up an upgraded weapon, should you nerfed it to 0?
+    if(level == 0) return weapon_id;
 
-}
+    //There is no need to iterate like 
+    // for(s32 i = 0; i <= 15; i++){
+    //We can extract the weapon level with modulo 100
 
-u32 get_weapon_id_for_level(u32 weapon_id, int level){
+    u32 weapon_level = weapon_id % 100;
+    u32 search_weapon_id = weapon_id - weapon_level;
+    
+    u32 weapon_level_out = weapon_level;
 
-    if(level == 0)return weapon_id;
-
-    for(s32 i = 0; i <= 15; i++){
-        u32 search_weapon_id = weapon_id - i; 
-        if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
-            WeaponInfusionType weapon_type = weapon_ids.at(search_weapon_id);
-            if(weapon_type == WeaponInfusionType::NoUpgrade){
-                return search_weapon_id;
-            }
-            else if(weapon_type == WeaponInfusionType::Unique || weapon_type == WeaponInfusionType::Crystal || weapon_type == WeaponInfusionType::Lightning || weapon_type == WeaponInfusionType::Occult || weapon_type == WeaponInfusionType::Chaos || weapon_type == WeaponInfusionType::Raw){
-                return search_weapon_id + (level / 3);
-            }
-            else if(weapon_type == WeaponInfusionType::Divine || weapon_type == WeaponInfusionType::Magic || weapon_type == WeaponInfusionType::Fire){
-                return search_weapon_id + ((level * 2) / 3);
-            }
-            return search_weapon_id + level;
+    if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
+        WeaponUpgradePath weapon_type = weapon_ids.at(search_weapon_id);
+        if(weapon_type == WeaponUpgradePath::NoUpgrade){
+            weapon_level_out = 0;
+        }else if((s32)weapon_type > 1000 || weapon_type == WeaponUpgradePath::Crystal || weapon_type == WeaponUpgradePath::Lightning || weapon_type == WeaponUpgradePath::Occult || weapon_type == WeaponUpgradePath::Chaos || weapon_type == WeaponUpgradePath::Raw){
+            weapon_level_out = (level / 3);
+        }else if(weapon_type == WeaponUpgradePath::Divine || weapon_type == WeaponUpgradePath::Magic || weapon_type == WeaponUpgradePath::Fire){
+            weapon_level_out = ((level * 2) / 3);
+        }else{
+            weapon_level_out = level;
         }
+        std::cout<<"Weapon level In: "<<level<<"  Out: "<<weapon_level_out<<'\n';
+        return search_weapon_id + weapon_level_out;
     }
+    
     std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
     return weapon_id;
 }
 
-s32 weapon_level_from_id(u32 weapon_id){
+s32 get_weapon_level_from_id(u32 weapon_id){
 
-    for(s32 i = 0; i <= 15; i++){
-        if(weapon_ids.find(weapon_id-i) != weapon_ids.end()){
-            // Found base (+0) weapon, now determine infusion type to calculate level
-            weapon_id = weapon_id - i;
-            WeaponInfusionType weapon_type = weapon_ids.at(weapon_id);
-            if(weapon_type == WeaponInfusionType::NoUpgrade){
-                return 0;
-            }
-            else if(i <= 5 && weapon_type == WeaponInfusionType::Unique){
-                // Scale unique levels 1-5 up to 15.
-                return i * 3;
-            }
-            else if(i <= 5 && weapon_type == WeaponInfusionType::Raw){
-                // Raw infusion caps at +5 for 10 total levels
-                return i + 5;
-            }
-            else if(i <= 5 && (weapon_type == WeaponInfusionType::Crystal || weapon_type == WeaponInfusionType::Lightning || weapon_type == WeaponInfusionType::Occult || weapon_type == WeaponInfusionType::Chaos || weapon_type == WeaponInfusionType::Enchanted)){
-                // Infusions already effectively at +10
-                return i + 10;
-            }
-            else if(i <= 10 && (weapon_type == WeaponInfusionType::Divine || weapon_type == WeaponInfusionType::Magic || weapon_type == WeaponInfusionType::Fire)){
-                // Infusions already effectively at +5
-                return i + 5;
-            }
-            return i;
+    u32 weapon_level = weapon_id % 100;
+    u32 search_weapon_id = weapon_id - weapon_level; 
+    u32 weapon_level_out = weapon_level;
+    if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
+        // Found base (+0) weapon, now determine infusion type to calculate level
+        weapon_id = search_weapon_id;
+        WeaponUpgradePath weapon_type = weapon_ids.at(weapon_id);
+
+        // std::cout<<upgrade_path_names[weapon_type]<<'\n';
+
+        if(weapon_type == WeaponUpgradePath::NoUpgrade){
+            weapon_level_out = 0;
         }
+        else if(weapon_level <= 5 && (s32)weapon_type > 1000){
+            // Scale unique levels 1-5 up to 15.
+            weapon_level_out = weapon_level * 3;
+        }
+        else if(weapon_level <= 5 && weapon_type == WeaponUpgradePath::Raw){
+            // Raw infusion caps at +5 for 10 total levels
+            weapon_level_out = weapon_level + 5;
+        }
+        else if(weapon_level <= 5 && (weapon_type == WeaponUpgradePath::Crystal || weapon_type == WeaponUpgradePath::Lightning || weapon_type == WeaponUpgradePath::Occult || weapon_type == WeaponUpgradePath::Chaos || weapon_type == WeaponUpgradePath::Enchanted)){
+            // Infusions already effectively at +10
+            weapon_level_out = weapon_level + 10;
+        }
+        else if(weapon_level <= 10 && (weapon_type == WeaponUpgradePath::Divine || weapon_type == WeaponUpgradePath::Magic || weapon_type == WeaponUpgradePath::Fire)){
+            // Infusions already effectively at +5
+            weapon_level_out = weapon_level + 5;
+        }else{
+            weapon_level_out = weapon_level;//Redundant
+        }
+    }else{
+        std::cout<<"Unable to find matching level for weapon: "<<weapon_id<<"\n";
+        return 0;
     }
-    std::cout<<"Unable to find matching level for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
-    return 0;
+    
+    // std::cout<<"In: "<<weapon_level<<" Out: "<<weapon_level_out<<'\n';
+    return weapon_level_out;
 }
 
 
@@ -569,8 +494,8 @@ std::vector<void*> find_inventory_address(Process process){
     void* address = addresses[0];
     s32 my_int = 0;
     //The offset based of 3 and 7 are just based on the cheat engine table
-    read_memory(process, offset_address(address, 3llu), my_int);
-    void* new_ptr = offset_address(offset_address(address, my_int), 7llu);
+    read_memory(process, offset_address(address, 3), my_int);
+    void* new_ptr = offset_address(offset_address(address, my_int), 7);
 
     // std::cout<<"New ptr: "<<new_ptr<<'\n';
     new_ptr = chase_pointer(process, (u8*)new_ptr, {0x10, 0x10});
@@ -665,9 +590,10 @@ void write_inv_slot(State& state, InvSlot& slot, u32 inv_index){
         std::cout<<"Failed to write inventory slot back\n";
     }
 }
+
 Change identify_change(const InvSlot& old,const InvSlot& current){
-    if(old.valid&&!current.valid){
-        //Removed item from inventory we don't care about this i think
+    if(old.valid && !current.valid){
+        //Removed item from inventory we don't care about this I think
         return Change::Null;
     }
     if(!old.valid&&current.valid){
@@ -689,6 +615,7 @@ Change identify_change(const InvSlot& old,const InvSlot& current){
             //Probably some durability or amount change we don't care about those
             return Change::Null;
         }else if(current.type==ItemType::Weapon&&old.type==current.type){
+            std::cout<<"Detected weapon upgrade\n";
             //Upgraded weapon most likely
             return Change::Null;
         }
@@ -787,7 +714,7 @@ void execute_change(Change change, State& state, u32 inv_index){
 
                 u32 equipped_weapon_id = 0;
                 if(read_weapon_slot(state, equipped_weapon_id)){
-                    s32 existing_weapon_level = weapon_level_from_id(equipped_weapon_id);
+                    s32 existing_weapon_level = get_weapon_level_from_id(equipped_weapon_id);
                     std::cout<<"Detected existing weapon level (scaled 0-15): "<<existing_weapon_level<<"\n";
                     item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
                     state.inventory_copy[inv_index].id = item_id;
@@ -894,7 +821,7 @@ void update_loop(State& state){
             }
 
         }else if(state.state==AppState::InvStart){
-            auto good = read_inventory(state.process,state.addrs.inv,state.inventory);
+            auto good = read_inventory(state.process, state.addrs.inv, state.inventory);
             if(good){
                 state.state=AppState::InvUpdate;
                 std::cout<<"Initial inventory read successful\n";
@@ -917,29 +844,29 @@ void update_loop(State& state){
                 Sleep(5000);
             }
         }else if(state.state==AppState::InvUpdate){
-            auto main_menu = in_main_menu(state);
-            if(main_menu){
+
+            if(in_main_menu(state)){
                 std::cout<<"Going back to main menu\n";
                 state.state=AppState::MainMenu;
             }else{
 
 
-                auto good = read_inventory(state.process,state.addrs.inv,state.inventory_copy);
+                bool good = read_inventory(state.process,state.addrs.inv,state.inventory_copy);
 
                 if(!good){
                     std::cout<<"Inventory update failed, trying again\n";
                 }else{
-                    int free_slots = 0;
-                    for(int i = 0;i<state.inventory_copy.size();i++){
+                    s32 free_slots = 0;
+                    for(s32 i = 0; i<state.inventory.size(); i++){
                         if(state.inventory[i] != state.inventory_copy[i]){
-                            auto change = identify_change(state.inventory[i],state.inventory_copy[i]);
+                            Change change = identify_change(state.inventory[i],state.inventory_copy[i]);
                             if(change!=Change::Null) execute_change(change,state,i);
                         }
                         if(!state.inventory[i].valid) free_slots += 1;
                     }
 
 
-                    state.inventory=state.inventory_copy;
+                    state.inventory = state.inventory_copy;
                 }
 
                 if(state.config.count_bosses_defeated){
@@ -1045,7 +972,9 @@ int exit_with_error(std::string error_message){
         return EXIT_FAILURE;
 }
 
+
 int main(){
+
 
     //Cool ladder test
     assert(beutify_bytes(1) == "1B");

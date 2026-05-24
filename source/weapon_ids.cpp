@@ -1,1218 +1,1307 @@
 
-enum class WeaponInfusionType{
-    Standard,
-    Crystal,
-    Lightning,
-    Raw,
-    Magic,
-    Enchanted,
-    Divine,
-    Occult,
-    Fire,
-    Chaos,
-    Unique,
-    NoUpgrade
+enum class WeaponUpgradePath{
+    NoUpgrade = -1,
+    Standard = 0,
+    Crystal = 100,
+    Lightning = 200,
+    Raw = 300,
+    Magic = 400,
+    Enchanted = 500,
+    Divine = 600,
+    Occult = 700,
+    Fire = 800,
+    Chaos = 900,
+    Dragon = 1100,
+    Twinkling = 1200,
+    DemonSif = 1300, 
+    DemonGwyn = 1400, 
+    DemonQuelaag = 1500,
+    DemonOrnstein = 1600,
+    DemonButterfly = 1700,
+    DemonGolem = 1800,
+    DemonSmough = 1900,
+    DemonPriscilla = 2000,
+    DemonGwyndolin = 2100,
+    DragonGolem = 2200,
+    DemonNonBoss = 2300,
+    DemonArtorias = 2400,
+    DemonManus = 2500,
 };
 
-std::unordered_map<uint64_t, WeaponInfusionType> weapon_ids = {
-    { 0x00899E78, WeaponInfusionType::Standard }, // Standard Guardian Tail
-    { 0x00899EDC, WeaponInfusionType::Crystal }, // Crystal Guardian Tail
-    { 0x00899F40, WeaponInfusionType::Lightning }, // Lightning Guardian Tail
-    { 0x00899FA4, WeaponInfusionType::Raw }, // Raw Guardian Tail
-    { 0x0089A008, WeaponInfusionType::Magic }, // Magic Guardian Tail
-    { 0x0089A06C, WeaponInfusionType::Enchanted }, // Enchanted Guardian Tail
-    { 0x0089A0D0, WeaponInfusionType::Divine }, // Divine Guardian Tail
-    { 0x0089A134, WeaponInfusionType::Occult }, // Occult Guardian Tail
-    { 0x0089A198, WeaponInfusionType::Fire }, // Fire Guardian Tail
-    { 0x0089A1FC, WeaponInfusionType::Chaos }, // Chaos Guardian Tail
-    { 0x008992C0, WeaponInfusionType::Standard }, // Standard Four-Pronged Plow
-    { 0x00899324, WeaponInfusionType::Crystal }, // Crystal Four-Pronged Plow
-    { 0x00899388, WeaponInfusionType::Lightning }, // Lightning Four-Pronged Plow
-    { 0x008993EC, WeaponInfusionType::Raw }, // Raw Four-Pronged Plow
-    { 0x00899450, WeaponInfusionType::Magic }, // Magic Four-Pronged Plow
-    { 0x008994B4, WeaponInfusionType::Enchanted }, // Enchanted Four-Pronged Plow
-    { 0x00899518, WeaponInfusionType::Divine }, // Divine Four-Pronged Plow
-    { 0x0089957C, WeaponInfusionType::Occult }, // Occult Four-Pronged Plow
-    { 0x008995E0, WeaponInfusionType::Fire }, // Fire Four-Pronged Plow
-    { 0x00899644, WeaponInfusionType::Chaos }, // Chaos Four-Pronged Plow
-    { 0x000186A0, WeaponInfusionType::Standard }, // Dagger
-    { 0x00018704, WeaponInfusionType::Crystal }, // Crystal Dagger
-    { 0x00018768, WeaponInfusionType::Lightning }, // Lightning Dagger
-    { 0x000187CC, WeaponInfusionType::Raw }, // Raw Dagger
-    { 0x00018830, WeaponInfusionType::Magic }, // Magic Dagger
-    { 0x00018894, WeaponInfusionType::Enchanted }, // Enchanted Dagger
-    { 0x000188F8, WeaponInfusionType::Divine }, // Divine Dagger
-    { 0x0001895C, WeaponInfusionType::Occult }, // Occult Dagger
-    { 0x000189C0, WeaponInfusionType::Fire }, // Fire Dagger
-    { 0x00018A24, WeaponInfusionType::Chaos }, // Chaos Dagger
-    { 0x00018A88, WeaponInfusionType::Standard }, // Parrying Dagger
-    { 0x00018AEC, WeaponInfusionType::Crystal }, // Crystal Parrying Dagger
-    { 0x00018B50, WeaponInfusionType::Lightning }, // Lightning Parrying Dagger
-    { 0x00018BB4, WeaponInfusionType::Raw }, // Raw Parrying Dagger
-    { 0x00018C18, WeaponInfusionType::Magic }, // Magic Parrying Dagger
-    { 0x00018C7C, WeaponInfusionType::Enchanted }, // Enchanted Parrying Dagger
-    { 0x00018CE0, WeaponInfusionType::Divine }, // Divine Parrying Dagger
-    { 0x00018D44, WeaponInfusionType::Occult }, // Occult Parrying Dagger
-    { 0x00018DA8, WeaponInfusionType::Fire }, // Fire Parrying Dagger
-    { 0x00018E0C, WeaponInfusionType::Chaos }, // Chaos Parrying Dagger
-    { 0x00019258, WeaponInfusionType::Standard }, // Bandit's Knife
-    { 0x000192BC, WeaponInfusionType::Crystal }, // Crystal Knife
-    { 0x00019320, WeaponInfusionType::Lightning }, // Lightning Knife
-    { 0x00019384, WeaponInfusionType::Raw }, // Raw Knife
-    { 0x000193E8, WeaponInfusionType::Magic }, // Magic Knife
-    { 0x0001944C, WeaponInfusionType::Enchanted }, // Enchanted Knife
-    { 0x000194B0, WeaponInfusionType::Divine }, // Divine Knife
-    { 0x00019514, WeaponInfusionType::Occult }, // Occult Knife
-    { 0x00019578, WeaponInfusionType::Fire }, // Fire Knife
-    { 0x000195DC, WeaponInfusionType::Chaos }, // Chaos Knife
-    { 0x00030D40, WeaponInfusionType::Standard }, // Shortsword
-    { 0x00030DA4, WeaponInfusionType::Crystal }, // Crystal Shortsword
-    { 0x00030E08, WeaponInfusionType::Lightning }, // Lightning Shortsword
-    { 0x00030E6C, WeaponInfusionType::Raw }, // Raw Shortsword
-    { 0x00030ED0, WeaponInfusionType::Magic }, // Magic Shortsword
-    { 0x00030F34, WeaponInfusionType::Enchanted }, // Enchanted Shortsword
-    { 0x00030F98, WeaponInfusionType::Divine }, // Divine Shortsword
-    { 0x00030FFC, WeaponInfusionType::Occult }, // Occult Shortsword
-    { 0x00031060, WeaponInfusionType::Fire }, // Fire Shortsword
-    { 0x000310C4, WeaponInfusionType::Chaos }, // Chaos Shortsword
-    { 0x00031128, WeaponInfusionType::Standard }, // Longsword
-    { 0x0003118C, WeaponInfusionType::Crystal }, // Crystal Longsword
-    { 0x000311F0, WeaponInfusionType::Lightning }, // Lightning Longsword
-    { 0x00031254, WeaponInfusionType::Raw }, // Raw Longsword
-    { 0x000312B8, WeaponInfusionType::Magic }, // Magic Longsword
-    { 0x0003131C, WeaponInfusionType::Enchanted }, // Enchanted Longsword
-    { 0x00031380, WeaponInfusionType::Divine }, // Divine Longsword
-    { 0x000313E4, WeaponInfusionType::Occult }, // Occult Longsword
-    { 0x00031448, WeaponInfusionType::Fire }, // Fire Longsword
-    { 0x000314AC, WeaponInfusionType::Chaos }, // Chaos Longsword
-    { 0x00031510, WeaponInfusionType::Standard }, // Broadsword
-    { 0x00031574, WeaponInfusionType::Crystal }, // Crystal Broadsword
-    { 0x000315D8, WeaponInfusionType::Lightning }, // Lightning Broadsword
-    { 0x0003163C, WeaponInfusionType::Raw }, // Raw Broadsword
-    { 0x000316A0, WeaponInfusionType::Magic }, // Magic Broadsword
-    { 0x00031704, WeaponInfusionType::Enchanted }, // Enchanted Broadsword
-    { 0x00031768, WeaponInfusionType::Divine }, // Divine Broadsword
-    { 0x000317CC, WeaponInfusionType::Occult }, // Occult Broadsword
-    { 0x00031830, WeaponInfusionType::Fire }, // Fire Broadsword
-    { 0x00031894, WeaponInfusionType::Chaos }, // Chaos Broadsword
-    { 0x000318F8, WeaponInfusionType::Standard }, // Broken Straight Sword
-    { 0x0003195C, WeaponInfusionType::Crystal }, // Crystal Broken Straight Sword
-    { 0x000319C0, WeaponInfusionType::Lightning }, // Lightning Broken Straight Sword
-    { 0x00031A24, WeaponInfusionType::Raw }, // Raw Broken Straight Sword
-    { 0x00031A88, WeaponInfusionType::Magic }, // Magic Broken Straight Sword
-    { 0x00031AEC, WeaponInfusionType::Enchanted }, // Enchanted Broken Straight Sword
-    { 0x00031B50, WeaponInfusionType::Divine }, // Divine Broken Straight Sword
-    { 0x00031BB4, WeaponInfusionType::Occult }, // Occult Broken Straight Sword
-    { 0x00031C18, WeaponInfusionType::Fire }, // Fire Broken Straight Sword
-    { 0x00031C7C, WeaponInfusionType::Chaos }, // Chaos Broken Straight Sword
-    { 0x00031CE0, WeaponInfusionType::Standard }, // Balder Side Sword
-    { 0x00031D44, WeaponInfusionType::Crystal }, // Crystal Balder Side Sword
-    { 0x00031DA8, WeaponInfusionType::Lightning }, // Lightning Balder Side Sword
-    { 0x00031E0C, WeaponInfusionType::Raw }, // Raw Balder Side Sword
-    { 0x00031E70, WeaponInfusionType::Magic }, // Magic Balder Side Sword
-    { 0x00031ED4, WeaponInfusionType::Enchanted }, // Enchanted Balder Side Sword
-    { 0x00031F38, WeaponInfusionType::Divine }, // Divine Balder Side Sword
-    { 0x00031F9C, WeaponInfusionType::Occult }, // Occult Balder Side Sword
-    { 0x00032000, WeaponInfusionType::Fire }, // Fire Balder Side Sword
-    { 0x00032064, WeaponInfusionType::Chaos }, // Chaos Balder Side Sword
-    { 0x000320C8, WeaponInfusionType::Crystal }, // Crystal Straight Sword
-    { 0x000324B0, WeaponInfusionType::Standard }, // Sunlight Straight Sword
-    { 0x00032514, WeaponInfusionType::Crystal }, // Crystal Sunlight Straight Sword
-    { 0x00032578, WeaponInfusionType::Lightning }, // Lightning Sunlight Straight Sword
-    { 0x000325DC, WeaponInfusionType::Raw }, // Raw Sunlight Straight Sword
-    { 0x00032640, WeaponInfusionType::Magic }, // Magic Sunlight Straight Sword
-    { 0x000326A4, WeaponInfusionType::Enchanted }, // Enchanted Sunlight Straight Sword
-    { 0x00032708, WeaponInfusionType::Divine }, // Divine Sunlight Straight Sword
-    { 0x0003276C, WeaponInfusionType::Occult }, // Occult Sunlight Straight Sword
-    { 0x000327D0, WeaponInfusionType::Fire }, // Fire Sunlight Straight Sword
-    { 0x00032834, WeaponInfusionType::Chaos }, // Chaos Sunlight Straight Sword
-    { 0x00032898, WeaponInfusionType::Standard }, // Barbed Straight Sword
-    { 0x000328FC, WeaponInfusionType::Crystal }, // Crystal Barbed Straight Sword
-    { 0x00032960, WeaponInfusionType::Lightning }, // Lightning Barbed Straight Sword
-    { 0x000329C4, WeaponInfusionType::Raw }, // Raw Barbed Straight Sword
-    { 0x00032A28, WeaponInfusionType::Magic }, // Magic Barbed Straight Sword
-    { 0x00032A8C, WeaponInfusionType::Enchanted }, // Enchanted Barbed Straight Sword
-    { 0x00032AF0, WeaponInfusionType::Divine }, // Divine Barbed Straight Sword
-    { 0x00032B54, WeaponInfusionType::Occult }, // Occult Barbed Straight Sword
-    { 0x00032BB8, WeaponInfusionType::Fire }, // Fire Barbed Straight Sword
-    { 0x00032C1C, WeaponInfusionType::Chaos }, // Chaos Barbed Straight Sword
-    { 0x00033068, WeaponInfusionType::Standard }, // Astora's Straight Sword
-    { 0x000330CC, WeaponInfusionType::Crystal }, // Crystal Astora's Straight Sword
-    { 0x00033130, WeaponInfusionType::Lightning }, // Lightning Astora's Straight Sword
-    { 0x00033194, WeaponInfusionType::Raw }, // Raw Astora's Straight Sword
-    { 0x000331F8, WeaponInfusionType::Magic }, // Magic Astora's Straight Sword
-    { 0x0003325C, WeaponInfusionType::Enchanted }, // Enchanted Astora's Straight Sword
-    { 0x000332C0, WeaponInfusionType::Divine }, // Divine Astora's Straight Sword
-    { 0x00033324, WeaponInfusionType::Occult }, // Occult Astora's Straight Sword
-    { 0x00033388, WeaponInfusionType::Fire }, // Fire Astora's Straight Sword
-    { 0x000333EC, WeaponInfusionType::Chaos }, // Chaos Astora's Straight Sword
-    { 0x00033450, WeaponInfusionType::Standard }, // Darksword
-    { 0x000334B4, WeaponInfusionType::Crystal }, // Crystal Darksword
-    { 0x00033518, WeaponInfusionType::Lightning }, // Lightning Darksword
-    { 0x0003357C, WeaponInfusionType::Raw }, // Raw Darksword
-    { 0x000335E0, WeaponInfusionType::Magic }, // Magic Darksword
-    { 0x00033644, WeaponInfusionType::Enchanted }, // Enchanted Darksword
-    { 0x000336A8, WeaponInfusionType::Divine }, // Divine Darksword
-    { 0x0003370C, WeaponInfusionType::Occult }, // Occult Darksword
-    { 0x00033770, WeaponInfusionType::Fire }, // Fire Darksword
-    { 0x000337D4, WeaponInfusionType::Chaos }, // Chaos Darksword
-    { 0x00033838, WeaponInfusionType::Standard }, // Drake Sword
-    { 0x00033C20, WeaponInfusionType::Standard }, // Straight Sword Hilt
-    { 0x00033C84, WeaponInfusionType::Crystal }, // Crystal Straight Sword Hilt
-    { 0x00033CE8, WeaponInfusionType::Lightning }, // Lightning Straight Sword Hilt
-    { 0x00033D4C, WeaponInfusionType::Raw }, // Raw Straight Sword Hilt
-    { 0x00033DB0, WeaponInfusionType::Magic }, // Magic Straight Sword Hilt
-    { 0x00033E14, WeaponInfusionType::Enchanted }, // Enchanted Straight Sword Hilt
-    { 0x00033E78, WeaponInfusionType::Divine }, // Divine Straight Sword Hilt
-    { 0x00033EDC, WeaponInfusionType::Occult }, // Occult Straight Sword Hilt
-    { 0x00033F40, WeaponInfusionType::Fire }, // Fire Straight Sword Hilt
-    { 0x00033FA4, WeaponInfusionType::Chaos }, // Chaos Straight Sword Hilt
-    { 0x000493E0, WeaponInfusionType::Standard }, // Bastard Sword
-    { 0x00049444, WeaponInfusionType::Crystal }, // Crystal Bastard Sword
-    { 0x000494A8, WeaponInfusionType::Lightning }, // Lightning Bastard Sword
-    { 0x0004950C, WeaponInfusionType::Raw }, // Raw Bastard Sword
-    { 0x00049570, WeaponInfusionType::Magic }, // Magic Bastard Sword
-    { 0x000495D4, WeaponInfusionType::Enchanted }, // Enchanted Bastard Sword
-    { 0x00049638, WeaponInfusionType::Divine }, // Divine Bastard Sword
-    { 0x0004969C, WeaponInfusionType::Occult }, // Occult Bastard Sword
-    { 0x00049700, WeaponInfusionType::Fire }, // Fire Bastard Sword
-    { 0x00049764, WeaponInfusionType::Chaos }, // Chaos Bastard Sword
-    { 0x000497C8, WeaponInfusionType::Standard }, // Claymore
-    { 0x0004982C, WeaponInfusionType::Crystal }, // Crystal Claymore
-    { 0x00049890, WeaponInfusionType::Lightning }, // Lightning Claymore
-    { 0x000498F4, WeaponInfusionType::Raw }, // Raw Claymore
-    { 0x00049958, WeaponInfusionType::Magic }, // Magic Claymore
-    { 0x000499BC, WeaponInfusionType::Enchanted }, // Enchanted Claymore
-    { 0x00049A20, WeaponInfusionType::Divine }, // Divine Claymore
-    { 0x00049A84, WeaponInfusionType::Occult }, // Occult Claymore
-    { 0x00049AE8, WeaponInfusionType::Fire }, // Fire Claymore
-    { 0x00049B4C, WeaponInfusionType::Chaos }, // Chaos Claymore
-    { 0x00049BB0, WeaponInfusionType::Standard }, // Man-serpent Greatsword
-    { 0x00049C14, WeaponInfusionType::Crystal }, // Crystal Man-serpent Greatsword
-    { 0x00049C78, WeaponInfusionType::Lightning }, // Lightning Man-serpent Greatsword
-    { 0x00049CDC, WeaponInfusionType::Raw }, // Raw Man-serpent Greatsword
-    { 0x00049D40, WeaponInfusionType::Magic }, // Magic Man-serpent Greatsword
-    { 0x00049DA4, WeaponInfusionType::Enchanted }, // Enchanted Man-serpent Greatsword
-    { 0x00049E08, WeaponInfusionType::Divine }, // Divine Man-serpent Greatsword
-    { 0x00049E6C, WeaponInfusionType::Occult }, // Occult Man-serpent Greatsword
-    { 0x00049ED0, WeaponInfusionType::Fire }, // Fire Man-serpent Greatsword
-    { 0x00049F34, WeaponInfusionType::Chaos }, // Chaos Man-serpent Greatsword
-    { 0x00049F98, WeaponInfusionType::Standard }, // Flamberge
-    { 0x00049FFC, WeaponInfusionType::Crystal }, // Crystal Flamberge
-    { 0x0004A060, WeaponInfusionType::Lightning }, // Lightning Flamberge
-    { 0x0004A0C4, WeaponInfusionType::Raw }, // Raw Flamberge
-    { 0x0004A128, WeaponInfusionType::Magic }, // Magic Flamberge
-    { 0x0004A18C, WeaponInfusionType::Enchanted }, // Enchanted Flamberge
-    { 0x0004A1F0, WeaponInfusionType::Divine }, // Divine Flamberge
-    { 0x0004A254, WeaponInfusionType::Occult }, // Occult Flamberge
-    { 0x0004A2B8, WeaponInfusionType::Fire }, // Fire Flamberge
-    { 0x0004A31C, WeaponInfusionType::Chaos }, // Chaos Flamberge
-    { 0x0004A380, WeaponInfusionType::Crystal }, // Crystal Greatsword
-    { 0x0004AB50, WeaponInfusionType::Standard }, // Stone Greatsword
-    { 0x00055730, WeaponInfusionType::Standard }, // Zweihander
-    { 0x00055794, WeaponInfusionType::Crystal }, // Crystal Zweihander
-    { 0x000557F8, WeaponInfusionType::Lightning }, // Lightning Zweihander
-    { 0x0005585C, WeaponInfusionType::Raw }, // Raw Zweihander
-    { 0x000558C0, WeaponInfusionType::Magic }, // Magic Zweihander
-    { 0x00055924, WeaponInfusionType::Enchanted }, // Enchanted Zweihander
-    { 0x00055988, WeaponInfusionType::Divine }, // Divine Zweihander
-    { 0x000559EC, WeaponInfusionType::Occult }, // Occult Zweihander
-    { 0x00055A50, WeaponInfusionType::Fire }, // Fire Zweihander
-    { 0x00055AB4, WeaponInfusionType::Chaos }, // Chaos Zweihander
-    { 0x00055B18, WeaponInfusionType::Standard }, // Greatsword
-    { 0x00055B7C, WeaponInfusionType::Crystal }, // Crystal Greatsword
-    { 0x00055BE0, WeaponInfusionType::Lightning }, // Lightning Greatsword
-    { 0x00055C44, WeaponInfusionType::Raw }, // Raw Greatsword
-    { 0x00055CA8, WeaponInfusionType::Magic }, // Magic Greatsword
-    { 0x00055D0C, WeaponInfusionType::Enchanted }, // Enchanted Greatsword
-    { 0x00055D70, WeaponInfusionType::Divine }, // Divine Greatsword
-    { 0x00055DD4, WeaponInfusionType::Occult }, // Occult Greatsword
-    { 0x00055E38, WeaponInfusionType::Fire }, // Fire Greatsword
-    { 0x00055E9C, WeaponInfusionType::Chaos }, // Chaos Greatsword
-    { 0x00055F00, WeaponInfusionType::Standard }, // Demon Great Machete
-    { 0x00055F64, WeaponInfusionType::Crystal }, // Crystal Demon Great Machete
-    { 0x00055FC8, WeaponInfusionType::Lightning }, // Lightning Demon Great Machete
-    { 0x0005602C, WeaponInfusionType::Raw }, // Raw Demon Great Machete
-    { 0x00056090, WeaponInfusionType::Magic }, // Magic Demon Great Machete
-    { 0x000560F4, WeaponInfusionType::Enchanted }, // Enchanted Demon Great Machete
-    { 0x00056158, WeaponInfusionType::Divine }, // Divine Demon Great Machete
-    { 0x000561BC, WeaponInfusionType::Occult }, // Occult Demon Great Machete
-    { 0x00056220, WeaponInfusionType::Fire }, // Fire Demon Great Machete
-    { 0x00056284, WeaponInfusionType::Chaos }, // Chaos Demon Great Machete
-    { 0x00061A80, WeaponInfusionType::Standard }, // Scimitar
-    { 0x00061AE4, WeaponInfusionType::Crystal }, // Crystal Scimitar
-    { 0x00061B48, WeaponInfusionType::Lightning }, // Lightning Scimitar
-    { 0x00061BAC, WeaponInfusionType::Raw }, // Raw Scimitar
-    { 0x00061C10, WeaponInfusionType::Magic }, // Magic Scimitar
-    { 0x00061C74, WeaponInfusionType::Enchanted }, // Enchanted Scimitar
-    { 0x00061CD8, WeaponInfusionType::Divine }, // Divine Scimitar
-    { 0x00061D3C, WeaponInfusionType::Occult }, // Occult Scimitar
-    { 0x00061DA0, WeaponInfusionType::Fire }, // Fire Scimitar
-    { 0x00061E04, WeaponInfusionType::Chaos }, // Chaos Scimitar
-    { 0x00061E68, WeaponInfusionType::Standard }, // Falchion
-    { 0x00061ECC, WeaponInfusionType::Crystal }, // Crystal Falchion
-    { 0x00061F30, WeaponInfusionType::Lightning }, // Lightning Falchion
-    { 0x00061F94, WeaponInfusionType::Raw }, // Raw Falchion
-    { 0x00061FF8, WeaponInfusionType::Magic }, // Magic Falchion
-    { 0x0006205C, WeaponInfusionType::Enchanted }, // Enchanted Falchion
-    { 0x000620C0, WeaponInfusionType::Divine }, // Divine Falchion
-    { 0x00062124, WeaponInfusionType::Occult }, // Occult Falchion
-    { 0x00062188, WeaponInfusionType::Fire }, // Fire Falchion
-    { 0x000621EC, WeaponInfusionType::Chaos }, // Chaos Falchion
-    { 0x00062250, WeaponInfusionType::Standard }, // Shotel
-    { 0x000622B4, WeaponInfusionType::Crystal }, // Crystal Shotel
-    { 0x00062318, WeaponInfusionType::Lightning }, // Lightning Shotel
-    { 0x0006237C, WeaponInfusionType::Raw }, // Raw Shotel
-    { 0x000623E0, WeaponInfusionType::Magic }, // Magic Shotel
-    { 0x00062444, WeaponInfusionType::Enchanted }, // Enchanted Shotel
-    { 0x000624A8, WeaponInfusionType::Divine }, // Divine Shotel
-    { 0x0006250C, WeaponInfusionType::Occult }, // Occult Shotel
-    { 0x00062570, WeaponInfusionType::Fire }, // Fire Shotel
-    { 0x000625D4, WeaponInfusionType::Chaos }, // Chaos Shotel
-    { 0x00062E08, WeaponInfusionType::Standard }, // Painting Guardian Sword
-    { 0x00062E6C, WeaponInfusionType::Crystal }, // Crystal Painting Guardian Sword
-    { 0x00062ED0, WeaponInfusionType::Lightning }, // Lightning Painting Guardian Sword
-    { 0x00062F34, WeaponInfusionType::Raw }, // Raw Painting Guardian Sword
-    { 0x00062F98, WeaponInfusionType::Magic }, // Magic Painting Guardian Sword
-    { 0x00062FFC, WeaponInfusionType::Enchanted }, // Enchanted Painting Guardian Sword
-    { 0x00063060, WeaponInfusionType::Divine }, // Divine Painting Guardian Sword
-    { 0x000630C4, WeaponInfusionType::Occult }, // Occult Painting Guardian Sword
-    { 0x00063128, WeaponInfusionType::Fire }, // Fire Painting Guardian Sword
-    { 0x0006318C, WeaponInfusionType::Chaos }, // Chaos Painting Guardian Sword
-    { 0x0006DDD0, WeaponInfusionType::Standard }, // Server
-    { 0x0006DE34, WeaponInfusionType::Crystal }, // Crystal Server
-    { 0x0006DE98, WeaponInfusionType::Lightning }, // Lightning Server
-    { 0x0006DEFC, WeaponInfusionType::Raw }, // Raw Server
-    { 0x0006DF60, WeaponInfusionType::Magic }, // Magic Server
-    { 0x0006DFC4, WeaponInfusionType::Enchanted }, // Enchanted Server
-    { 0x0006E028, WeaponInfusionType::Divine }, // Divine Server
-    { 0x0006E08C, WeaponInfusionType::Occult }, // Occult Server
-    { 0x0006E0F0, WeaponInfusionType::Fire }, // Fire Server
-    { 0x0006E154, WeaponInfusionType::Chaos }, // Chaos Server
-    { 0x0006E1B8, WeaponInfusionType::Standard }, // Murakumo
-    { 0x0006E21C, WeaponInfusionType::Crystal }, // Crystal Murakumo
-    { 0x0006E280, WeaponInfusionType::Lightning }, // Lightning Murakumo
-    { 0x0006E2E4, WeaponInfusionType::Raw }, // Raw Murakumo
-    { 0x0006E348, WeaponInfusionType::Magic }, // Magic Murakumo
-    { 0x0006E3AC, WeaponInfusionType::Enchanted }, // Enchanted Murakumo
-    { 0x0006E410, WeaponInfusionType::Divine }, // Divine Murakumo
-    { 0x0006E474, WeaponInfusionType::Occult }, // Occult Murakumo
-    { 0x0006E4D8, WeaponInfusionType::Fire }, // Fire Murakumo
-    { 0x0006E53C, WeaponInfusionType::Chaos }, // Chaos Murakumo
-    { 0x0006E988, WeaponInfusionType::Standard }, // Gravelord Sword
-    { 0x0007A120, WeaponInfusionType::Standard }, // Uchigatana
-    { 0x0007A184, WeaponInfusionType::Crystal }, // Crystal Uchigatana
-    { 0x0007A1E8, WeaponInfusionType::Lightning }, // Lightning Uchigatana
-    { 0x0007A24C, WeaponInfusionType::Raw }, // Raw Uchigatana
-    { 0x0007A2B0, WeaponInfusionType::Magic }, // Magic Uchigatana
-    { 0x0007A314, WeaponInfusionType::Enchanted }, // Enchanted Uchigatana
-    { 0x0007A378, WeaponInfusionType::Divine }, // Divine Uchigatana
-    { 0x0007A3DC, WeaponInfusionType::Occult }, // Occult Uchigatana
-    { 0x0007A440, WeaponInfusionType::Fire }, // Fire Uchigatana
-    { 0x0007A4A4, WeaponInfusionType::Chaos }, // Chaos Uchigatana
-    { 0x0007A508, WeaponInfusionType::Standard }, // Washing Pole
-    { 0x0007A56C, WeaponInfusionType::Crystal }, // Crystal Washing Pole
-    { 0x0007A5D0, WeaponInfusionType::Lightning }, // Lightning Washing Pole
-    { 0x0007A634, WeaponInfusionType::Raw }, // Raw Washing Pole
-    { 0x0007A698, WeaponInfusionType::Magic }, // Magic Washing Pole
-    { 0x0007A6FC, WeaponInfusionType::Enchanted }, // Enchanted Washing Pole
-    { 0x0007A760, WeaponInfusionType::Divine }, // Divine Washing Pole
-    { 0x0007A7C4, WeaponInfusionType::Occult }, // Occult Washing Pole
-    { 0x0007A828, WeaponInfusionType::Fire }, // Fire Washing Pole
-    { 0x0007A88C, WeaponInfusionType::Chaos }, // Chaos Washing Pole
-    { 0x0007A8F0, WeaponInfusionType::Standard }, // Iaito
-    { 0x0007A954, WeaponInfusionType::Crystal }, // Crystal Iaito
-    { 0x0007A9B8, WeaponInfusionType::Lightning }, // Lightning Iaito
-    { 0x0007AA1C, WeaponInfusionType::Raw }, // Raw Iaito
-    { 0x0007AA80, WeaponInfusionType::Magic }, // Magic Iaito
-    { 0x0007AAE4, WeaponInfusionType::Enchanted }, // Enchanted Iaito
-    { 0x0007AB48, WeaponInfusionType::Divine }, // Divine Iaito
-    { 0x0007ABAC, WeaponInfusionType::Occult }, // Occult Iaito
-    { 0x0007AC10, WeaponInfusionType::Fire }, // Fire Iaito
-    { 0x0007AC74, WeaponInfusionType::Chaos }, // Chaos Iaito
-    { 0x000927C0, WeaponInfusionType::Standard }, // Mail Breaker
-    { 0x00092824, WeaponInfusionType::Crystal }, // Crystal Mail Breaker
-    { 0x00092888, WeaponInfusionType::Lightning }, // Lightning Mail Breaker
-    { 0x000928EC, WeaponInfusionType::Raw }, // Raw Mail Breaker
-    { 0x00092950, WeaponInfusionType::Magic }, // Magic Mail Breaker
-    { 0x000929B4, WeaponInfusionType::Enchanted }, // Enchanted Mail Breaker
-    { 0x00092A18, WeaponInfusionType::Divine }, // Divine Mail Breaker
-    { 0x00092A7C, WeaponInfusionType::Occult }, // Occult Mail Breaker
-    { 0x00092AE0, WeaponInfusionType::Fire }, // Fire Mail Breaker
-    { 0x00092B44, WeaponInfusionType::Chaos }, // Chaos Mail Breaker
-    { 0x00092BA8, WeaponInfusionType::Standard }, // Rapier
-    { 0x00092C0C, WeaponInfusionType::Crystal }, // Crystal Rapier
-    { 0x00092C70, WeaponInfusionType::Lightning }, // Lightning Rapier
-    { 0x00092CD4, WeaponInfusionType::Raw }, // Raw Rapier
-    { 0x00092D38, WeaponInfusionType::Magic }, // Magic Rapier
-    { 0x00092D9C, WeaponInfusionType::Enchanted }, // Enchanted Rapier
-    { 0x00092E00, WeaponInfusionType::Divine }, // Divine Rapier
-    { 0x00092E64, WeaponInfusionType::Occult }, // Occult Rapier
-    { 0x00092EC8, WeaponInfusionType::Fire }, // Fire Rapier
-    { 0x00092F2C, WeaponInfusionType::Chaos }, // Chaos Rapier
-    { 0x00092F90, WeaponInfusionType::Standard }, // Estoc
-    { 0x00092FF4, WeaponInfusionType::Crystal }, // Crystal Estoc
-    { 0x00093058, WeaponInfusionType::Lightning }, // Lightning Estoc
-    { 0x000930BC, WeaponInfusionType::Raw }, // Raw Estoc
-    { 0x00093120, WeaponInfusionType::Magic }, // Magic Estoc
-    { 0x00093184, WeaponInfusionType::Enchanted }, // Enchanted Estoc
-    { 0x000931E8, WeaponInfusionType::Divine }, // Divine Estoc
-    { 0x0009324C, WeaponInfusionType::Occult }, // Occult Estoc
-    { 0x000932B0, WeaponInfusionType::Fire }, // Fire Estoc
-    { 0x00093314, WeaponInfusionType::Chaos }, // Chaos Estoc
-    { 0x00093378, WeaponInfusionType::Standard }, // Velka's Rapier
-    { 0x00093760, WeaponInfusionType::Standard }, // Ricard's Rapier
-    { 0x000937C4, WeaponInfusionType::Crystal }, // Crystal Ricard's Rapier
-    { 0x00093828, WeaponInfusionType::Lightning }, // Lightning Ricard's Rapier
-    { 0x0009388C, WeaponInfusionType::Raw }, // Raw Ricard's Rapier
-    { 0x000938F0, WeaponInfusionType::Magic }, // Magic Ricard's Rapier
-    { 0x00093954, WeaponInfusionType::Enchanted }, // Enchanted Ricard's Rapier
-    { 0x000939B8, WeaponInfusionType::Divine }, // Divine Ricard's Rapier
-    { 0x00093A1C, WeaponInfusionType::Occult }, // Occult Ricard's Rapier
-    { 0x00093A80, WeaponInfusionType::Fire }, // Fire Ricard's Rapier
-    { 0x00093AE4, WeaponInfusionType::Chaos }, // Chaos Ricard's Rapier
-    { 0x000AAE60, WeaponInfusionType::Standard }, // Hand Axe
-    { 0x000AAEC4, WeaponInfusionType::Crystal }, // Crystal Hand Axe
-    { 0x000AAF28, WeaponInfusionType::Lightning }, // Lightning Hand Axe
-    { 0x000AAF8C, WeaponInfusionType::Raw }, // Raw Hand Axe
-    { 0x000AAFF0, WeaponInfusionType::Magic }, // Magic Hand Axe
-    { 0x000AB054, WeaponInfusionType::Enchanted }, // Enchanted Hand Axe
-    { 0x000AB0B8, WeaponInfusionType::Divine }, // Divine Hand Axe
-    { 0x000AB11C, WeaponInfusionType::Occult }, // Occult Hand Axe
-    { 0x000AB180, WeaponInfusionType::Fire }, // Fire Hand Axe
-    { 0x000AB1E4, WeaponInfusionType::Chaos }, // Chaos Hand Axe
-    { 0x000AB248, WeaponInfusionType::Standard }, // Battle Axe
-    { 0x000AB2AC, WeaponInfusionType::Crystal }, // Crystal Battle Axe
-    { 0x000AB310, WeaponInfusionType::Lightning }, // Lightning Battle Axe
-    { 0x000AB374, WeaponInfusionType::Raw }, // Raw Battle Axe
-    { 0x000AB3D8, WeaponInfusionType::Magic }, // Magic Battle Axe
-    { 0x000AB43C, WeaponInfusionType::Enchanted }, // Enchanted Battle Axe
-    { 0x000AB4A0, WeaponInfusionType::Divine }, // Divine Battle Axe
-    { 0x000AB504, WeaponInfusionType::Occult }, // Occult Battle Axe
-    { 0x000AB568, WeaponInfusionType::Fire }, // Fire Battle Axe
-    { 0x000AB5CC, WeaponInfusionType::Chaos }, // Chaos Battle Axe
-    { 0x000AB630, WeaponInfusionType::Standard }, // Crescent Axe
-    { 0x000AB694, WeaponInfusionType::Crystal }, // Crystal Crescent Axe
-    { 0x000AB6F8, WeaponInfusionType::Lightning }, // Lightning Crescent Axe
-    { 0x000AB75C, WeaponInfusionType::Raw }, // Raw Crescent Axe
-    { 0x000AB7C0, WeaponInfusionType::Magic }, // Magic Crescent Axe
-    { 0x000AB824, WeaponInfusionType::Enchanted }, // Enchanted Crescent Axe
-    { 0x000AB888, WeaponInfusionType::Divine }, // Divine Crescent Axe
-    { 0x000AB8EC, WeaponInfusionType::Occult }, // Occult Crescent Axe
-    { 0x000AB950, WeaponInfusionType::Fire }, // Fire Crescent Axe
-    { 0x000AB9B4, WeaponInfusionType::Chaos }, // Chaos Crescent Axe
-    { 0x000ABA18, WeaponInfusionType::Standard }, // Butcher Knife
-    { 0x000ABA7C, WeaponInfusionType::Crystal }, // Crystal Butcher Knife
-    { 0x000ABAE0, WeaponInfusionType::Lightning }, // Lightning Butcher Knife
-    { 0x000ABB44, WeaponInfusionType::Raw }, // Raw Butcher Knife
-    { 0x000ABBA8, WeaponInfusionType::Magic }, // Magic Butcher Knife
-    { 0x000ABC0C, WeaponInfusionType::Enchanted }, // Enchanted Butcher Knife
-    { 0x000ABC70, WeaponInfusionType::Divine }, // Divine Butcher Knife
-    { 0x000ABCD4, WeaponInfusionType::Occult }, // Occult Butcher Knife
-    { 0x000ABD38, WeaponInfusionType::Fire }, // Fire Butcher Knife
-    { 0x000ABD9C, WeaponInfusionType::Chaos }, // Chaos Butcher Knife
-    { 0x000AC1E8, WeaponInfusionType::Standard }, // Gargoyle Tail Axe
-    { 0x000AC24C, WeaponInfusionType::Crystal }, // Crystal Gargoyle Tail Axe
-    { 0x000AC2B0, WeaponInfusionType::Lightning }, // Lightning Gargoyle Tail Axe
-    { 0x000AC314, WeaponInfusionType::Raw }, // Raw Gargoyle Tail Axe
-    { 0x000AC378, WeaponInfusionType::Magic }, // Magic Gargoyle Tail Axe
-    { 0x000AC3DC, WeaponInfusionType::Enchanted }, // Enchanted Gargoyle Tail Axe
-    { 0x000AC440, WeaponInfusionType::Divine }, // Divine Gargoyle Tail Axe
-    { 0x000AC4A4, WeaponInfusionType::Occult }, // Occult Gargoyle Tail Axe
-    { 0x000AC508, WeaponInfusionType::Fire }, // Fire Gargoyle Tail Axe
-    { 0x000AC56C, WeaponInfusionType::Chaos }, // Chaos Gargoyle Tail Axe
-    { 0x000B71B0, WeaponInfusionType::Standard }, // Greataxe
-    { 0x000B7214, WeaponInfusionType::Crystal }, // Crystal Greataxe
-    { 0x000B7278, WeaponInfusionType::Lightning }, // Lightning Greataxe
-    { 0x000B72DC, WeaponInfusionType::Raw }, // Raw Greataxe
-    { 0x000B7340, WeaponInfusionType::Magic }, // Magic Greataxe
-    { 0x000B73A4, WeaponInfusionType::Enchanted }, // Enchanted Greataxe
-    { 0x000B7408, WeaponInfusionType::Divine }, // Divine Greataxe
-    { 0x000B746C, WeaponInfusionType::Occult }, // Occult Greataxe
-    { 0x000B74D0, WeaponInfusionType::Fire }, // Fire Greataxe
-    { 0x000B7534, WeaponInfusionType::Chaos }, // Chaos Greataxe
-    { 0x000B7598, WeaponInfusionType::Standard }, // Demon's Greataxe
-    { 0x000B75FC, WeaponInfusionType::Crystal }, // Crystal Demon's Greataxe
-    { 0x000B7660, WeaponInfusionType::Lightning }, // Lightning Demon's Greataxe
-    { 0x000B76C4, WeaponInfusionType::Raw }, // Raw Demon's Greataxe
-    { 0x000B7728, WeaponInfusionType::Magic }, // Magic Demon's Greataxe
-    { 0x000B778C, WeaponInfusionType::Enchanted }, // Enchanted Demon's Greataxe
-    { 0x000B77F0, WeaponInfusionType::Divine }, // Divine Demon's Greataxe
-    { 0x000B7854, WeaponInfusionType::Occult }, // Occult Demon's Greataxe
-    { 0x000B78B8, WeaponInfusionType::Fire }, // Fire Demon's Greataxe
-    { 0x000B791C, WeaponInfusionType::Chaos }, // Chaos Demon's Greataxe
-    { 0x000B7980, WeaponInfusionType::Standard }, // Dragon King Greataxe
-    { 0x000B7D68, WeaponInfusionType::Standard }, // Black Knight Greataxe
-    { 0x000C3500, WeaponInfusionType::Standard }, // Club
-    { 0x000C3564, WeaponInfusionType::Crystal }, // Crystal Club
-    { 0x000C35C8, WeaponInfusionType::Lightning }, // Lightning Club
-    { 0x000C362C, WeaponInfusionType::Raw }, // Raw Club
-    { 0x000C3690, WeaponInfusionType::Magic }, // Magic Club
-    { 0x000C36F4, WeaponInfusionType::Enchanted }, // Enchanted Club
-    { 0x000C3758, WeaponInfusionType::Divine }, // Divine Club
-    { 0x000C37BC, WeaponInfusionType::Occult }, // Occult Club
-    { 0x000C3820, WeaponInfusionType::Fire }, // Fire Club
-    { 0x000C3884, WeaponInfusionType::Chaos }, // Chaos Club
-    { 0x000C38E8, WeaponInfusionType::Standard }, // Mace
-    { 0x000C394C, WeaponInfusionType::Crystal }, // Crystal Mace
-    { 0x000C39B0, WeaponInfusionType::Lightning }, // Lightning Mace
-    { 0x000C3A14, WeaponInfusionType::Raw }, // Raw Mace
-    { 0x000C3A78, WeaponInfusionType::Magic }, // Magic Mace
-    { 0x000C3ADC, WeaponInfusionType::Enchanted }, // Enchanted Mace
-    { 0x000C3B40, WeaponInfusionType::Divine }, // Divine Mace
-    { 0x000C3BA4, WeaponInfusionType::Occult }, // Occult Mace
-    { 0x000C3C08, WeaponInfusionType::Fire }, // Fire Mace
-    { 0x000C3C6C, WeaponInfusionType::Chaos }, // Chaos Mace
-    { 0x000C3CD0, WeaponInfusionType::Standard }, // Morning Star
-    { 0x000C3D34, WeaponInfusionType::Crystal }, // Crystal Morning Star
-    { 0x000C3D98, WeaponInfusionType::Lightning }, // Lightning Morning Star
-    { 0x000C3DFC, WeaponInfusionType::Raw }, // Raw Morning Star
-    { 0x000C3E60, WeaponInfusionType::Magic }, // Magic Morning Star
-    { 0x000C3EC4, WeaponInfusionType::Enchanted }, // Enchanted Morning Star
-    { 0x000C3F28, WeaponInfusionType::Divine }, // Divine Morning Star
-    { 0x000C3F8C, WeaponInfusionType::Occult }, // Occult Morning Star
-    { 0x000C3FF0, WeaponInfusionType::Fire }, // Fire Morning Star
-    { 0x000C4054, WeaponInfusionType::Chaos }, // Chaos Morning Star
-    { 0x000C40B8, WeaponInfusionType::Standard }, // Warpick
-    { 0x000C411C, WeaponInfusionType::Crystal }, // Crystal Warpick
-    { 0x000C4180, WeaponInfusionType::Lightning }, // Lightning Warpick
-    { 0x000C41E4, WeaponInfusionType::Raw }, // Raw Warpick
-    { 0x000C4248, WeaponInfusionType::Magic }, // Magic Warpick
-    { 0x000C42AC, WeaponInfusionType::Enchanted }, // Enchanted Warpick
-    { 0x000C4310, WeaponInfusionType::Divine }, // Divine Warpick
-    { 0x000C4374, WeaponInfusionType::Occult }, // Occult Warpick
-    { 0x000C43D8, WeaponInfusionType::Fire }, // Fire Warpick
-    { 0x000C443C, WeaponInfusionType::Chaos }, // Chaos Warpick
-    { 0x000C44A0, WeaponInfusionType::Standard }, // Pickaxe
-    { 0x000C4504, WeaponInfusionType::Crystal }, // Crystal Pickaxe
-    { 0x000C4568, WeaponInfusionType::Lightning }, // Lightning Pickaxe
-    { 0x000C45CC, WeaponInfusionType::Raw }, // Raw Pickaxe
-    { 0x000C4630, WeaponInfusionType::Magic }, // Magic Pickaxe
-    { 0x000C4694, WeaponInfusionType::Enchanted }, // Enchanted Pickaxe
-    { 0x000C46F8, WeaponInfusionType::Divine }, // Divine Pickaxe
-    { 0x000C475C, WeaponInfusionType::Occult }, // Occult Pickaxe
-    { 0x000C47C0, WeaponInfusionType::Fire }, // Fire Pickaxe
-    { 0x000C4824, WeaponInfusionType::Chaos }, // Chaos Pickaxe
-    { 0x000C5828, WeaponInfusionType::Standard }, // Reinforced Club
-    { 0x000C588C, WeaponInfusionType::Crystal }, // Crystal Reinforced Club
-    { 0x000C58F0, WeaponInfusionType::Lightning }, // Lightning Reinforced Club
-    { 0x000C5954, WeaponInfusionType::Raw }, // Raw Reinforced Club
-    { 0x000C59B8, WeaponInfusionType::Magic }, // Magic Reinforced Club
-    { 0x000C5A1C, WeaponInfusionType::Enchanted }, // Enchanted Reinforced Club
-    { 0x000C5A80, WeaponInfusionType::Divine }, // Divine Reinforced Club
-    { 0x000C5AE4, WeaponInfusionType::Occult }, // Occult Reinforced Club
-    { 0x000C5B48, WeaponInfusionType::Fire }, // Fire Reinforced Club
-    { 0x000C5BAC, WeaponInfusionType::Chaos }, // Chaos Reinforced Club
-    { 0x000C5C10, WeaponInfusionType::Standard }, // Blacksmith Hammer
-    { 0x000C5C74, WeaponInfusionType::Crystal }, // Crystal Blacksmith Hammer
-    { 0x000C5CD8, WeaponInfusionType::Lightning }, // Lightning Blacksmith Hammer
-    { 0x000C5D3C, WeaponInfusionType::Raw }, // Raw Blacksmith Hammer
-    { 0x000C5DA0, WeaponInfusionType::Magic }, // Magic Blacksmith Hammer
-    { 0x000C5E04, WeaponInfusionType::Enchanted }, // Enchanted Blacksmith Hammer
-    { 0x000C5E68, WeaponInfusionType::Divine }, // Divine Blacksmith Hammer
-    { 0x000C5ECC, WeaponInfusionType::Occult }, // Occult Blacksmith Hammer
-    { 0x000C5F30, WeaponInfusionType::Fire }, // Fire Blacksmith Hammer
-    { 0x000C5F94, WeaponInfusionType::Chaos }, // Chaos Blacksmith Hammer
-    { 0x000C5FF8, WeaponInfusionType::Standard }, // Blacksmith Giant Hammer
-    { 0x000C605C, WeaponInfusionType::Crystal }, // Crystal Blacksmith Giant Hammer
-    { 0x000C60C0, WeaponInfusionType::Lightning }, // Lightning Blacksmith Giant Hammer
-    { 0x000C6124, WeaponInfusionType::Raw }, // Raw Blacksmith Giant Hammer
-    { 0x000C6188, WeaponInfusionType::Magic }, // Magic Blacksmith Giant Hammer
-    { 0x000C61EC, WeaponInfusionType::Enchanted }, // Enchanted Blacksmith Giant Hammer
-    { 0x000C6250, WeaponInfusionType::Divine }, // Divine Blacksmith Giant Hammer
-    { 0x000C62B4, WeaponInfusionType::Occult }, // Occult Blacksmith Giant Hammer
-    { 0x000C6318, WeaponInfusionType::Fire }, // Fire Blacksmith Giant Hammer
-    { 0x000C637C, WeaponInfusionType::Chaos }, // Chaos Blacksmith Giant Hammer
-    { 0x000C63E0, WeaponInfusionType::Standard }, // Hammer of Vamos
-    { 0x000C6444, WeaponInfusionType::Crystal }, // Crystal Hammer of Vamos
-    { 0x000C64A8, WeaponInfusionType::Lightning }, // Lightning Hammer of Vamos
-    { 0x000C650C, WeaponInfusionType::Raw }, // Raw Hammer of Vamos
-    { 0x000C6570, WeaponInfusionType::Magic }, // Magic Hammer of Vamos
-    { 0x000C65D4, WeaponInfusionType::Enchanted }, // Enchanted Hammer of Vamos
-    { 0x000C6638, WeaponInfusionType::Divine }, // Divine Hammer of Vamos
-    { 0x000C669C, WeaponInfusionType::Occult }, // Occult Hammer of Vamos
-    { 0x000C6700, WeaponInfusionType::Fire }, // Fire Hammer of Vamos
-    { 0x000C6764, WeaponInfusionType::Chaos }, // Chaos Hammer of Vamos
-    { 0x000CF850, WeaponInfusionType::Standard }, // Great Club
-    { 0x000CF8B4, WeaponInfusionType::Crystal }, // Crystal Great Club
-    { 0x000CF918, WeaponInfusionType::Lightning }, // Lightning Great Club
-    { 0x000CF97C, WeaponInfusionType::Raw }, // Raw Great Club
-    { 0x000CF9E0, WeaponInfusionType::Magic }, // Magic Great Club
-    { 0x000CFA44, WeaponInfusionType::Enchanted }, // Enchanted Great Club
-    { 0x000CFAA8, WeaponInfusionType::Divine }, // Divine Great Club
-    { 0x000CFB0C, WeaponInfusionType::Occult }, // Occult Great Club
-    { 0x000CFB70, WeaponInfusionType::Fire }, // Fire Great Club
-    { 0x000CFBD4, WeaponInfusionType::Chaos }, // Chaos Great Club
-    { 0x000CFC38, WeaponInfusionType::Standard }, // Grant
-    { 0x000D0020, WeaponInfusionType::Standard }, // Demon's Great Hammer
-    { 0x000D0084, WeaponInfusionType::Crystal }, // Crystal Demon's Great Hammer
-    { 0x000D00E8, WeaponInfusionType::Lightning }, // Lightning Demon's Great Hammer
-    { 0x000D014C, WeaponInfusionType::Raw }, // Raw Demon's Great Hammer
-    { 0x000D01B0, WeaponInfusionType::Magic }, // Magic Demon's Great Hammer
-    { 0x000D0214, WeaponInfusionType::Enchanted }, // Enchanted Demon's Great Hammer
-    { 0x000D0278, WeaponInfusionType::Divine }, // Divine Demon's Great Hammer
-    { 0x000D02DC, WeaponInfusionType::Occult }, // Occult Demon's Great Hammer
-    { 0x000D0340, WeaponInfusionType::Fire }, // Fire Demon's Great Hammer
-    { 0x000D03A4, WeaponInfusionType::Chaos }, // Chaos Demon's Great Hammer
-    { 0x000D07F0, WeaponInfusionType::Standard }, // Dragon Tooth
-    { 0x000D0BD8, WeaponInfusionType::Standard }, // Large Club
-    { 0x000D0C3C, WeaponInfusionType::Crystal }, // Crystal Large Club
-    { 0x000D0CA0, WeaponInfusionType::Lightning }, // Lightning Large Club
-    { 0x000D0D04, WeaponInfusionType::Raw }, // Raw Large Club
-    { 0x000D0D68, WeaponInfusionType::Magic }, // Magic Large Club
-    { 0x000D0DCC, WeaponInfusionType::Enchanted }, // Enchanted Large Club
-    { 0x000D0E30, WeaponInfusionType::Divine }, // Divine Large Club
-    { 0x000D0E94, WeaponInfusionType::Occult }, // Occult Large Club
-    { 0x000D0EF8, WeaponInfusionType::Fire }, // Fire Large Club
-    { 0x000D0F5C, WeaponInfusionType::Chaos }, // Chaos Large Club
-    { 0x000DBBA0, WeaponInfusionType::Standard }, // Fists
-    { 0x000DBF88, WeaponInfusionType::Standard }, // Caestus
-    { 0x000DBFEC, WeaponInfusionType::Crystal }, // Crystal Caestus
-    { 0x000DC050, WeaponInfusionType::Lightning }, // Lightning Caestus
-    { 0x000DC0B4, WeaponInfusionType::Raw }, // Raw Caestus
-    { 0x000DC118, WeaponInfusionType::Magic }, // Magic Caestus
-    { 0x000DC17C, WeaponInfusionType::Enchanted }, // Enchanted Caestus
-    { 0x000DC1E0, WeaponInfusionType::Divine }, // Divine Caestus
-    { 0x000DC244, WeaponInfusionType::Occult }, // Occult Caestus
-    { 0x000DC2A8, WeaponInfusionType::Fire }, // Fire Caestus
-    { 0x000DC30C, WeaponInfusionType::Chaos }, // Chaos Caestus
-    { 0x000DC370, WeaponInfusionType::Standard }, // Claw
-    { 0x000DC3D4, WeaponInfusionType::Crystal }, // Crystal Claw
-    { 0x000DC438, WeaponInfusionType::Lightning }, // Lightning Claw
-    { 0x000DC49C, WeaponInfusionType::Raw }, // Raw Claw
-    { 0x000DC500, WeaponInfusionType::Magic }, // Magic Claw
-    { 0x000DC564, WeaponInfusionType::Enchanted }, // Enchanted Claw
-    { 0x000DC5C8, WeaponInfusionType::Divine }, // Divine Claw
-    { 0x000DC62C, WeaponInfusionType::Occult }, // Occult Claw
-    { 0x000DC690, WeaponInfusionType::Fire }, // Fire Claw
-    { 0x000DC6F4, WeaponInfusionType::Chaos }, // Chaos Claw
-    { 0x000DCB40, WeaponInfusionType::Standard }, // Dark Hand
-    { 0x000F4240, WeaponInfusionType::Standard }, // Spear
-    { 0x000F42A4, WeaponInfusionType::Crystal }, // Crystal Spear
-    { 0x000F4308, WeaponInfusionType::Lightning }, // Lightning Spear
-    { 0x000F436C, WeaponInfusionType::Raw }, // Raw Spear
-    { 0x000F43D0, WeaponInfusionType::Magic }, // Magic Spear
-    { 0x000F4434, WeaponInfusionType::Enchanted }, // Enchanted Spear
-    { 0x000F4498, WeaponInfusionType::Divine }, // Divine Spear
-    { 0x000F44FC, WeaponInfusionType::Occult }, // Occult Spear
-    { 0x000F4560, WeaponInfusionType::Fire }, // Fire Spear
-    { 0x000F45C4, WeaponInfusionType::Chaos }, // Chaos Spear
-    { 0x000F4628, WeaponInfusionType::Standard }, // Winged Spear
-    { 0x000F468C, WeaponInfusionType::Crystal }, // Crystal Winged Spear
-    { 0x000F46F0, WeaponInfusionType::Lightning }, // Lightning Winged Spear
-    { 0x000F4754, WeaponInfusionType::Raw }, // Raw Winged Spear
-    { 0x000F47B8, WeaponInfusionType::Magic }, // Magic Winged Spear
-    { 0x000F481C, WeaponInfusionType::Enchanted }, // Enchanted Winged Spear
-    { 0x000F4880, WeaponInfusionType::Divine }, // Divine Winged Spear
-    { 0x000F48E4, WeaponInfusionType::Occult }, // Occult Winged Spear
-    { 0x000F4948, WeaponInfusionType::Fire }, // Fire Winged Spear
-    { 0x000F49AC, WeaponInfusionType::Chaos }, // Chaos Winged Spear
-    { 0x000F4A10, WeaponInfusionType::Standard }, // Partizan
-    { 0x000F4A74, WeaponInfusionType::Crystal }, // Crystal Partizan
-    { 0x000F4AD8, WeaponInfusionType::Lightning }, // Lightning Partizan
-    { 0x000F4B3C, WeaponInfusionType::Raw }, // Raw Partizan
-    { 0x000F4BA0, WeaponInfusionType::Magic }, // Magic Partizan
-    { 0x000F4C04, WeaponInfusionType::Enchanted }, // Enchanted Partizan
-    { 0x000F4C68, WeaponInfusionType::Divine }, // Divine Partizan
-    { 0x000F4CCC, WeaponInfusionType::Occult }, // Occult Partizan
-    { 0x000F4D30, WeaponInfusionType::Fire }, // Fire Partizan
-    { 0x000F4D94, WeaponInfusionType::Chaos }, // Chaos Partizan
-    { 0x000F4DF8, WeaponInfusionType::Standard }, // Demon's Spear
-    { 0x000F4E5C, WeaponInfusionType::Crystal }, // Crystal Demon's Spear
-    { 0x000F4EC0, WeaponInfusionType::Lightning }, // Lightning Demon's Spear
-    { 0x000F4F24, WeaponInfusionType::Raw }, // Raw Demon's Spear
-    { 0x000F4F88, WeaponInfusionType::Magic }, // Magic Demon's Spear
-    { 0x000F4FEC, WeaponInfusionType::Enchanted }, // Enchanted Demon's Spear
-    { 0x000F5050, WeaponInfusionType::Divine }, // Divine Demon's Spear
-    { 0x000F50B4, WeaponInfusionType::Occult }, // Occult Demon's Spear
-    { 0x000F5118, WeaponInfusionType::Fire }, // Fire Demon's Spear
-    { 0x000F517C, WeaponInfusionType::Chaos }, // Chaos Demon's Spear
-    { 0x000F51E0, WeaponInfusionType::Standard }, // Channeler's Trident
-    { 0x000F5244, WeaponInfusionType::Crystal }, // Crystal Channeler's Trident
-    { 0x000F52A8, WeaponInfusionType::Lightning }, // Lightning Channeler's Trident
-    { 0x000F530C, WeaponInfusionType::Raw }, // Raw Channeler's Trident
-    { 0x000F5370, WeaponInfusionType::Magic }, // Magic Channeler's Trident
-    { 0x000F53D4, WeaponInfusionType::Enchanted }, // Enchanted Channeler's Trident
-    { 0x000F5438, WeaponInfusionType::Divine }, // Divine Channeler's Trident
-    { 0x000F549C, WeaponInfusionType::Occult }, // Occult Channeler's Trident
-    { 0x000F5500, WeaponInfusionType::Fire }, // Fire Channeler's Trident
-    { 0x000F5564, WeaponInfusionType::Chaos }, // Chaos Channeler's Trident
-    { 0x00100590, WeaponInfusionType::Standard }, // Pike
-    { 0x001005F4, WeaponInfusionType::Crystal }, // Crystal Pike
-    { 0x00100658, WeaponInfusionType::Lightning }, // Lightning Pike
-    { 0x001006BC, WeaponInfusionType::Raw }, // Raw Pike
-    { 0x00100720, WeaponInfusionType::Magic }, // Magic Pike
-    { 0x00100784, WeaponInfusionType::Enchanted }, // Enchanted Pike
-    { 0x001007E8, WeaponInfusionType::Divine }, // Divine Pike
-    { 0x0010084C, WeaponInfusionType::Occult }, // Occult Pike
-    { 0x001008B0, WeaponInfusionType::Fire }, // Fire Pike
-    { 0x00100914, WeaponInfusionType::Chaos }, // Chaos Pike
-    { 0x0010C8E0, WeaponInfusionType::Standard }, // Halberd
-    { 0x0010C944, WeaponInfusionType::Crystal }, // Crystal Halberd
-    { 0x0010C9A8, WeaponInfusionType::Lightning }, // Lightning Halberd
-    { 0x0010CA0C, WeaponInfusionType::Raw }, // Raw Halberd
-    { 0x0010CA70, WeaponInfusionType::Magic }, // Magic Halberd
-    { 0x0010CAD4, WeaponInfusionType::Enchanted }, // Enchanted Halberd
-    { 0x0010CB38, WeaponInfusionType::Divine }, // Divine Halberd
-    { 0x0010CB9C, WeaponInfusionType::Occult }, // Occult Halberd
-    { 0x0010CC00, WeaponInfusionType::Fire }, // Fire Halberd
-    { 0x0010CC64, WeaponInfusionType::Chaos }, // Chaos Halberd
-    { 0x0010CCC8, WeaponInfusionType::Standard }, // Giant's Halberd
-    { 0x0010CD2C, WeaponInfusionType::Crystal }, // Crystal Giant's Halberd
-    { 0x0010CD90, WeaponInfusionType::Lightning }, // Lightning Giant's Halberd
-    { 0x0010CDF4, WeaponInfusionType::Raw }, // Raw Giant's Halberd
-    { 0x0010CE58, WeaponInfusionType::Magic }, // Magic Giant's Halberd
-    { 0x0010CEBC, WeaponInfusionType::Enchanted }, // Enchanted Giant's Halberd
-    { 0x0010CF20, WeaponInfusionType::Divine }, // Divine Giant's Halberd
-    { 0x0010CF84, WeaponInfusionType::Occult }, // Occult Giant's Halberd
-    { 0x0010CFE8, WeaponInfusionType::Fire }, // Fire Giant's Halberd
-    { 0x0010D04C, WeaponInfusionType::Chaos }, // Chaos Giant's Halberd
-    { 0x0010D498, WeaponInfusionType::Standard }, // Gargoyle's Halberd
-    { 0x0010D4FC, WeaponInfusionType::Crystal }, // Crystal Gargoyle's Halberd
-    { 0x0010D560, WeaponInfusionType::Lightning }, // Lightning Gargoyle's Halberd
-    { 0x0010D5C4, WeaponInfusionType::Raw }, // Raw Gargoyle's Halberd
-    { 0x0010D628, WeaponInfusionType::Magic }, // Magic Gargoyle's Halberd
-    { 0x0010D68C, WeaponInfusionType::Enchanted }, // Enchanted Gargoyle's Halberd
-    { 0x0010D6F0, WeaponInfusionType::Divine }, // Divine Gargoyle's Halberd
-    { 0x0010D754, WeaponInfusionType::Occult }, // Occult Gargoyle's Halberd
-    { 0x0010D7B8, WeaponInfusionType::Fire }, // Fire Gargoyle's Halberd
-    { 0x0010D81C, WeaponInfusionType::Chaos }, // Chaos Gargoyle's Halberd
-    { 0x0010E050, WeaponInfusionType::Standard }, // Lucerne
-    { 0x0010E0B4, WeaponInfusionType::Crystal }, // Crystal Lucerne
-    { 0x0010E118, WeaponInfusionType::Lightning }, // Lightning Lucerne
-    { 0x0010E17C, WeaponInfusionType::Raw }, // Raw Lucerne
-    { 0x0010E1E0, WeaponInfusionType::Magic }, // Magic Lucerne
-    { 0x0010E244, WeaponInfusionType::Enchanted }, // Enchanted Lucerne
-    { 0x0010E2A8, WeaponInfusionType::Divine }, // Divine Lucerne
-    { 0x0010E30C, WeaponInfusionType::Occult }, // Occult Lucerne
-    { 0x0010E370, WeaponInfusionType::Fire }, // Fire Lucerne
-    { 0x0010E3D4, WeaponInfusionType::Chaos }, // Chaos Lucerne
-    { 0x0010E438, WeaponInfusionType::Standard }, // Scythe
-    { 0x0010E49C, WeaponInfusionType::Crystal }, // Crystal Scythe
-    { 0x0010E500, WeaponInfusionType::Lightning }, // Lightning Scythe
-    { 0x0010E564, WeaponInfusionType::Raw }, // Raw Scythe
-    { 0x0010E5C8, WeaponInfusionType::Magic }, // Magic Scythe
-    { 0x0010E62C, WeaponInfusionType::Enchanted }, // Enchanted Scythe
-    { 0x0010E690, WeaponInfusionType::Divine }, // Divine Scythe
-    { 0x0010E6F4, WeaponInfusionType::Occult }, // Occult Scythe
-    { 0x0010E758, WeaponInfusionType::Fire }, // Fire Scythe
-    { 0x0010E7BC, WeaponInfusionType::Chaos }, // Chaos Scythe
-    { 0x00118C30, WeaponInfusionType::Standard }, // Great Scythe
-    { 0x00118C94, WeaponInfusionType::Crystal }, // Crystal Great Scythe
-    { 0x00118CF8, WeaponInfusionType::Lightning }, // Lightning Great Scythe
-    { 0x00118D5C, WeaponInfusionType::Raw }, // Raw Great Scythe
-    { 0x00118DC0, WeaponInfusionType::Magic }, // Magic Great Scythe
-    { 0x00118E24, WeaponInfusionType::Enchanted }, // Enchanted Great Scythe
-    { 0x00118E88, WeaponInfusionType::Divine }, // Divine Great Scythe
-    { 0x00118EEC, WeaponInfusionType::Occult }, // Occult Great Scythe
-    { 0x00118F50, WeaponInfusionType::Fire }, // Fire Great Scythe
-    { 0x00118FB4, WeaponInfusionType::Chaos }, // Chaos Great Scythe
-    { 0x00124F80, WeaponInfusionType::Standard }, // Short Bow
-    { 0x00124FE4, WeaponInfusionType::Crystal }, // Crystal Short Bow
-    { 0x00125048, WeaponInfusionType::Lightning }, // Lightning Short Bow
-    { 0x001250AC, WeaponInfusionType::Raw }, // Raw Short Bow
-    { 0x00125110, WeaponInfusionType::Magic }, // Magic Short Bow
-    { 0x00125174, WeaponInfusionType::Enchanted }, // Enchanted Short Bow
-    { 0x001251D8, WeaponInfusionType::Divine }, // Divine Short Bow
-    { 0x0012523C, WeaponInfusionType::Occult }, // Occult Short Bow
-    { 0x001252A0, WeaponInfusionType::Fire }, // Fire Short Bow
-    { 0x00125304, WeaponInfusionType::Chaos }, // Chaos Short Bow
-    { 0x00125368, WeaponInfusionType::Standard }, // Longbow
-    { 0x001253CC, WeaponInfusionType::Crystal }, // Crystal Longbow
-    { 0x00125430, WeaponInfusionType::Lightning }, // Lightning Longbow
-    { 0x00125494, WeaponInfusionType::Raw }, // Raw Longbow
-    { 0x001254F8, WeaponInfusionType::Magic }, // Magic Longbow
-    { 0x0012555C, WeaponInfusionType::Enchanted }, // Enchanted Longbow
-    { 0x001255C0, WeaponInfusionType::Divine }, // Divine Longbow
-    { 0x00125624, WeaponInfusionType::Occult }, // Occult Longbow
-    { 0x00125688, WeaponInfusionType::Fire }, // Fire Longbow
-    { 0x001256EC, WeaponInfusionType::Chaos }, // Chaos Longbow
-    { 0x00125750, WeaponInfusionType::Standard }, // Black Bow of Pharis
-    { 0x001257B4, WeaponInfusionType::Crystal }, // Crystal Black Bow of Pharis
-    { 0x00125818, WeaponInfusionType::Lightning }, // Lightning Black Bow of Pharis
-    { 0x0012587C, WeaponInfusionType::Raw }, // Raw Black Bow of Pharis
-    { 0x001258E0, WeaponInfusionType::Magic }, // Magic Black Bow of Pharis
-    { 0x00125944, WeaponInfusionType::Enchanted }, // Enchanted Black Bow of Pharis
-    { 0x001259A8, WeaponInfusionType::Divine }, // Divine Black Bow of Pharis
-    { 0x00125A0C, WeaponInfusionType::Occult }, // Occult Black Bow of Pharis
-    { 0x00125A70, WeaponInfusionType::Fire }, // Fire Black Bow of Pharis
-    { 0x00125AD4, WeaponInfusionType::Chaos }, // Chaos Black Bow of Pharis
-    { 0x00125B38, WeaponInfusionType::Standard }, // Dragonslayer Greatbow
-    { 0x00125F20, WeaponInfusionType::Standard }, // Composite Bow
-    { 0x00125F84, WeaponInfusionType::Crystal }, // Crystal Composite Bow
-    { 0x00125FE8, WeaponInfusionType::Lightning }, // Lightning Composite Bow
-    { 0x0012604C, WeaponInfusionType::Raw }, // Raw Composite Bow
-    { 0x001260B0, WeaponInfusionType::Magic }, // Magic Composite Bow
-    { 0x00126114, WeaponInfusionType::Enchanted }, // Enchanted Composite Bow
-    { 0x00126178, WeaponInfusionType::Divine }, // Divine Composite Bow
-    { 0x001261DC, WeaponInfusionType::Occult }, // Occult Composite Bow
-    { 0x00126240, WeaponInfusionType::Fire }, // Fire Composite Bow
-    { 0x001262A4, WeaponInfusionType::Chaos }, // Chaos Composite Bow
-    { 0x001312D0, WeaponInfusionType::Standard }, // Light Crossbow
-    { 0x00131334, WeaponInfusionType::Crystal }, // Crystal Light Crossbow
-    { 0x00131398, WeaponInfusionType::Lightning }, // Lightning Light Crossbow
-    { 0x00131460, WeaponInfusionType::Magic }, // Magic Light Crossbow
-    { 0x00131528, WeaponInfusionType::Divine }, // Divine Light Crossbow
-    { 0x001315F0, WeaponInfusionType::Fire }, // Fire Light Crossbow
-    { 0x001316B8, WeaponInfusionType::Standard }, // Heavy Crossbow
-    { 0x0013171C, WeaponInfusionType::Crystal }, // Crystal Heavy Crossbow
-    { 0x00131780, WeaponInfusionType::Lightning }, // Lightning Heavy Crossbow
-    { 0x00131848, WeaponInfusionType::Magic }, // Magic Heavy Crossbow
-    { 0x00131910, WeaponInfusionType::Divine }, // Divine Heavy Crossbow
-    { 0x001319D8, WeaponInfusionType::Fire }, // Fire Heavy Crossbow
-    { 0x00131AA0, WeaponInfusionType::Standard }, // Avelyn
-    { 0x00131B04, WeaponInfusionType::Crystal }, // Crystal Avelyn
-    { 0x00131B68, WeaponInfusionType::Lightning }, // Lightning Avelyn
-    { 0x00131C30, WeaponInfusionType::Magic }, // Magic Avelyn
-    { 0x00131CF8, WeaponInfusionType::Divine }, // Divine Avelyn
-    { 0x00131DC0, WeaponInfusionType::Fire }, // Fire Avelyn
-    { 0x00131E88, WeaponInfusionType::Standard }, // Sniper Crossbow
-    { 0x00131EEC, WeaponInfusionType::Crystal }, // Crystal Sniper Crossbow
-    { 0x00131F50, WeaponInfusionType::Lightning }, // Lightning Sniper Crossbow
-    { 0x00132018, WeaponInfusionType::Magic }, // Magic Sniper Crossbow
-    { 0x001320E0, WeaponInfusionType::Divine }, // Divine Sniper Crossbow
-    { 0x001321A8, WeaponInfusionType::Fire }, // Fire Sniper Crossbow
-    { 0x00144B50, WeaponInfusionType::Standard }, // Pyromancy Flame
-    { 0x00145320, WeaponInfusionType::Standard }, // Pyromancy Flame
-    { 0x00155CC0, WeaponInfusionType::Standard }, // East-West Shield
-    { 0x00155D24, WeaponInfusionType::Crystal }, // Crystal East-West Shield
-    { 0x00155D88, WeaponInfusionType::Lightning }, // Lightning East-West Shield
-    { 0x00155E50, WeaponInfusionType::Magic }, // Magic East-West Shield
-    { 0x00155F18, WeaponInfusionType::Divine }, // Divine East-West Shield
-    { 0x00155FE0, WeaponInfusionType::Fire }, // Fire East-West Shield
-    { 0x001560A8, WeaponInfusionType::Standard }, // Wooden Shield
-    { 0x0015610C, WeaponInfusionType::Crystal }, // Crystal Wooden Shield
-    { 0x00156170, WeaponInfusionType::Lightning }, // Lightning Wooden Shield
-    { 0x00156238, WeaponInfusionType::Magic }, // Magic Wooden Shield
-    { 0x00156300, WeaponInfusionType::Divine }, // Divine Wooden Shield
-    { 0x001563C8, WeaponInfusionType::Fire }, // Fire Wooden Shield
-    { 0x00156490, WeaponInfusionType::Standard }, // Large Leather Shield
-    { 0x001564F4, WeaponInfusionType::Crystal }, // Crystal Large Leather Shield
-    { 0x00156558, WeaponInfusionType::Lightning }, // Lightning Large Leather Shield
-    { 0x00156620, WeaponInfusionType::Magic }, // Magic Large Leather Shield
-    { 0x001566E8, WeaponInfusionType::Divine }, // Divine Large Leather Shield
-    { 0x001567B0, WeaponInfusionType::Fire }, // Fire Large Leather Shield
-    { 0x00156878, WeaponInfusionType::Standard }, // Small Leather Shield
-    { 0x001568DC, WeaponInfusionType::Crystal }, // Crystal Small Leather Shield
-    { 0x00156940, WeaponInfusionType::Lightning }, // Lightning Small Leather Shield
-    { 0x00156A08, WeaponInfusionType::Magic }, // Magic Small Leather Shield
-    { 0x00156AD0, WeaponInfusionType::Divine }, // Divine Small Leather Shield
-    { 0x00156B98, WeaponInfusionType::Fire }, // Fire Small Leather Shield
-    { 0x00156C60, WeaponInfusionType::Standard }, // Target Shield
-    { 0x00156CC4, WeaponInfusionType::Crystal }, // Crystal Target Shield
-    { 0x00156D28, WeaponInfusionType::Lightning }, // Lightning Target Shield
-    { 0x00156DF0, WeaponInfusionType::Magic }, // Magic Target Shield
-    { 0x00156EB8, WeaponInfusionType::Divine }, // Divine Target Shield
-    { 0x00156F80, WeaponInfusionType::Fire }, // Fire Target Shield
-    { 0x00157048, WeaponInfusionType::Standard }, // Buckler
-    { 0x001570AC, WeaponInfusionType::Crystal }, // Crystal Buckler
-    { 0x00157110, WeaponInfusionType::Lightning }, // Lightning Buckler
-    { 0x001571D8, WeaponInfusionType::Magic }, // Magic Buckler
-    { 0x001572A0, WeaponInfusionType::Divine }, // Divine Buckler
-    { 0x00157368, WeaponInfusionType::Fire }, // Fire Buckler
-    { 0x00157430, WeaponInfusionType::Standard }, // Cracked Round Shield
-    { 0x00157494, WeaponInfusionType::Crystal }, // Crystal Cracked Round Shield
-    { 0x001574F8, WeaponInfusionType::Lightning }, // Lightning Cracked Round Shield
-    { 0x001575C0, WeaponInfusionType::Magic }, // Magic Cracked Round Shield
-    { 0x00157688, WeaponInfusionType::Divine }, // Divine Cracked Round Shield
-    { 0x00157750, WeaponInfusionType::Fire }, // Fire Cracked Round Shield
-    { 0x00157C00, WeaponInfusionType::Standard }, // Leather Shield
-    { 0x00157C64, WeaponInfusionType::Crystal }, // Crystal Leather Shield
-    { 0x00157CC8, WeaponInfusionType::Lightning }, // Lightning Leather Shield
-    { 0x00157D90, WeaponInfusionType::Magic }, // Magic Leather Shield
-    { 0x00157E58, WeaponInfusionType::Divine }, // Divine Leather Shield
-    { 0x00157F20, WeaponInfusionType::Fire }, // Fire Leather Shield
-    { 0x00157FE8, WeaponInfusionType::Standard }, // Plank Shield
-    { 0x0015804C, WeaponInfusionType::Crystal }, // Crystal Plank Shield
-    { 0x001580B0, WeaponInfusionType::Lightning }, // Lightning Plank Shield
-    { 0x00158178, WeaponInfusionType::Magic }, // Magic Plank Shield
-    { 0x00158240, WeaponInfusionType::Divine }, // Divine Plank Shield
-    { 0x00158308, WeaponInfusionType::Fire }, // Fire Plank Shield
-    { 0x001583D0, WeaponInfusionType::Standard }, // Caduceus Round Shield
-    { 0x00158434, WeaponInfusionType::Crystal }, // Crystal Caduceus Round Shield
-    { 0x00158498, WeaponInfusionType::Lightning }, // Lightning Caduceus Round Shield
-    { 0x00158560, WeaponInfusionType::Magic }, // Magic Caduceus Round Shield
-    { 0x00158628, WeaponInfusionType::Divine }, // Divine Caduceus Round Shield
-    { 0x001586F0, WeaponInfusionType::Fire }, // Fire Caduceus Round Shield
-    { 0x00162010, WeaponInfusionType::Standard }, // Heater Shield
-    { 0x00162074, WeaponInfusionType::Crystal }, // Crystal Heater Shield
-    { 0x001620D8, WeaponInfusionType::Lightning }, // Lightning Heater Shield
-    { 0x001621A0, WeaponInfusionType::Magic }, // Magic Heater Shield
-    { 0x00162268, WeaponInfusionType::Divine }, // Divine Heater Shield
-    { 0x00162330, WeaponInfusionType::Fire }, // Fire Heater Shield
-    { 0x001623F8, WeaponInfusionType::Standard }, // Knight Shield
-    { 0x0016245C, WeaponInfusionType::Crystal }, // Crystal Knight Shield
-    { 0x001624C0, WeaponInfusionType::Lightning }, // Lightning Knight Shield
-    { 0x00162588, WeaponInfusionType::Magic }, // Magic Knight Shield
-    { 0x00162650, WeaponInfusionType::Divine }, // Divine Knight Shield
-    { 0x00162718, WeaponInfusionType::Fire }, // Fire Knight Shield
-    { 0x001627E0, WeaponInfusionType::Standard }, // Tower Kite Shield
-    { 0x00162844, WeaponInfusionType::Crystal }, // Crystal Tower Kite Shield
-    { 0x001628A8, WeaponInfusionType::Lightning }, // Lightning Tower Kite Shield
-    { 0x00162970, WeaponInfusionType::Magic }, // Magic Tower Kite Shield
-    { 0x00162A38, WeaponInfusionType::Divine }, // Divine Tower Kite Shield
-    { 0x00162B00, WeaponInfusionType::Fire }, // Fire Tower Kite Shield
-    { 0x00162BC8, WeaponInfusionType::Standard }, // Grass Crest Shield
-    { 0x00162C2C, WeaponInfusionType::Crystal }, // Crystal Grass Crest Shield
-    { 0x00162C90, WeaponInfusionType::Lightning }, // Lightning Grass Crest Shield
-    { 0x00162D58, WeaponInfusionType::Magic }, // Magic Grass Crest Shield
-    { 0x00162E20, WeaponInfusionType::Divine }, // Divine Grass Crest Shield
-    { 0x00162EE8, WeaponInfusionType::Fire }, // Fire Grass Crest Shield
-    { 0x00162FB0, WeaponInfusionType::Standard }, // Hollow Soldier Shield
-    { 0x00163014, WeaponInfusionType::Crystal }, // Crystal Hollow Soldier Shield
-    { 0x00163078, WeaponInfusionType::Lightning }, // Lightning Hollow Soldier Shield
-    { 0x00163140, WeaponInfusionType::Magic }, // Magic Hollow Soldier Shield
-    { 0x00163208, WeaponInfusionType::Divine }, // Divine Hollow Soldier Shield
-    { 0x001632D0, WeaponInfusionType::Fire }, // Fire Hollow Soldier Shield
-    { 0x00163398, WeaponInfusionType::Standard }, // Balder Shield
-    { 0x001633FC, WeaponInfusionType::Crystal }, // Crystal Balder Shield
-    { 0x00163460, WeaponInfusionType::Lightning }, // Lightning Balder Shield
-    { 0x00163528, WeaponInfusionType::Magic }, // Magic Balder Shield
-    { 0x001635F0, WeaponInfusionType::Divine }, // Divine Balder Shield
-    { 0x001636B8, WeaponInfusionType::Fire }, // Fire Balder Shield
-    { 0x00163780, WeaponInfusionType::Standard }, // Crest Shield
-    { 0x00163B68, WeaponInfusionType::Standard }, // Dragon Crest Shield
-    { 0x00164720, WeaponInfusionType::Standard }, // Warrior's Round Shield
-    { 0x00164784, WeaponInfusionType::Crystal }, // Crystal Warrior's Round Shield
-    { 0x001647E8, WeaponInfusionType::Lightning }, // Lightning Warrior's Round Shield
-    { 0x001648B0, WeaponInfusionType::Magic }, // Magic Warrior's Round Shield
-    { 0x00164978, WeaponInfusionType::Divine }, // Divine Warrior's Round Shield
-    { 0x00164A40, WeaponInfusionType::Fire }, // Fire Warrior's Round Shield
-    { 0x00164B08, WeaponInfusionType::Standard }, // Iron Round Shield
-    { 0x00164B6C, WeaponInfusionType::Crystal }, // Crystal Iron Round Shield
-    { 0x00164BD0, WeaponInfusionType::Lightning }, // Lightning Iron Round Shield
-    { 0x00164C98, WeaponInfusionType::Magic }, // Magic Iron Round Shield
-    { 0x00164D60, WeaponInfusionType::Divine }, // Divine Iron Round Shield
-    { 0x00164E28, WeaponInfusionType::Fire }, // Fire Iron Round Shield
-    { 0x00164EF0, WeaponInfusionType::Standard }, // Spider Shield
-    { 0x00164F54, WeaponInfusionType::Crystal }, // Crystal Spider Shield
-    { 0x00164FB8, WeaponInfusionType::Lightning }, // Lightning Spider Shield
-    { 0x00165080, WeaponInfusionType::Magic }, // Magic Spider Shield
-    { 0x00165148, WeaponInfusionType::Divine }, // Divine Spider Shield
-    { 0x00165210, WeaponInfusionType::Fire }, // Fire Spider Shield
-    { 0x00166E30, WeaponInfusionType::Standard }, // Spiked Shield
-    { 0x00166E94, WeaponInfusionType::Crystal }, // Crystal Spiked Shield
-    { 0x00166EF8, WeaponInfusionType::Lightning }, // Lightning Spiked Shield
-    { 0x00166FC0, WeaponInfusionType::Magic }, // Magic Spiked Shield
-    { 0x00167088, WeaponInfusionType::Divine }, // Divine Spiked Shield
-    { 0x00167150, WeaponInfusionType::Fire }, // Fire Spiked Shield
-    { 0x00167218, WeaponInfusionType::Crystal }, // Crystal Shield
-    { 0x00167600, WeaponInfusionType::Standard }, // Sunlight Shield
-    { 0x00167664, WeaponInfusionType::Crystal }, // Crystal Sunlight Shield
-    { 0x001676C8, WeaponInfusionType::Lightning }, // Lightning Sunlight Shield
-    { 0x00167790, WeaponInfusionType::Magic }, // Magic Sunlight Shield
-    { 0x00167858, WeaponInfusionType::Divine }, // Divine Sunlight Shield
-    { 0x00167920, WeaponInfusionType::Fire }, // Fire Sunlight Shield
-    { 0x001679E8, WeaponInfusionType::Standard }, // Silver Knight Shield
-    { 0x00167DD0, WeaponInfusionType::Standard }, // Black Knight Shield
-    { 0x001681B8, WeaponInfusionType::Standard }, // Pierce Shield
-    { 0x0016821C, WeaponInfusionType::Crystal }, // Crystal Pierce Shield
-    { 0x00168280, WeaponInfusionType::Lightning }, // Lightning Pierce Shield
-    { 0x00168348, WeaponInfusionType::Magic }, // Magic Pierce Shield
-    { 0x00168410, WeaponInfusionType::Divine }, // Divine Pierce Shield
-    { 0x001684D8, WeaponInfusionType::Fire }, // Fire Pierce Shield
-    { 0x001685A0, WeaponInfusionType::Standard }, // Red and White Round Shield
-    { 0x00168604, WeaponInfusionType::Crystal }, // Crystal R&amp;W Round Shield
-    { 0x00168668, WeaponInfusionType::Lightning }, // Lightning R&amp;W Round Shield
-    { 0x00168730, WeaponInfusionType::Magic }, // Magic R&amp;W Round Shield
-    { 0x001687F8, WeaponInfusionType::Divine }, // Divine R&amp;W Round Shield
-    { 0x001688C0, WeaponInfusionType::Fire }, // Fire R&amp;W Round Shield
-    { 0x00168988, WeaponInfusionType::Standard }, // Caduceus Kite Shield
-    { 0x001689EC, WeaponInfusionType::Crystal }, // Crystal Caduceus Kite Shield
-    { 0x00168A50, WeaponInfusionType::Lightning }, // Lightning Caduceus Kite Shield
-    { 0x00168B18, WeaponInfusionType::Magic }, // Magic Caduceus Kite Shield
-    { 0x00168BE0, WeaponInfusionType::Divine }, // Divine Caduceus Kite Shield
-    { 0x00168CA8, WeaponInfusionType::Fire }, // Fire Caduceus Kite Shield
-    { 0x00168D70, WeaponInfusionType::Standard }, // Gargoyle's Shield
-    { 0x00168DD4, WeaponInfusionType::Crystal }, // Crystal Gargoyle's Shield
-    { 0x00168E38, WeaponInfusionType::Lightning }, // Lightning Gargoyle's Shield
-    { 0x00168F00, WeaponInfusionType::Magic }, // Magic Gargoyle's Shield
-    { 0x00168FC8, WeaponInfusionType::Divine }, // Divine Gargoyle's Shield
-    { 0x00169090, WeaponInfusionType::Fire }, // Fire Gargoyle's Shield
-    { 0x0016E360, WeaponInfusionType::Standard }, // Eagle Shield
-    { 0x0016E3C4, WeaponInfusionType::Crystal }, // Crystal Eagle Shield
-    { 0x0016E428, WeaponInfusionType::Lightning }, // Lightning Eagle Shield
-    { 0x0016E4F0, WeaponInfusionType::Magic }, // Magic Eagle Shield
-    { 0x0016E5B8, WeaponInfusionType::Divine }, // Divine Eagle Shield
-    { 0x0016E680, WeaponInfusionType::Fire }, // Fire Eagle Shield
-    { 0x0016E748, WeaponInfusionType::Standard }, // Tower Shield
-    { 0x0016E7AC, WeaponInfusionType::Crystal }, // Crystal Tower Shield
-    { 0x0016E810, WeaponInfusionType::Lightning }, // Lightning Tower Shield
-    { 0x0016E8D8, WeaponInfusionType::Magic }, // Magic Tower Shield
-    { 0x0016E9A0, WeaponInfusionType::Divine }, // Divine Tower Shield
-    { 0x0016EA68, WeaponInfusionType::Fire }, // Fire Tower Shield
-    { 0x0016EB30, WeaponInfusionType::Standard }, // Giant Shield
-    { 0x0016EB94, WeaponInfusionType::Crystal }, // Crystal Giant Shield
-    { 0x0016EBF8, WeaponInfusionType::Lightning }, // Lightning Giant Shield
-    { 0x0016ECC0, WeaponInfusionType::Magic }, // Magic Giant Shield
-    { 0x0016ED88, WeaponInfusionType::Divine }, // Divine Giant Shield
-    { 0x0016EE50, WeaponInfusionType::Fire }, // Fire Giant Shield
-    { 0x0016EF18, WeaponInfusionType::Standard }, // Stone Greatshield
-    { 0x0016F6E8, WeaponInfusionType::Standard }, // Havel's Greatshield
-    { 0x0016FAD0, WeaponInfusionType::Standard }, // Bonewheel Shield
-    { 0x0016FB34, WeaponInfusionType::Crystal }, // Crystal Bonewheel Shield
-    { 0x0016FB98, WeaponInfusionType::Lightning }, // Lightning Bonewheel Shield
-    { 0x0016FC60, WeaponInfusionType::Magic }, // Magic Bonewheel Shield
-    { 0x0016FD28, WeaponInfusionType::Divine }, // Divine Bonewheel Shield
-    { 0x0016FDF0, WeaponInfusionType::Fire }, // Fire Bonewheel Shield
-    { 0x00186A00, WeaponInfusionType::Standard }, // Whip
-    { 0x00186A64, WeaponInfusionType::Crystal }, // Crystal Whip
-    { 0x00186AC8, WeaponInfusionType::Lightning }, // Lightning Whip
-    { 0x00186B2C, WeaponInfusionType::Raw }, // Raw Whip
-    { 0x00186B90, WeaponInfusionType::Magic }, // Magic Whip
-    { 0x00186BF4, WeaponInfusionType::Enchanted }, // Enchanted Whip
-    { 0x00186C58, WeaponInfusionType::Divine }, // Divine Whip
-    { 0x00186CBC, WeaponInfusionType::Occult }, // Occult Whip
-    { 0x00186D20, WeaponInfusionType::Fire }, // Fire Whip
-    { 0x00186D84, WeaponInfusionType::Chaos }, // Chaos Whip
-    { 0x00186DE8, WeaponInfusionType::Standard }, // Notched Whip
-    { 0x00186E4C, WeaponInfusionType::Crystal }, // Crystal Notched Whip
-    { 0x00186EB0, WeaponInfusionType::Lightning }, // Lightning Notched Whip
-    { 0x00186F14, WeaponInfusionType::Raw }, // Raw Notched Whip
-    { 0x00186F78, WeaponInfusionType::Magic }, // Magic Notched Whip
-    { 0x00186FDC, WeaponInfusionType::Enchanted }, // Enchanted Notched Whip
-    { 0x00187040, WeaponInfusionType::Divine }, // Divine Notched Whip
-    { 0x001870A4, WeaponInfusionType::Occult }, // Occult Notched Whip
-    { 0x00187108, WeaponInfusionType::Fire }, // Fire Notched Whip
-    { 0x0018716C, WeaponInfusionType::Chaos }, // Chaos Notched Whip
-    { 0x00895440, WeaponInfusionType::Standard }, // Effigy Shield
-    { 0x008954A4, WeaponInfusionType::Crystal }, // Crystal Effigy Shield
-    { 0x00895508, WeaponInfusionType::Lightning }, // Lightning Effigy Shield
-    { 0x008955D0, WeaponInfusionType::Magic }, // Magic Effigy Shield
-    { 0x00895698, WeaponInfusionType::Divine }, // Divine Effigy Shield
-    { 0x00895760, WeaponInfusionType::Fire }, // Fire Effigy Shield
-    { 0x00895828, WeaponInfusionType::Standard }, // Sanctus
-    { 0x0089588C, WeaponInfusionType::Crystal }, // Crystal Sanctus
-    { 0x008958F0, WeaponInfusionType::Lightning }, // Lightning Sanctus
-    { 0x008959B8, WeaponInfusionType::Magic }, // Magic Sanctus
-    { 0x00895A80, WeaponInfusionType::Divine }, // Divine Sanctus
-    { 0x00895B48, WeaponInfusionType::Fire }, // Fire Sanctus
-    { 0x00895C10, WeaponInfusionType::Standard }, // Bloodshield
-    { 0x00895C74, WeaponInfusionType::Crystal }, // Crystal Bloodshield
-    { 0x00895CD8, WeaponInfusionType::Lightning }, // Lightning Bloodshield
-    { 0x00895DA0, WeaponInfusionType::Magic }, // Magic Bloodshield
-    { 0x00895E68, WeaponInfusionType::Divine }, // Divine Bloodshield
-    { 0x00895F30, WeaponInfusionType::Fire }, // Fire Bloodshield
-    { 0x00895FF8, WeaponInfusionType::Standard }, // Black Iron Greatshield
-    { 0x0089605C, WeaponInfusionType::Crystal }, // Crystal Black Iron Greatshield
-    { 0x008960C0, WeaponInfusionType::Lightning }, // Lightning Black Iron Greatshield
-    { 0x00896188, WeaponInfusionType::Magic }, // Magic Black Iron Greatshield
-    { 0x00896250, WeaponInfusionType::Divine }, // Divine Black Iron Greatshield
-    { 0x00896318, WeaponInfusionType::Fire }, // Fire Black Iron Greatshield
-    { 0x000DBBA0, WeaponInfusionType::NoUpgrade }, // Nothing
-    { 0x0013D620, WeaponInfusionType::NoUpgrade }, // Sorcerer's Catalyst
-    { 0x0013DA08, WeaponInfusionType::NoUpgrade }, // Beatrice's Catalyst
-    { 0x0013DDF0, WeaponInfusionType::NoUpgrade }, // Tin Banishment Catalyst
-    { 0x0013E1D8, WeaponInfusionType::NoUpgrade }, // Logan's Catalyst
-    { 0x0013E5C0, WeaponInfusionType::NoUpgrade }, // Tin Darkmoon Catalyst
-    { 0x0013E624, WeaponInfusionType::NoUpgrade }, // Tin Darkmoon Catalyst
-    { 0x0013E688, WeaponInfusionType::NoUpgrade }, // Tin Darkmoon Catalyst
-    { 0x0013E6EC, WeaponInfusionType::NoUpgrade }, // Tin Darkmoon Catalyst
-    { 0x0013E750, WeaponInfusionType::NoUpgrade }, // Tin Darkmoon Catalyst
-    { 0x0013E9A8, WeaponInfusionType::NoUpgrade }, // Oolacile Ivory Catalyst
-    { 0x0013ED90, WeaponInfusionType::NoUpgrade }, // Tin Crystallization Catalyst
-    { 0x0013F178, WeaponInfusionType::NoUpgrade }, // Demon's Catalyst
-    { 0x0013F560, WeaponInfusionType::NoUpgrade }, // Izalith Catalyst
-    { 0x0014C080, WeaponInfusionType::NoUpgrade }, // Talisman
-    { 0x0014C468, WeaponInfusionType::NoUpgrade }, // Canvas Talisman
-    { 0x0014C850, WeaponInfusionType::NoUpgrade }, // Thorolund Talisman
-    { 0x0014CC38, WeaponInfusionType::NoUpgrade }, // Ivory Talisman
-    { 0x0014D020, WeaponInfusionType::NoUpgrade }, // Gwynevere's Talisman
-    { 0x0014D408, WeaponInfusionType::NoUpgrade }, // Sunlight Talisman
-    { 0x0014D7F0, WeaponInfusionType::NoUpgrade }, // Darkmoon Talisman
-    { 0x0014DBD8, WeaponInfusionType::NoUpgrade }, // Velka's Talisman
-    { 0x00154D20, WeaponInfusionType::NoUpgrade }, // Skull Lantern
-    { 0x0004BAF0, WeaponInfusionType::Unique }, // Black Knight Sword
-    { 0x0004BED8, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004BF3C, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004BFA0, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C004, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C068, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C0CC, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C130, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C194, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C1F8, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C25C, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C2C0, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C324, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C388, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C3EC, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C450, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C4B4, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C518, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004C57C, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004CA90, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CAF4, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CB58, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CBBC, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CC20, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CC84, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CCE8, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CD4C, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CDB0, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CE14, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CE78, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CEDC, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CF40, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004CFA4, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004D008, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004D06C, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004D0D0, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004D134, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0016FEB8, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x0016FF1C, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x0016FF80, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x0016FFE4, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170048, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001700AC, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170110, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170174, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001701D8, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x0017023C, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001702A0, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170304, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170368, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001703CC, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170430, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170494, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001704F8, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x0017055C, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001705C0, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170624, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170688, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001706EC, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170750, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001707B4, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170818, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x0017087C, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001708E0, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170944, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x001709A8, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170A0C, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170A70, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170AD4, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170B38, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170B9C, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170C00, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170C64, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00170CC8, WeaponInfusionType::Unique }, // Greatshield of Artorias
-    { 0x00032C80, WeaponInfusionType::Unique }, // Silver Knight Straight Sword
-    { 0x0004AF38, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004AF9C, WeaponInfusionType::Unique }, // Greatsword of Artorias
-    { 0x0004B320, WeaponInfusionType::Unique }, // Great Lord Greatsword
-    { 0x0004B708, WeaponInfusionType::Unique }, // Moonlight Greatsword
-    { 0x000631F0, WeaponInfusionType::Unique }, // Quelaag's Furysword
-    { 0x00063254, WeaponInfusionType::Unique }, // Quelaag's Furysword
-    { 0x000632B8, WeaponInfusionType::Unique }, // Quelaag's Furysword
-    { 0x0006331C, WeaponInfusionType::Unique }, // Quelaag's Furysword
-    { 0x00063380, WeaponInfusionType::Unique }, // Quelaag's Furysword
-    { 0x000633E4, WeaponInfusionType::Unique }, // Quelaag's Furysword
-    { 0x00897B50, WeaponInfusionType::Unique }, // Gold Tracer
-    { 0x0089A648, WeaponInfusionType::Unique }, // Gough's Greatbow
-    { 0x00898ED8, WeaponInfusionType::Unique }, // Stone Greataxe
-    { 0x0089A260, WeaponInfusionType::Unique }, // Obsidian Greatsword
-    { 0x00897F38, WeaponInfusionType::Unique }, // Dark Silver Tracer
-    { 0x000566D0, WeaponInfusionType::Unique }, // Dragon Greatsword
-    { 0x00056AB8, WeaponInfusionType::Unique }, // Black Knight Greatsword,     
-    { 0x00018E70, WeaponInfusionType::Unique }, // Ghost Blade
-    { 0x00019640, WeaponInfusionType::Unique }, // Priscilla's Dagger
-    { 0x000D0FC0, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D1024, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D1088, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D10EC, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D1150, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D11B4, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D1218, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D127C, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D12E0, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D1344, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D13A8, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x000D140C, WeaponInfusionType::Unique }, // Smough's Hammer
-    { 0x00062638, WeaponInfusionType::Unique }, // Jagged Ghost Blade
-    { 0x000ABE00, WeaponInfusionType::Unique }, // Golem Axe
-    { 0x000ABE64, WeaponInfusionType::Unique }, // Golem Axe
-    { 0x000ABEC8, WeaponInfusionType::Unique }, // Golem Axe
-    { 0x000ABF2C, WeaponInfusionType::Unique }, // Golem Axe
-    { 0x000ABF90, WeaponInfusionType::Unique }, // Golem Axe
-    { 0x000ABFF4, WeaponInfusionType::Unique }, // Golem Axe
-    { 0x000AC058, WeaponInfusionType::Unique }, // Golem Axe
-    { 0x0007ACD8, WeaponInfusionType::Unique }, // Chaos Blade
-    { 0x0007AD3C, WeaponInfusionType::Unique }, // Chaos Blade
-    { 0x0007ADA0, WeaponInfusionType::Unique }, // Chaos Blade
-    { 0x0010D0B0, WeaponInfusionType::Unique }, // Titanite Catch Pole
-    { 0x001587B8, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x0015881C, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158880, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x001588E4, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158948, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x001589AC, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158A10, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158A74, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158AD8, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158B3C, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158BA0, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158C04, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158C68, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158CCC, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158D30, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158D94, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158DF8, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158E5C, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158EC0, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158F24, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158F88, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00158FEC, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00159050, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x001590B4, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00159118, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x0015917C, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x001591E0, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00159244, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x001592A8, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x0015930C, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00159370, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x001593D4, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00159438, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x0015949C, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00159500, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x00159564, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x001595C8, WeaponInfusionType::Unique }, // Crystal Ring Shield
-    { 0x000DC758, WeaponInfusionType::Unique }, // Dragon Bone Fist
-    { 0x000DC7BC, WeaponInfusionType::Unique }, // Dragon Bone Fist
-    { 0x000F59B0, WeaponInfusionType::Unique }, // Silver Knight Spear
-    { 0x00100978, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x001009DC, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100A40, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100AA4, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100B08, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100B6C, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100BD0, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100C34, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100C98, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100CFC, WeaponInfusionType::Unique }, // Dragonslayer Spear
-    { 0x00100D60, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x00100DC4, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x00100E28, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x00100E8C, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x00100EF0, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x00100F54, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x00100FB8, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x0010101C, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x00101080, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x001010E4, WeaponInfusionType::Unique }, // Moonlight Butterfly Horn
-    { 0x0010DC68, WeaponInfusionType::Unique }, // Black Knight Halberd
-    { 0x00119018, WeaponInfusionType::Unique }, // Lifehunt Scythe
-    { 0x0011907C, WeaponInfusionType::Unique }, // Lifehunt Scythe
-    { 0x001190E0, WeaponInfusionType::Unique }, // Lifehunt Scythe
-    { 0x00119144, WeaponInfusionType::Unique }, // Lifehunt Scythe
-    { 0x001191A8, WeaponInfusionType::Unique }, // Lifehunt Scythe
-    { 0x0011920C, WeaponInfusionType::Unique }, // Lifehunt Scythe
-    { 0x00119270, WeaponInfusionType::Unique }, // Lifehunt Scythe
-    { 0x001192D4, WeaponInfusionType::Unique }, // Lifehunt Scythe
-    { 0x00126308, WeaponInfusionType::Unique }, // Darkmoon Bow
-    { 0x0012636C, WeaponInfusionType::Unique }, // Darkmoon Bow
-    { 0x001263D0, WeaponInfusionType::Unique }, // Darkmoon Bow
-    { 0x00126434, WeaponInfusionType::Unique }, // Darkmoon Bow
-    { 0x00898320, WeaponInfusionType::Unique }, // Abyss Greatsword
-    { 0x00898AF0, WeaponInfusionType::Unique }, // Cleansing Greatshield
+std::unordered_map<WeaponUpgradePath, std::string> upgrade_path_names = {
+    {WeaponUpgradePath::NoUpgrade,  "NoUpgrade"},
+    {WeaponUpgradePath::Standard,  "Standard"},
+    {WeaponUpgradePath::Crystal,  "Crystal"},
+    {WeaponUpgradePath::Lightning,  "Lightning"},
+    {WeaponUpgradePath::Raw,  "Raw"},
+    {WeaponUpgradePath::Magic,  "Magic"},
+    {WeaponUpgradePath::Enchanted,  "Enchanted"},
+    {WeaponUpgradePath::Divine,  "Divine"},
+    {WeaponUpgradePath::Occult,  "Occult"},
+    {WeaponUpgradePath::Fire,  "Fire"},
+    {WeaponUpgradePath::Chaos,  "Chaos"},
+    {WeaponUpgradePath::Dragon,  "Dragon"},
+    {WeaponUpgradePath::Twinkling,  "Twinkling"},
+    {WeaponUpgradePath::DemonSif,  " DemonSif"},
+    {WeaponUpgradePath::DemonGwyn,  "DemonGwyn"},
+    {WeaponUpgradePath::DemonQuelaag,  "DemonQuelaag"},
+    {WeaponUpgradePath::DemonOrnstein,  "DemonOrnstein"},
+    {WeaponUpgradePath::DemonButterfly,  "DemonButterfly"},
+    {WeaponUpgradePath::DemonGolem,  "DemonGolem"},
+    {WeaponUpgradePath::DemonSmough,  "DemonSmough"},
+    {WeaponUpgradePath::DemonPriscilla,  "DemonPriscilla"},
+    {WeaponUpgradePath::DemonGwyndolin,  "DemonGwyndolin"},
+    {WeaponUpgradePath::DragonGolem,  "DragonGolem"},
+    {WeaponUpgradePath::DemonNonBoss,  "DemonNonBoss"},
+    {WeaponUpgradePath::DemonArtorias,  "DemonArtorias"},
+    {WeaponUpgradePath::DemonManus,  " DemonManus"},
+};
+
+
+std::unordered_map<uint64_t, WeaponUpgradePath> weapon_ids = {
+{  100000 ,         WeaponUpgradePath::Standard }, // Dagger
+{  100100 ,          WeaponUpgradePath::Crystal }, // Dagger [Crystal]
+{  100200 ,        WeaponUpgradePath::Lightning }, // Dagger [Lightning]
+{  100300 ,              WeaponUpgradePath::Raw }, // Dagger [Raw]
+{  100400 ,            WeaponUpgradePath::Magic }, // Dagger [Magic]
+{  100500 ,        WeaponUpgradePath::Enchanted }, // Dagger [Enchanted]
+{  100600 ,           WeaponUpgradePath::Divine }, // Dagger [Divine]
+{  100700 ,           WeaponUpgradePath::Occult }, // Dagger [Occult]
+{  100800 ,             WeaponUpgradePath::Fire }, // Dagger [Fire]
+{  100900 ,            WeaponUpgradePath::Chaos }, // Dagger [Chaos]
+{  101000 ,         WeaponUpgradePath::Standard }, // Parrying Dagger
+{  101100 ,          WeaponUpgradePath::Crystal }, // Parrying Dagger [Crystal]
+{  101200 ,        WeaponUpgradePath::Lightning }, // Parrying Dagger [Lightning]
+{  101300 ,              WeaponUpgradePath::Raw }, // Parrying Dagger [Raw]
+{  101400 ,            WeaponUpgradePath::Magic }, // Parrying Dagger [Magic]
+{  101500 ,        WeaponUpgradePath::Enchanted }, // Parrying Dagger [Enchanted]
+{  101600 ,           WeaponUpgradePath::Divine }, // Parrying Dagger [Divine]
+{  101700 ,           WeaponUpgradePath::Occult }, // Parrying Dagger [Occult]
+{  101800 ,             WeaponUpgradePath::Fire }, // Parrying Dagger [Fire]
+{  101900 ,            WeaponUpgradePath::Chaos }, // Parrying Dagger [Chaos]
+{  102000 ,        WeaponUpgradePath::Twinkling }, // Ghost Blade
+{  103000 ,         WeaponUpgradePath::Standard }, // Bandit's Knife
+{  103100 ,          WeaponUpgradePath::Crystal }, // Bandit's Knife [Crystal]
+{  103200 ,        WeaponUpgradePath::Lightning }, // Bandit's Knife [Lightning]
+{  103300 ,              WeaponUpgradePath::Raw }, // Bandit's Knife [Raw]
+{  103400 ,            WeaponUpgradePath::Magic }, // Bandit's Knife [Magic]
+{  103500 ,        WeaponUpgradePath::Enchanted }, // Bandit's Knife [Enchanted]
+{  103600 ,           WeaponUpgradePath::Divine }, // Bandit's Knife [Divine]
+{  103700 ,           WeaponUpgradePath::Occult }, // Bandit's Knife [Occult]
+{  103800 ,             WeaponUpgradePath::Fire }, // Bandit's Knife [Fire]
+{  103900 ,            WeaponUpgradePath::Chaos }, // Bandit's Knife [Chaos]
+{  104000 ,           WeaponUpgradePath::Dragon }, // Priscilla's Dagger
+{  199000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Dagger
+{  200000 ,         WeaponUpgradePath::Standard }, // Shortsword
+{  200100 ,          WeaponUpgradePath::Crystal }, // Shortsword [Crystal]
+{  200200 ,        WeaponUpgradePath::Lightning }, // Shortsword [Lightning]
+{  200300 ,              WeaponUpgradePath::Raw }, // Shortsword [Raw]
+{  200400 ,            WeaponUpgradePath::Magic }, // Shortsword [Magic]
+{  200500 ,        WeaponUpgradePath::Enchanted }, // Shortsword [Enchanted]
+{  200600 ,           WeaponUpgradePath::Divine }, // Shortsword [Divine]
+{  200700 ,           WeaponUpgradePath::Occult }, // Shortsword [Occult]
+{  200800 ,             WeaponUpgradePath::Fire }, // Shortsword [Fire]
+{  200900 ,            WeaponUpgradePath::Chaos }, // Shortsword [Chaos]
+{  201000 ,         WeaponUpgradePath::Standard }, // Longsword
+{  201100 ,          WeaponUpgradePath::Crystal }, // Longsword [Crystal]
+{  201200 ,        WeaponUpgradePath::Lightning }, // Longsword [Lightning]
+{  201300 ,              WeaponUpgradePath::Raw }, // Longsword [Raw]
+{  201400 ,            WeaponUpgradePath::Magic }, // Longsword [Magic]
+{  201500 ,        WeaponUpgradePath::Enchanted }, // Longsword [Enchanted]
+{  201600 ,           WeaponUpgradePath::Divine }, // Longsword [Divine]
+{  201700 ,           WeaponUpgradePath::Occult }, // Longsword [Occult]
+{  201800 ,             WeaponUpgradePath::Fire }, // Longsword [Fire]
+{  201900 ,            WeaponUpgradePath::Chaos }, // Longsword [Chaos]
+{  202000 ,         WeaponUpgradePath::Standard }, // Broadsword
+{  202100 ,          WeaponUpgradePath::Crystal }, // Broadsword [Crystal]
+{  202200 ,        WeaponUpgradePath::Lightning }, // Broadsword [Lightning]
+{  202300 ,              WeaponUpgradePath::Raw }, // Broadsword [Raw]
+{  202400 ,            WeaponUpgradePath::Magic }, // Broadsword [Magic]
+{  202500 ,        WeaponUpgradePath::Enchanted }, // Broadsword [Enchanted]
+{  202600 ,           WeaponUpgradePath::Divine }, // Broadsword [Divine]
+{  202700 ,           WeaponUpgradePath::Occult }, // Broadsword [Occult]
+{  202800 ,             WeaponUpgradePath::Fire }, // Broadsword [Fire]
+{  202900 ,            WeaponUpgradePath::Chaos }, // Broadsword [Chaos]
+{  203000 ,         WeaponUpgradePath::Standard }, // Broken Straight Sword
+{  203100 ,          WeaponUpgradePath::Crystal }, // Broken Straight Sword [Crystal]
+{  203200 ,        WeaponUpgradePath::Lightning }, // Broken Straight Sword [Lightning]
+{  203300 ,              WeaponUpgradePath::Raw }, // Broken Straight Sword [Raw]
+{  203400 ,            WeaponUpgradePath::Magic }, // Broken Straight Sword [Magic]
+{  203500 ,        WeaponUpgradePath::Enchanted }, // Broken Straight Sword [Enchanted]
+{  203600 ,           WeaponUpgradePath::Divine }, // Broken Straight Sword [Divine]
+{  203700 ,           WeaponUpgradePath::Occult }, // Broken Straight Sword [Occult]
+{  203800 ,             WeaponUpgradePath::Fire }, // Broken Straight Sword [Fire]
+{  203900 ,            WeaponUpgradePath::Chaos }, // Broken Straight Sword [Chaos]
+{  204000 ,         WeaponUpgradePath::Standard }, // Balder Side Sword
+{  204100 ,          WeaponUpgradePath::Crystal }, // Balder Side Sword [Crystal]
+{  204200 ,        WeaponUpgradePath::Lightning }, // Balder Side Sword [Lightning]
+{  204300 ,              WeaponUpgradePath::Raw }, // Balder Side Sword [Raw]
+{  204400 ,            WeaponUpgradePath::Magic }, // Balder Side Sword [Magic]
+{  204500 ,        WeaponUpgradePath::Enchanted }, // Balder Side Sword [Enchanted]
+{  204600 ,           WeaponUpgradePath::Divine }, // Balder Side Sword [Divine]
+{  204700 ,           WeaponUpgradePath::Occult }, // Balder Side Sword [Occult]
+{  204800 ,             WeaponUpgradePath::Fire }, // Balder Side Sword [Fire]
+{  204900 ,            WeaponUpgradePath::Chaos }, // Balder Side Sword [Chaos]
+{  205000 ,        WeaponUpgradePath::NoUpgrade }, // Crystal Straight Sword
+{  206000 ,         WeaponUpgradePath::Standard }, // Sunlight Straight Sword
+{  206100 ,          WeaponUpgradePath::Crystal }, // Sunlight Straight Sword [Crystal]
+{  206200 ,        WeaponUpgradePath::Lightning }, // Sunlight Straight Sword [Lightning]
+{  206300 ,              WeaponUpgradePath::Raw }, // Sunlight Straight Sword [Raw]
+{  206400 ,            WeaponUpgradePath::Magic }, // Sunlight Straight Sword [Magic]
+{  206500 ,        WeaponUpgradePath::Enchanted }, // Sunlight Straight Sword [Enchanted]
+{  206600 ,           WeaponUpgradePath::Divine }, // Sunlight Straight Sword [Divine]
+{  206700 ,           WeaponUpgradePath::Occult }, // Sunlight Straight Sword [Occult]
+{  206800 ,             WeaponUpgradePath::Fire }, // Sunlight Straight Sword [Fire]
+{  206900 ,            WeaponUpgradePath::Chaos }, // Sunlight Straight Sword [Chaos]
+{  207000 ,         WeaponUpgradePath::Standard }, // Barbed Straight Sword
+{  207100 ,          WeaponUpgradePath::Crystal }, // Barbed Straight Sword [Crystal]
+{  207200 ,        WeaponUpgradePath::Lightning }, // Barbed Straight Sword [Lightning]
+{  207300 ,              WeaponUpgradePath::Raw }, // Barbed Straight Sword [Raw]
+{  207400 ,            WeaponUpgradePath::Magic }, // Barbed Straight Sword [Magic]
+{  207500 ,        WeaponUpgradePath::Enchanted }, // Barbed Straight Sword [Enchanted]
+{  207600 ,           WeaponUpgradePath::Divine }, // Barbed Straight Sword [Divine]
+{  207700 ,           WeaponUpgradePath::Occult }, // Barbed Straight Sword [Occult]
+{  207800 ,             WeaponUpgradePath::Fire }, // Barbed Straight Sword [Fire]
+{  207900 ,            WeaponUpgradePath::Chaos }, // Barbed Straight Sword [Chaos]
+{  208000 ,        WeaponUpgradePath::Twinkling }, // Silv. Knight Str. Sword
+{  209000 ,        WeaponUpgradePath::Twinkling }, // Astora's Straight Sword
+{  210000 ,         WeaponUpgradePath::Standard }, // Darksword
+{  210100 ,          WeaponUpgradePath::Crystal }, // Darksword [Crystal]
+{  210200 ,        WeaponUpgradePath::Lightning }, // Darksword [Lightning]
+{  210300 ,              WeaponUpgradePath::Raw }, // Darksword [Raw]
+{  210400 ,            WeaponUpgradePath::Magic }, // Darksword [Magic]
+{  210500 ,        WeaponUpgradePath::Enchanted }, // Darksword [Enchanted]
+{  210600 ,           WeaponUpgradePath::Divine }, // Darksword [Divine]
+{  210700 ,           WeaponUpgradePath::Occult }, // Darksword [Occult]
+{  210800 ,             WeaponUpgradePath::Fire }, // Darksword [Fire]
+{  210900 ,            WeaponUpgradePath::Chaos }, // Darksword [Chaos]
+{  211000 ,           WeaponUpgradePath::Dragon }, // Drake Sword
+{  212000 ,         WeaponUpgradePath::Standard }, // Straight Sword Hilt
+{  212100 ,          WeaponUpgradePath::Crystal }, // Straight Sword Hilt [Crystal]
+{  212200 ,        WeaponUpgradePath::Lightning }, // Straight Sword Hilt [Lightning]
+{  212300 ,              WeaponUpgradePath::Raw }, // Straight Sword Hilt [Raw]
+{  212400 ,            WeaponUpgradePath::Magic }, // Straight Sword Hilt [Magic]
+{  212500 ,        WeaponUpgradePath::Enchanted }, // Straight Sword Hilt [Enchanted]
+{  212600 ,           WeaponUpgradePath::Divine }, // Straight Sword Hilt [Divine]
+{  212700 ,           WeaponUpgradePath::Occult }, // Straight Sword Hilt [Occult]
+{  212800 ,             WeaponUpgradePath::Fire }, // Straight Sword Hilt [Fire]
+{  212900 ,            WeaponUpgradePath::Chaos }, // Straight Sword Hilt [Chaos]
+{  299000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Straight Sword
+{  300000 ,         WeaponUpgradePath::Standard }, // Bastard Sword
+{  300100 ,          WeaponUpgradePath::Crystal }, // Bastard Sword [Crystal]
+{  300200 ,        WeaponUpgradePath::Lightning }, // Bastard Sword [Lightning]
+{  300300 ,              WeaponUpgradePath::Raw }, // Bastard Sword [Raw]
+{  300400 ,            WeaponUpgradePath::Magic }, // Bastard Sword [Magic]
+{  300500 ,        WeaponUpgradePath::Enchanted }, // Bastard Sword [Enchanted]
+{  300600 ,           WeaponUpgradePath::Divine }, // Bastard Sword [Divine]
+{  300700 ,           WeaponUpgradePath::Occult }, // Bastard Sword [Occult]
+{  300800 ,             WeaponUpgradePath::Fire }, // Bastard Sword [Fire]
+{  300900 ,            WeaponUpgradePath::Chaos }, // Bastard Sword [Chaos]
+{  301000 ,         WeaponUpgradePath::Standard }, // Claymore
+{  301100 ,          WeaponUpgradePath::Crystal }, // Claymore [Crystal]
+{  301200 ,        WeaponUpgradePath::Lightning }, // Claymore [Lightning]
+{  301300 ,              WeaponUpgradePath::Raw }, // Claymore [Raw]
+{  301400 ,            WeaponUpgradePath::Magic }, // Claymore [Magic]
+{  301500 ,        WeaponUpgradePath::Enchanted }, // Claymore [Enchanted]
+{  301600 ,           WeaponUpgradePath::Divine }, // Claymore [Divine]
+{  301700 ,           WeaponUpgradePath::Occult }, // Claymore [Occult]
+{  301800 ,             WeaponUpgradePath::Fire }, // Claymore [Fire]
+{  301900 ,            WeaponUpgradePath::Chaos }, // Claymore [Chaos]
+{  302000 ,         WeaponUpgradePath::Standard }, // Man-serpent Greatsword
+{  302100 ,          WeaponUpgradePath::Crystal }, // Man-serpent Greatsword [Crystal]
+{  302200 ,        WeaponUpgradePath::Lightning }, // Man-serpent Greatsword [Lightning]
+{  302300 ,              WeaponUpgradePath::Raw }, // Man-serpent Greatsword [Raw]
+{  302400 ,            WeaponUpgradePath::Magic }, // Man-serpent Greatsword [Magic]
+{  302500 ,        WeaponUpgradePath::Enchanted }, // Man-serpent Greatsword [Enchanted]
+{  302600 ,           WeaponUpgradePath::Divine }, // Man-serpent Greatsword [Divine]
+{  302700 ,           WeaponUpgradePath::Occult }, // Man-serpent Greatsword [Occult]
+{  302800 ,             WeaponUpgradePath::Fire }, // Man-serpent Greatsword [Fire]
+{  302900 ,            WeaponUpgradePath::Chaos }, // Man-serpent Greatsword [Chaos]
+{  303000 ,         WeaponUpgradePath::Standard }, // Flamberge
+{  303100 ,          WeaponUpgradePath::Crystal }, // Flamberge [Crystal]
+{  303200 ,        WeaponUpgradePath::Lightning }, // Flamberge [Lightning]
+{  303300 ,              WeaponUpgradePath::Raw }, // Flamberge [Raw]
+{  303400 ,            WeaponUpgradePath::Magic }, // Flamberge [Magic]
+{  303500 ,        WeaponUpgradePath::Enchanted }, // Flamberge [Enchanted]
+{  303600 ,           WeaponUpgradePath::Divine }, // Flamberge [Divine]
+{  303700 ,           WeaponUpgradePath::Occult }, // Flamberge [Occult]
+{  303800 ,             WeaponUpgradePath::Fire }, // Flamberge [Fire]
+{  303900 ,            WeaponUpgradePath::Chaos }, // Flamberge [Chaos]
+{  304000 ,        WeaponUpgradePath::NoUpgrade }, // Crystal Greatsword
+{  306000 ,        WeaponUpgradePath::Twinkling }, // Stone Greatsword
+{  307000 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Broken Straight Sword]
+{  307100 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Straight Sword Hilt]
+{  309000 ,           WeaponUpgradePath::Dragon }, // Moonlight Greatsword
+{  310000 ,        WeaponUpgradePath::Twinkling }, // Black Knight Sword
+{  311000 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Dagger]
+{  311100 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Parrying Dagger]
+{  311200 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Bandit's Knife]
+{  311300 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Shortsword]
+{  311400 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Longsword]
+{  311500 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Broadsword]
+{  311600 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Balder Side Sword]
+{  311700 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Sunlight Straight Sword]
+{  311800 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Barbed Straight Sword]
+{  311900 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Astora's Straight Sword]
+{  312000 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Darksword]
+{  312100 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Bastard Sword]
+{  312200 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Claymore]
+{  312300 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Man-serpent Greatsword]
+{  312400 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Flamberge]
+{  312500 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Zweihander]
+{  312600 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Greatsword]
+{  312700 ,         WeaponUpgradePath::DemonSif }, // Greatsword of Artorias [Demon Great Machete]
+{  314000 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Dagger]
+{  314100 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Parrying Dagger]
+{  314200 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Bandit's Knife]
+{  314300 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Shortsword]
+{  314400 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Longsword]
+{  314500 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Broadsword]
+{  314600 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Balder Side Sword]
+{  314700 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Sunlight Straight Sword]
+{  314800 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Barbed Straight Sword]
+{  314900 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Astora's Straight Sword]
+{  315000 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Darksword]
+{  315100 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Bastard Sword]
+{  315200 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Claymore]
+{  315300 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Man-serpent Greatsword]
+{  315400 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Flamberge]
+{  315500 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Zweihander]
+{  315600 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Greatsword]
+{  315700 ,        WeaponUpgradePath::DemonGwyn }, // Great Lord Greatsword [Demon Great Machete]
+{  350000 ,         WeaponUpgradePath::Standard }, // Zweihander
+{  350100 ,          WeaponUpgradePath::Crystal }, // Zweihander [Crystal]
+{  350200 ,        WeaponUpgradePath::Lightning }, // Zweihander [Lightning]
+{  350300 ,              WeaponUpgradePath::Raw }, // Zweihander [Raw]
+{  350400 ,            WeaponUpgradePath::Magic }, // Zweihander [Magic]
+{  350500 ,        WeaponUpgradePath::Enchanted }, // Zweihander [Enchanted]
+{  350600 ,           WeaponUpgradePath::Divine }, // Zweihander [Divine]
+{  350700 ,           WeaponUpgradePath::Occult }, // Zweihander [Occult]
+{  350800 ,             WeaponUpgradePath::Fire }, // Zweihander [Fire]
+{  350900 ,            WeaponUpgradePath::Chaos }, // Zweihander [Chaos]
+{  351000 ,         WeaponUpgradePath::Standard }, // Greatsword
+{  351100 ,          WeaponUpgradePath::Crystal }, // Greatsword [Crystal]
+{  351200 ,        WeaponUpgradePath::Lightning }, // Greatsword [Lightning]
+{  351300 ,              WeaponUpgradePath::Raw }, // Greatsword [Raw]
+{  351400 ,            WeaponUpgradePath::Magic }, // Greatsword [Magic]
+{  351500 ,        WeaponUpgradePath::Enchanted }, // Greatsword [Enchanted]
+{  351600 ,           WeaponUpgradePath::Divine }, // Greatsword [Divine]
+{  351700 ,           WeaponUpgradePath::Occult }, // Greatsword [Occult]
+{  351800 ,             WeaponUpgradePath::Fire }, // Greatsword [Fire]
+{  351900 ,            WeaponUpgradePath::Chaos }, // Greatsword [Chaos]
+{  352000 ,         WeaponUpgradePath::Standard }, // Demon Great Machete
+{  352100 ,          WeaponUpgradePath::Crystal }, // Demon Great Machete [Crystal]
+{  352200 ,        WeaponUpgradePath::Lightning }, // Demon Great Machete [Lightning]
+{  352300 ,              WeaponUpgradePath::Raw }, // Demon Great Machete [Raw]
+{  352400 ,            WeaponUpgradePath::Magic }, // Demon Great Machete [Magic]
+{  352500 ,        WeaponUpgradePath::Enchanted }, // Demon Great Machete [Enchanted]
+{  352600 ,           WeaponUpgradePath::Divine }, // Demon Great Machete [Divine]
+{  352700 ,           WeaponUpgradePath::Occult }, // Demon Great Machete [Occult]
+{  352800 ,             WeaponUpgradePath::Fire }, // Demon Great Machete [Fire]
+{  352900 ,            WeaponUpgradePath::Chaos }, // Demon Great Machete [Chaos]
+{  354000 ,           WeaponUpgradePath::Dragon }, // Dragon Greatsword
+{  355000 ,        WeaponUpgradePath::Twinkling }, // Black Knight Greatsword
+{  398000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Greatsword
+{  399000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Ultra Greatsword
+{  400000 ,         WeaponUpgradePath::Standard }, // Scimitar
+{  400100 ,          WeaponUpgradePath::Crystal }, // Scimitar [Crystal]
+{  400200 ,        WeaponUpgradePath::Lightning }, // Scimitar [Lightning]
+{  400300 ,              WeaponUpgradePath::Raw }, // Scimitar [Raw]
+{  400400 ,            WeaponUpgradePath::Magic }, // Scimitar [Magic]
+{  400500 ,        WeaponUpgradePath::Enchanted }, // Scimitar [Enchanted]
+{  400600 ,           WeaponUpgradePath::Divine }, // Scimitar [Divine]
+{  400700 ,           WeaponUpgradePath::Occult }, // Scimitar [Occult]
+{  400800 ,             WeaponUpgradePath::Fire }, // Scimitar [Fire]
+{  400900 ,            WeaponUpgradePath::Chaos }, // Scimitar [Chaos]
+{  401000 ,         WeaponUpgradePath::Standard }, // Falchion
+{  401100 ,          WeaponUpgradePath::Crystal }, // Falchion [Crystal]
+{  401200 ,        WeaponUpgradePath::Lightning }, // Falchion [Lightning]
+{  401300 ,              WeaponUpgradePath::Raw }, // Falchion [Raw]
+{  401400 ,            WeaponUpgradePath::Magic }, // Falchion [Magic]
+{  401500 ,        WeaponUpgradePath::Enchanted }, // Falchion [Enchanted]
+{  401600 ,           WeaponUpgradePath::Divine }, // Falchion [Divine]
+{  401700 ,           WeaponUpgradePath::Occult }, // Falchion [Occult]
+{  401800 ,             WeaponUpgradePath::Fire }, // Falchion [Fire]
+{  401900 ,            WeaponUpgradePath::Chaos }, // Falchion [Chaos]
+{  402000 ,         WeaponUpgradePath::Standard }, // Shotel
+{  402100 ,          WeaponUpgradePath::Crystal }, // Shotel [Crystal]
+{  402200 ,        WeaponUpgradePath::Lightning }, // Shotel [Lightning]
+{  402300 ,              WeaponUpgradePath::Raw }, // Shotel [Raw]
+{  402400 ,            WeaponUpgradePath::Magic }, // Shotel [Magic]
+{  402500 ,        WeaponUpgradePath::Enchanted }, // Shotel [Enchanted]
+{  402600 ,           WeaponUpgradePath::Divine }, // Shotel [Divine]
+{  402700 ,           WeaponUpgradePath::Occult }, // Shotel [Occult]
+{  402800 ,             WeaponUpgradePath::Fire }, // Shotel [Fire]
+{  402900 ,            WeaponUpgradePath::Chaos }, // Shotel [Chaos]
+{  403000 ,        WeaponUpgradePath::Twinkling }, // Jagged Ghost Blade
+{  405000 ,         WeaponUpgradePath::Standard }, // Painting Guardian Sword
+{  405100 ,          WeaponUpgradePath::Crystal }, // Painting Guardian Sword [Crystal]
+{  405200 ,        WeaponUpgradePath::Lightning }, // Painting Guardian Sword [Lightning]
+{  405300 ,              WeaponUpgradePath::Raw }, // Painting Guardian Sword [Raw]
+{  405400 ,            WeaponUpgradePath::Magic }, // Painting Guardian Sword [Magic]
+{  405500 ,        WeaponUpgradePath::Enchanted }, // Painting Guardian Sword [Enchanted]
+{  405600 ,           WeaponUpgradePath::Divine }, // Painting Guardian Sword [Divine]
+{  405700 ,           WeaponUpgradePath::Occult }, // Painting Guardian Sword [Occult]
+{  405800 ,             WeaponUpgradePath::Fire }, // Painting Guardian Sword [Fire]
+{  405900 ,            WeaponUpgradePath::Chaos }, // Painting Guardian Sword [Chaos]
+{  406000 ,     WeaponUpgradePath::DemonQuelaag }, // Quelaag's Furysword [Scimitar]
+{  406100 ,     WeaponUpgradePath::DemonQuelaag }, // Quelaag's Furysword [Falchion
+{  406200 ,     WeaponUpgradePath::DemonQuelaag }, // Quelaag's Furysword [Shotel]
+{  406300 ,     WeaponUpgradePath::DemonQuelaag }, // Quelaag's Furysword [Painting Guardian Sword]
+{  406400 ,     WeaponUpgradePath::DemonQuelaag }, // Quelaag's Furysword [Server]
+{  406500 ,     WeaponUpgradePath::DemonQuelaag }, // Quelaag's Furysword [Murakumo]
+{  450000 ,         WeaponUpgradePath::Standard }, // Server
+{  450100 ,          WeaponUpgradePath::Crystal }, // Server [Crystal]
+{  450200 ,        WeaponUpgradePath::Lightning }, // Server [Lightning]
+{  450300 ,              WeaponUpgradePath::Raw }, // Server [Raw]
+{  450400 ,            WeaponUpgradePath::Magic }, // Server [Magic]
+{  450500 ,        WeaponUpgradePath::Enchanted }, // Server [Enchanted]
+{  450600 ,           WeaponUpgradePath::Divine }, // Server [Divine]
+{  450700 ,           WeaponUpgradePath::Occult }, // Server [Occult]
+{  450800 ,             WeaponUpgradePath::Fire }, // Server [Fire]
+{  450900 ,            WeaponUpgradePath::Chaos }, // Server [Chaos]
+{  451000 ,         WeaponUpgradePath::Standard }, // Murakumo
+{  451100 ,          WeaponUpgradePath::Crystal }, // Murakumo [Crystal]
+{  451200 ,        WeaponUpgradePath::Lightning }, // Murakumo [Lightning]
+{  451300 ,              WeaponUpgradePath::Raw }, // Murakumo [Raw]
+{  451400 ,            WeaponUpgradePath::Magic }, // Murakumo [Magic]
+{  451500 ,        WeaponUpgradePath::Enchanted }, // Murakumo [Enchanted]
+{  451600 ,           WeaponUpgradePath::Divine }, // Murakumo [Divine]
+{  451700 ,           WeaponUpgradePath::Occult }, // Murakumo [Occult]
+{  451800 ,             WeaponUpgradePath::Fire }, // Murakumo [Fire]
+{  451900 ,            WeaponUpgradePath::Chaos }, // Murakumo [Chaos]
+{  453000 ,     WeaponUpgradePath::DemonNonBoss }, // Gravelord Sword
+{  498000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Curved Sword
+{  499000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Curved Greatsword
+{  500000 ,         WeaponUpgradePath::Standard }, // Uchigatana
+{  500100 ,          WeaponUpgradePath::Crystal }, // Uchigatana [Crystal]
+{  500200 ,        WeaponUpgradePath::Lightning }, // Uchigatana [Lightning]
+{  500300 ,              WeaponUpgradePath::Raw }, // Uchigatana [Raw]
+{  500400 ,            WeaponUpgradePath::Magic }, // Uchigatana [Magic]
+{  500500 ,        WeaponUpgradePath::Enchanted }, // Uchigatana [Enchanted]
+{  500600 ,           WeaponUpgradePath::Divine }, // Uchigatana [Divine]
+{  500700 ,           WeaponUpgradePath::Occult }, // Uchigatana [Occult]
+{  500800 ,             WeaponUpgradePath::Fire }, // Uchigatana [Fire]
+{  500900 ,            WeaponUpgradePath::Chaos }, // Uchigatana [Chaos]
+{  501000 ,         WeaponUpgradePath::Standard }, // Washing Pole
+{  501100 ,          WeaponUpgradePath::Crystal }, // Washing Pole [Crystal]
+{  501200 ,        WeaponUpgradePath::Lightning }, // Washing Pole [Lightning]
+{  501300 ,              WeaponUpgradePath::Raw }, // Washing Pole [Raw]
+{  501400 ,            WeaponUpgradePath::Magic }, // Washing Pole [Magic]
+{  501500 ,        WeaponUpgradePath::Enchanted }, // Washing Pole [Enchanted]
+{  501600 ,           WeaponUpgradePath::Divine }, // Washing Pole [Divine]
+{  501700 ,           WeaponUpgradePath::Occult }, // Washing Pole [Occult]
+{  501800 ,             WeaponUpgradePath::Fire }, // Washing Pole [Fire]
+{  501900 ,            WeaponUpgradePath::Chaos }, // Washing Pole [Chaos]
+{  502000 ,         WeaponUpgradePath::Standard }, // Iaito
+{  502100 ,          WeaponUpgradePath::Crystal }, // Iaito [Crystal]
+{  502200 ,        WeaponUpgradePath::Lightning }, // Iaito [Lightning]
+{  502300 ,              WeaponUpgradePath::Raw }, // Iaito [Raw]
+{  502400 ,            WeaponUpgradePath::Magic }, // Iaito [Magic]
+{  502500 ,        WeaponUpgradePath::Enchanted }, // Iaito [Enchanted]
+{  502600 ,           WeaponUpgradePath::Divine }, // Iaito [Divine]
+{  502700 ,           WeaponUpgradePath::Occult }, // Iaito [Occult]
+{  502800 ,             WeaponUpgradePath::Fire }, // Iaito [Fire]
+{  502900 ,            WeaponUpgradePath::Chaos }, // Iaito [Chaos]
+{  503000 ,     WeaponUpgradePath::DemonQuelaag }, // Chaos Blade [Uchigatana]
+{  503100 ,     WeaponUpgradePath::DemonQuelaag }, // Chaos Blade [Washing Pole]
+{  503200 ,     WeaponUpgradePath::DemonQuelaag }, // Chaos Blade [Iaito]
+{  599000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Katana
+{  600000 ,         WeaponUpgradePath::Standard }, // Mail Breaker
+{  600100 ,          WeaponUpgradePath::Crystal }, // Mail Breaker [Crystal]
+{  600200 ,        WeaponUpgradePath::Lightning }, // Mail Breaker [Lightning]
+{  600300 ,              WeaponUpgradePath::Raw }, // Mail Breaker [Raw]
+{  600400 ,            WeaponUpgradePath::Magic }, // Mail Breaker [Magic]
+{  600500 ,        WeaponUpgradePath::Enchanted }, // Mail Breaker [Enchanted]
+{  600600 ,           WeaponUpgradePath::Divine }, // Mail Breaker [Divine]
+{  600700 ,           WeaponUpgradePath::Occult }, // Mail Breaker [Occult]
+{  600800 ,             WeaponUpgradePath::Fire }, // Mail Breaker [Fire]
+{  600900 ,            WeaponUpgradePath::Chaos }, // Mail Breaker [Chaos]
+{  601000 ,         WeaponUpgradePath::Standard }, // Rapier
+{  601100 ,          WeaponUpgradePath::Crystal }, // Rapier [Crystal]
+{  601200 ,        WeaponUpgradePath::Lightning }, // Rapier [Lightning]
+{  601300 ,              WeaponUpgradePath::Raw }, // Rapier [Raw]
+{  601400 ,            WeaponUpgradePath::Magic }, // Rapier [Magic]
+{  601500 ,        WeaponUpgradePath::Enchanted }, // Rapier [Enchanted]
+{  601600 ,           WeaponUpgradePath::Divine }, // Rapier [Divine]
+{  601700 ,           WeaponUpgradePath::Occult }, // Rapier [Occult]
+{  601800 ,             WeaponUpgradePath::Fire }, // Rapier [Fire]
+{  601900 ,            WeaponUpgradePath::Chaos }, // Rapier [Chaos]
+{  602000 ,         WeaponUpgradePath::Standard }, // Estoc
+{  602100 ,          WeaponUpgradePath::Crystal }, // Estoc [Crystal]
+{  602200 ,        WeaponUpgradePath::Lightning }, // Estoc [Lightning]
+{  602300 ,              WeaponUpgradePath::Raw }, // Estoc [Raw]
+{  602400 ,            WeaponUpgradePath::Magic }, // Estoc [Magic]
+{  602500 ,        WeaponUpgradePath::Enchanted }, // Estoc [Enchanted]
+{  602600 ,           WeaponUpgradePath::Divine }, // Estoc [Divine]
+{  602700 ,           WeaponUpgradePath::Occult }, // Estoc [Occult]
+{  602800 ,             WeaponUpgradePath::Fire }, // Estoc [Fire]
+{  602900 ,            WeaponUpgradePath::Chaos }, // Estoc [Chaos]
+{  603000 ,        WeaponUpgradePath::Twinkling }, // Velka's Rapier
+{  604000 ,         WeaponUpgradePath::Standard }, // Ricard's Rapier
+{  604100 ,          WeaponUpgradePath::Crystal }, // Ricard's Rapier [Crystal]
+{  604200 ,        WeaponUpgradePath::Lightning }, // Ricard's Rapier [Lightning]
+{  604300 ,              WeaponUpgradePath::Raw }, // Ricard's Rapier [Raw]
+{  604400 ,            WeaponUpgradePath::Magic }, // Ricard's Rapier [Magic]
+{  604500 ,        WeaponUpgradePath::Enchanted }, // Ricard's Rapier [Enchanted]
+{  604600 ,           WeaponUpgradePath::Divine }, // Ricard's Rapier [Divine]
+{  604700 ,           WeaponUpgradePath::Occult }, // Ricard's Rapier [Occult]
+{  604800 ,             WeaponUpgradePath::Fire }, // Ricard's Rapier [Fire]
+{  604900 ,            WeaponUpgradePath::Chaos }, // Ricard's Rapier [Chaos]
+{  699000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Thrusting Sword
+{  700000 ,         WeaponUpgradePath::Standard }, // Hand Axe
+{  700100 ,          WeaponUpgradePath::Crystal }, // Hand Axe [Crystal]
+{  700200 ,        WeaponUpgradePath::Lightning }, // Hand Axe [Lightning]
+{  700300 ,              WeaponUpgradePath::Raw }, // Hand Axe [Raw]
+{  700400 ,            WeaponUpgradePath::Magic }, // Hand Axe [Magic]
+{  700500 ,        WeaponUpgradePath::Enchanted }, // Hand Axe [Enchanted]
+{  700600 ,           WeaponUpgradePath::Divine }, // Hand Axe [Divine]
+{  700700 ,           WeaponUpgradePath::Occult }, // Hand Axe [Occult]
+{  700800 ,             WeaponUpgradePath::Fire }, // Hand Axe [Fire]
+{  700900 ,            WeaponUpgradePath::Chaos }, // Hand Axe [Chaos]
+{  701000 ,         WeaponUpgradePath::Standard }, // Battle Axe
+{  701100 ,          WeaponUpgradePath::Crystal }, // Battle Axe [Crystal]
+{  701200 ,        WeaponUpgradePath::Lightning }, // Battle Axe [Lightning]
+{  701300 ,              WeaponUpgradePath::Raw }, // Battle Axe [Raw]
+{  701400 ,            WeaponUpgradePath::Magic }, // Battle Axe [Magic]
+{  701500 ,        WeaponUpgradePath::Enchanted }, // Battle Axe [Enchanted]
+{  701600 ,           WeaponUpgradePath::Divine }, // Battle Axe [Divine]
+{  701700 ,           WeaponUpgradePath::Occult }, // Battle Axe [Occult]
+{  701800 ,             WeaponUpgradePath::Fire }, // Battle Axe [Fire]
+{  701900 ,            WeaponUpgradePath::Chaos }, // Battle Axe [Chaos]
+{  702000 ,        WeaponUpgradePath::Twinkling }, // Crescent Axe
+{  703000 ,         WeaponUpgradePath::Standard }, // Butcher Knife
+{  703100 ,          WeaponUpgradePath::Crystal }, // Butcher Knife [Crystal]
+{  703200 ,        WeaponUpgradePath::Lightning }, // Butcher Knife [Lightning]
+{  703300 ,              WeaponUpgradePath::Raw }, // Butcher Knife [Raw]
+{  703400 ,            WeaponUpgradePath::Magic }, // Butcher Knife [Magic]
+{  703500 ,        WeaponUpgradePath::Enchanted }, // Butcher Knife [Enchanted]
+{  703600 ,           WeaponUpgradePath::Divine }, // Butcher Knife [Divine]
+{  703700 ,           WeaponUpgradePath::Occult }, // Butcher Knife [Occult]
+{  703800 ,             WeaponUpgradePath::Fire }, // Butcher Knife [Fire]
+{  703900 ,            WeaponUpgradePath::Chaos }, // Butcher Knife [Chaos]
+{  704000 ,       WeaponUpgradePath::DemonGolem }, // Golem Axe [Hand Axe]
+{  704100 ,       WeaponUpgradePath::DemonGolem }, // Golem Axe [Battle Axe]
+{  704200 ,       WeaponUpgradePath::DemonGolem }, // Golem Axe [Crescent Axe]
+{  704300 ,       WeaponUpgradePath::DemonGolem }, // Golem Axe [Butcher Knife]
+{  704400 ,       WeaponUpgradePath::DemonGolem }, // Golem Axe [Gargoyle Tail Axe]
+{  704500 ,       WeaponUpgradePath::DemonGolem }, // Golem Axe [Greataxe
+{  704600 ,       WeaponUpgradePath::DemonGolem }, // Golem Axe [Demon's Greataxe
+{  705000 ,         WeaponUpgradePath::Standard }, // Gargoyle Tail Axe
+{  705100 ,          WeaponUpgradePath::Crystal }, // Gargoyle Tail Axe [Crystal]
+{  705200 ,        WeaponUpgradePath::Lightning }, // Gargoyle Tail Axe [Lightning]
+{  705300 ,              WeaponUpgradePath::Raw }, // Gargoyle Tail Axe [Raw]
+{  705400 ,            WeaponUpgradePath::Magic }, // Gargoyle Tail Axe [Magic]
+{  705500 ,        WeaponUpgradePath::Enchanted }, // Gargoyle Tail Axe [Enchanted]
+{  705600 ,           WeaponUpgradePath::Divine }, // Gargoyle Tail Axe [Divine]
+{  705700 ,           WeaponUpgradePath::Occult }, // Gargoyle Tail Axe [Occult]
+{  705800 ,             WeaponUpgradePath::Fire }, // Gargoyle Tail Axe [Fire]
+{  705900 ,            WeaponUpgradePath::Chaos }, // Gargoyle Tail Axe [Chaos]
+{  750000 ,         WeaponUpgradePath::Standard }, // Greataxe
+{  750100 ,          WeaponUpgradePath::Crystal }, // Greataxe [Crystal]
+{  750200 ,        WeaponUpgradePath::Lightning }, // Greataxe [Lightning]
+{  750300 ,              WeaponUpgradePath::Raw }, // Greataxe [Raw]
+{  750400 ,            WeaponUpgradePath::Magic }, // Greataxe [Magic]
+{  750500 ,        WeaponUpgradePath::Enchanted }, // Greataxe [Enchanted]
+{  750600 ,           WeaponUpgradePath::Divine }, // Greataxe [Divine]
+{  750700 ,           WeaponUpgradePath::Occult }, // Greataxe [Occult]
+{  750800 ,             WeaponUpgradePath::Fire }, // Greataxe [Fire]
+{  750900 ,            WeaponUpgradePath::Chaos }, // Greataxe [Chaos]
+{  751000 ,         WeaponUpgradePath::Standard }, // Demon's Greataxe
+{  751100 ,          WeaponUpgradePath::Crystal }, // Demon's Greataxe [Crystal]
+{  751200 ,        WeaponUpgradePath::Lightning }, // Demon's Greataxe [Lightning]
+{  751300 ,              WeaponUpgradePath::Raw }, // Demon's Greataxe [Raw]
+{  751400 ,            WeaponUpgradePath::Magic }, // Demon's Greataxe [Magic]
+{  751500 ,        WeaponUpgradePath::Enchanted }, // Demon's Greataxe [Enchanted]
+{  751600 ,           WeaponUpgradePath::Divine }, // Demon's Greataxe [Divine]
+{  751700 ,           WeaponUpgradePath::Occult }, // Demon's Greataxe [Occult]
+{  751800 ,             WeaponUpgradePath::Fire }, // Demon's Greataxe [Fire]
+{  751900 ,            WeaponUpgradePath::Chaos }, // Demon's Greataxe [Chaos]
+{  752000 ,           WeaponUpgradePath::Dragon }, // Dragon King Greataxe
+{  753000 ,        WeaponUpgradePath::Twinkling }, // Black Knight Greataxe
+{  798000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Axe
+{  799000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Greataxe
+{  800000 ,         WeaponUpgradePath::Standard }, // Club
+{  800100 ,          WeaponUpgradePath::Crystal }, // Club [Crystal]
+{  800200 ,        WeaponUpgradePath::Lightning }, // Club [Lightning]
+{  800300 ,              WeaponUpgradePath::Raw }, // Club [Raw]
+{  800400 ,            WeaponUpgradePath::Magic }, // Club [Magic]
+{  800500 ,        WeaponUpgradePath::Enchanted }, // Club [Enchanted]
+{  800600 ,           WeaponUpgradePath::Divine }, // Club [Divine]
+{  800700 ,           WeaponUpgradePath::Occult }, // Club [Occult]
+{  800800 ,             WeaponUpgradePath::Fire }, // Club [Fire]
+{  800900 ,            WeaponUpgradePath::Chaos }, // Club [Chaos]
+{  801000 ,         WeaponUpgradePath::Standard }, // Mace
+{  801100 ,          WeaponUpgradePath::Crystal }, // Mace [Crystal]
+{  801200 ,        WeaponUpgradePath::Lightning }, // Mace [Lightning]
+{  801300 ,              WeaponUpgradePath::Raw }, // Mace [Raw]
+{  801400 ,            WeaponUpgradePath::Magic }, // Mace [Magic]
+{  801500 ,        WeaponUpgradePath::Enchanted }, // Mace [Enchanted]
+{  801600 ,           WeaponUpgradePath::Divine }, // Mace [Divine]
+{  801700 ,           WeaponUpgradePath::Occult }, // Mace [Occult]
+{  801800 ,             WeaponUpgradePath::Fire }, // Mace [Fire]
+{  801900 ,            WeaponUpgradePath::Chaos }, // Mace [Chaos]
+{  802000 ,         WeaponUpgradePath::Standard }, // Morning Star
+{  802100 ,          WeaponUpgradePath::Crystal }, // Morning Star [Crystal]
+{  802200 ,        WeaponUpgradePath::Lightning }, // Morning Star [Lightning]
+{  802300 ,              WeaponUpgradePath::Raw }, // Morning Star [Raw]
+{  802400 ,            WeaponUpgradePath::Magic }, // Morning Star [Magic]
+{  802500 ,        WeaponUpgradePath::Enchanted }, // Morning Star [Enchanted]
+{  802600 ,           WeaponUpgradePath::Divine }, // Morning Star [Divine]
+{  802700 ,           WeaponUpgradePath::Occult }, // Morning Star [Occult]
+{  802800 ,             WeaponUpgradePath::Fire }, // Morning Star [Fire]
+{  802900 ,            WeaponUpgradePath::Chaos }, // Morning Star [Chaos]
+{  803000 ,         WeaponUpgradePath::Standard }, // Warpick
+{  803100 ,          WeaponUpgradePath::Crystal }, // Warpick [Crystal]
+{  803200 ,        WeaponUpgradePath::Lightning }, // Warpick [Lightning]
+{  803300 ,              WeaponUpgradePath::Raw }, // Warpick [Raw]
+{  803400 ,            WeaponUpgradePath::Magic }, // Warpick [Magic]
+{  803500 ,        WeaponUpgradePath::Enchanted }, // Warpick [Enchanted]
+{  803600 ,           WeaponUpgradePath::Divine }, // Warpick [Divine]
+{  803700 ,           WeaponUpgradePath::Occult }, // Warpick [Occult]
+{  803800 ,             WeaponUpgradePath::Fire }, // Warpick [Fire]
+{  803900 ,            WeaponUpgradePath::Chaos }, // Warpick [Chaos]
+{  804000 ,         WeaponUpgradePath::Standard }, // Pickaxe
+{  804100 ,          WeaponUpgradePath::Crystal }, // Pickaxe [Crystal]
+{  804200 ,        WeaponUpgradePath::Lightning }, // Pickaxe [Lightning]
+{  804300 ,              WeaponUpgradePath::Raw }, // Pickaxe [Raw]
+{  804400 ,            WeaponUpgradePath::Magic }, // Pickaxe [Magic]
+{  804500 ,        WeaponUpgradePath::Enchanted }, // Pickaxe [Enchanted]
+{  804600 ,           WeaponUpgradePath::Divine }, // Pickaxe [Divine]
+{  804700 ,           WeaponUpgradePath::Occult }, // Pickaxe [Occult]
+{  804800 ,             WeaponUpgradePath::Fire }, // Pickaxe [Fire]
+{  804900 ,            WeaponUpgradePath::Chaos }, // Pickaxe [Chaos]
+{  809000 ,         WeaponUpgradePath::Standard }, // Reinforced Club
+{  809100 ,          WeaponUpgradePath::Crystal }, // Reinforced Club [Crystal]
+{  809200 ,        WeaponUpgradePath::Lightning }, // Reinforced Club [Lightning]
+{  809300 ,              WeaponUpgradePath::Raw }, // Reinforced Club [Raw]
+{  809400 ,            WeaponUpgradePath::Magic }, // Reinforced Club [Magic]
+{  809500 ,        WeaponUpgradePath::Enchanted }, // Reinforced Club [Enchanted]
+{  809600 ,           WeaponUpgradePath::Divine }, // Reinforced Club [Divine]
+{  809700 ,           WeaponUpgradePath::Occult }, // Reinforced Club [Occult]
+{  809800 ,             WeaponUpgradePath::Fire }, // Reinforced Club [Fire]
+{  809900 ,            WeaponUpgradePath::Chaos }, // Reinforced Club [Chaos]
+{  810000 ,         WeaponUpgradePath::Standard }, // Blacksmith Hammer
+{  810100 ,          WeaponUpgradePath::Crystal }, // Blacksmith Hammer [Crystal]
+{  810200 ,        WeaponUpgradePath::Lightning }, // Blacksmith Hammer [Lightning]
+{  810300 ,              WeaponUpgradePath::Raw }, // Blacksmith Hammer [Raw]
+{  810400 ,            WeaponUpgradePath::Magic }, // Blacksmith Hammer [Magic]
+{  810500 ,        WeaponUpgradePath::Enchanted }, // Blacksmith Hammer [Enchanted]
+{  810600 ,           WeaponUpgradePath::Divine }, // Blacksmith Hammer [Divine]
+{  810700 ,           WeaponUpgradePath::Occult }, // Blacksmith Hammer [Occult]
+{  810800 ,             WeaponUpgradePath::Fire }, // Blacksmith Hammer [Fire]
+{  810900 ,            WeaponUpgradePath::Chaos }, // Blacksmith Hammer [Chaos]
+{  811000 ,        WeaponUpgradePath::Twinkling }, // Blacksmith Giant Hammer
+{  812000 ,        WeaponUpgradePath::Twinkling }, // Hammer of Vamos
+{  850000 ,         WeaponUpgradePath::Standard }, // Great Club
+{  850100 ,          WeaponUpgradePath::Crystal }, // Great Club [Crystal]
+{  850200 ,        WeaponUpgradePath::Lightning }, // Great Club [Lightning]
+{  850300 ,              WeaponUpgradePath::Raw }, // Great Club [Raw]
+{  850400 ,            WeaponUpgradePath::Magic }, // Great Club [Magic]
+{  850500 ,        WeaponUpgradePath::Enchanted }, // Great Club [Enchanted]
+{  850600 ,           WeaponUpgradePath::Divine }, // Great Club [Divine]
+{  850700 ,           WeaponUpgradePath::Occult }, // Great Club [Occult]
+{  850800 ,             WeaponUpgradePath::Fire }, // Great Club [Fire]
+{  850900 ,            WeaponUpgradePath::Chaos }, // Great Club [Chaos]
+{  851000 ,        WeaponUpgradePath::Twinkling }, // Grant
+{  852000 ,         WeaponUpgradePath::Standard }, // Demon's Great Hammer
+{  852100 ,          WeaponUpgradePath::Crystal }, // Demon's Great Hammer [Crystal]
+{  852200 ,        WeaponUpgradePath::Lightning }, // Demon's Great Hammer [Lightning]
+{  852300 ,              WeaponUpgradePath::Raw }, // Demon's Great Hammer [Raw]
+{  852400 ,            WeaponUpgradePath::Magic }, // Demon's Great Hammer [Magic]
+{  852500 ,        WeaponUpgradePath::Enchanted }, // Demon's Great Hammer [Enchanted]
+{  852600 ,           WeaponUpgradePath::Divine }, // Demon's Great Hammer [Divine]
+{  852700 ,           WeaponUpgradePath::Occult }, // Demon's Great Hammer [Occult]
+{  852800 ,             WeaponUpgradePath::Fire }, // Demon's Great Hammer [Fire]
+{  852900 ,            WeaponUpgradePath::Chaos }, // Demon's Great Hammer [Chaos]
+{  854000 ,           WeaponUpgradePath::Dragon }, // Dragon Tooth
+{  855000 ,         WeaponUpgradePath::Standard }, // Large Club
+{  855100 ,          WeaponUpgradePath::Crystal }, // Large Club [Crystal]
+{  855200 ,        WeaponUpgradePath::Lightning }, // Large Club [Lightning]
+{  855300 ,              WeaponUpgradePath::Raw }, // Large Club [Raw]
+{  855400 ,            WeaponUpgradePath::Magic }, // Large Club [Magic]
+{  855500 ,        WeaponUpgradePath::Enchanted }, // Large Club [Enchanted]
+{  855600 ,           WeaponUpgradePath::Divine }, // Large Club [Divine]
+{  855700 ,           WeaponUpgradePath::Occult }, // Large Club [Occult]
+{  855800 ,             WeaponUpgradePath::Fire }, // Large Club [Fire]
+{  855900 ,            WeaponUpgradePath::Chaos }, // Large Club [Chaos]
+{  856000 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Club]
+{  856100 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Mace]
+{  856200 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Morning Star]
+{  856300 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Warpick]
+{  856400 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Pickaxe]
+{  856500 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Reinforced Club]
+{  856600 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Blacksmith Hammer]
+{  856700 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Blacksmith Giant Hammer
+{  856800 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Hammer of Vamos]
+{  856900 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Great Club]
+{  857000 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Demon's Great Hammer]
+{  857100 ,      WeaponUpgradePath::DemonSmough }, // Smough's Hammer [Large Club]
+{  898000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Hammer
+{  899000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Mallet
+{  900000 ,        WeaponUpgradePath::NoUpgrade }, // Fists
+{  901000 ,         WeaponUpgradePath::Standard }, // Caestus
+{  901100 ,          WeaponUpgradePath::Crystal }, // Caestus [Crystal]
+{  901200 ,        WeaponUpgradePath::Lightning }, // Caestus [Lightning]
+{  901300 ,              WeaponUpgradePath::Raw }, // Caestus [Raw]
+{  901400 ,            WeaponUpgradePath::Magic }, // Caestus [Magic]
+{  901500 ,        WeaponUpgradePath::Enchanted }, // Caestus [Enchanted]
+{  901600 ,           WeaponUpgradePath::Divine }, // Caestus [Divine]
+{  901700 ,           WeaponUpgradePath::Occult }, // Caestus [Occult]
+{  901800 ,             WeaponUpgradePath::Fire }, // Caestus [Fire]
+{  901900 ,            WeaponUpgradePath::Chaos }, // Caestus [Chaos]
+{  902000 ,         WeaponUpgradePath::Standard }, // Claw
+{  902100 ,          WeaponUpgradePath::Crystal }, // Claw [Crystal]
+{  902200 ,        WeaponUpgradePath::Lightning }, // Claw [Lightning]
+{  902300 ,              WeaponUpgradePath::Raw }, // Claw [Raw]
+{  902400 ,            WeaponUpgradePath::Magic }, // Claw [Magic]
+{  902500 ,        WeaponUpgradePath::Enchanted }, // Claw [Enchanted]
+{  902600 ,           WeaponUpgradePath::Divine }, // Claw [Divine]
+{  902700 ,           WeaponUpgradePath::Occult }, // Claw [Occult]
+{  902800 ,             WeaponUpgradePath::Fire }, // Claw [Fire]
+{  902900 ,            WeaponUpgradePath::Chaos }, // Claw [Chaos]
+{  903000 ,      WeaponUpgradePath::DragonGolem }, // Dragon Bone Fist [Caestus]
+{  903100 ,      WeaponUpgradePath::DragonGolem }, // Dragon Bone Fist [Claw]
+{  904000 ,         WeaponUpgradePath::Standard }, // Dark Hand
+{  999000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Fist
+{ 1000000 ,         WeaponUpgradePath::Standard }, // Spear
+{ 1000100 ,          WeaponUpgradePath::Crystal }, // Spear [Crystal]
+{ 1000200 ,        WeaponUpgradePath::Lightning }, // Spear [Lightning]
+{ 1000300 ,              WeaponUpgradePath::Raw }, // Spear [Raw]
+{ 1000400 ,            WeaponUpgradePath::Magic }, // Spear [Magic]
+{ 1000500 ,        WeaponUpgradePath::Enchanted }, // Spear [Enchanted]
+{ 1000600 ,           WeaponUpgradePath::Divine }, // Spear [Divine]
+{ 1000700 ,           WeaponUpgradePath::Occult }, // Spear [Occult]
+{ 1000800 ,             WeaponUpgradePath::Fire }, // Spear [Fire]
+{ 1000900 ,            WeaponUpgradePath::Chaos }, // Spear [Chaos]
+{ 1001000 ,         WeaponUpgradePath::Standard }, // Winged Spear
+{ 1001100 ,          WeaponUpgradePath::Crystal }, // Winged Spear [Crystal]
+{ 1001200 ,        WeaponUpgradePath::Lightning }, // Winged Spear [Lightning]
+{ 1001300 ,              WeaponUpgradePath::Raw }, // Winged Spear [Raw]
+{ 1001400 ,            WeaponUpgradePath::Magic }, // Winged Spear [Magic]
+{ 1001500 ,        WeaponUpgradePath::Enchanted }, // Winged Spear [Enchanted]
+{ 1001600 ,           WeaponUpgradePath::Divine }, // Winged Spear [Divine]
+{ 1001700 ,           WeaponUpgradePath::Occult }, // Winged Spear [Occult]
+{ 1001800 ,             WeaponUpgradePath::Fire }, // Winged Spear [Fire]
+{ 1001900 ,            WeaponUpgradePath::Chaos }, // Winged Spear [Chaos]
+{ 1002000 ,         WeaponUpgradePath::Standard }, // Partizan
+{ 1002100 ,          WeaponUpgradePath::Crystal }, // Partizan [Crystal]
+{ 1002200 ,        WeaponUpgradePath::Lightning }, // Partizan [Lightning]
+{ 1002300 ,              WeaponUpgradePath::Raw }, // Partizan [Raw]
+{ 1002400 ,            WeaponUpgradePath::Magic }, // Partizan [Magic]
+{ 1002500 ,        WeaponUpgradePath::Enchanted }, // Partizan [Enchanted]
+{ 1002600 ,           WeaponUpgradePath::Divine }, // Partizan [Divine]
+{ 1002700 ,           WeaponUpgradePath::Occult }, // Partizan [Occult]
+{ 1002800 ,             WeaponUpgradePath::Fire }, // Partizan [Fire]
+{ 1002900 ,            WeaponUpgradePath::Chaos }, // Partizan [Chaos]
+{ 1003000 ,     WeaponUpgradePath::DemonNonBoss }, // Demon's Spear
+{ 1004000 ,        WeaponUpgradePath::Twinkling }, // Channeler's Trident
+{ 1006000 ,        WeaponUpgradePath::Twinkling }, // Silver Knight Spear
+{ 1050000 ,         WeaponUpgradePath::Standard }, // Pike
+{ 1050100 ,          WeaponUpgradePath::Crystal }, // Pike [Crystal]
+{ 1050200 ,        WeaponUpgradePath::Lightning }, // Pike [Lightning]
+{ 1050300 ,              WeaponUpgradePath::Raw }, // Pike [Raw]
+{ 1050400 ,            WeaponUpgradePath::Magic }, // Pike [Magic]
+{ 1050500 ,        WeaponUpgradePath::Enchanted }, // Pike [Enchanted]
+{ 1050600 ,           WeaponUpgradePath::Divine }, // Pike [Divine]
+{ 1050700 ,           WeaponUpgradePath::Occult }, // Pike [Occult]
+{ 1050800 ,             WeaponUpgradePath::Fire }, // Pike [Fire]
+{ 1050900 ,            WeaponUpgradePath::Chaos }, // Pike [Chaos]
+{ 1051000 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Mail Breaker]
+{ 1051100 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Rapier]
+{ 1051200 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Estoc]
+{ 1051300 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Spear]
+{ 1051400 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Winged Spear]
+{ 1051500 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Partizan]
+{ 1051600 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Demon's Spear
+{ 1051700 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Channeler's Trident]
+{ 1051800 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Pike]
+{ 1051900 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Ricard's Rapier]
+{ 1052000 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Mail Breaker]
+{ 1052100 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Rapier]
+{ 1052200 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Estoc]
+{ 1052300 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Spear]
+{ 1052400 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Winged Spear]
+{ 1052500 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Partizan]
+{ 1052600 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Demon's Spear]
+{ 1052700 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Channeler's Trident]
+{ 1052800 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Pike]
+{ 1052900 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Ricard's Rapier]
+{ 1053000 ,   WeaponUpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Four-pronged Plow]
+{ 1054000 ,    WeaponUpgradePath::DemonOrnstein }, // Dragonslayer Spear [Four-pronged Plow]
+{ 1099000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Spear
+{ 1100000 ,         WeaponUpgradePath::Standard }, // Halberd
+{ 1100100 ,          WeaponUpgradePath::Crystal }, // Halberd [Crystal]
+{ 1100200 ,        WeaponUpgradePath::Lightning }, // Halberd [Lightning]
+{ 1100300 ,              WeaponUpgradePath::Raw }, // Halberd [Raw]
+{ 1100400 ,            WeaponUpgradePath::Magic }, // Halberd [Magic]
+{ 1100500 ,        WeaponUpgradePath::Enchanted }, // Halberd [Enchanted]
+{ 1100600 ,           WeaponUpgradePath::Divine }, // Halberd [Divine]
+{ 1100700 ,           WeaponUpgradePath::Occult }, // Halberd [Occult]
+{ 1100800 ,             WeaponUpgradePath::Fire }, // Halberd [Fire]
+{ 1100900 ,            WeaponUpgradePath::Chaos }, // Halberd [Chaos]
+{ 1101000 ,        WeaponUpgradePath::Twinkling }, // Giant's Halberd
+{ 1102000 ,        WeaponUpgradePath::Twinkling }, // Titanite Catch Pole
+{ 1103000 ,         WeaponUpgradePath::Standard }, // Gargoyle's Halberd
+{ 1103100 ,          WeaponUpgradePath::Crystal }, // Gargoyle's Halberd [Crystal]
+{ 1103200 ,        WeaponUpgradePath::Lightning }, // Gargoyle's Halberd [Lightning]
+{ 1103300 ,              WeaponUpgradePath::Raw }, // Gargoyle's Halberd [Raw]
+{ 1103400 ,            WeaponUpgradePath::Magic }, // Gargoyle's Halberd [Magic]
+{ 1103500 ,        WeaponUpgradePath::Enchanted }, // Gargoyle's Halberd [Enchanted]
+{ 1103600 ,           WeaponUpgradePath::Divine }, // Gargoyle's Halberd [Divine]
+{ 1103700 ,           WeaponUpgradePath::Occult }, // Gargoyle's Halberd [Occult]
+{ 1103800 ,             WeaponUpgradePath::Fire }, // Gargoyle's Halberd [Fire]
+{ 1103900 ,            WeaponUpgradePath::Chaos }, // Gargoyle's Halberd [Chaos]
+{ 1105000 ,        WeaponUpgradePath::Twinkling }, // Black Knight Halberd
+{ 1106000 ,         WeaponUpgradePath::Standard }, // Lucerne
+{ 1106100 ,          WeaponUpgradePath::Crystal }, // Lucerne [Crystal]
+{ 1106200 ,        WeaponUpgradePath::Lightning }, // Lucerne [Lightning]
+{ 1106300 ,              WeaponUpgradePath::Raw }, // Lucerne [Raw]
+{ 1106400 ,            WeaponUpgradePath::Magic }, // Lucerne [Magic]
+{ 1106500 ,        WeaponUpgradePath::Enchanted }, // Lucerne [Enchanted]
+{ 1106600 ,           WeaponUpgradePath::Divine }, // Lucerne [Divine]
+{ 1106700 ,           WeaponUpgradePath::Occult }, // Lucerne [Occult]
+{ 1106800 ,             WeaponUpgradePath::Fire }, // Lucerne [Fire]
+{ 1106900 ,            WeaponUpgradePath::Chaos }, // Lucerne [Chaos]
+{ 1107000 ,         WeaponUpgradePath::Standard }, // Scythe
+{ 1107100 ,          WeaponUpgradePath::Crystal }, // Scythe [Crystal]
+{ 1107200 ,        WeaponUpgradePath::Lightning }, // Scythe [Lightning]
+{ 1107300 ,              WeaponUpgradePath::Raw }, // Scythe [Raw]
+{ 1107400 ,            WeaponUpgradePath::Magic }, // Scythe [Magic]
+{ 1107500 ,        WeaponUpgradePath::Enchanted }, // Scythe [Enchanted]
+{ 1107600 ,           WeaponUpgradePath::Divine }, // Scythe [Divine]
+{ 1107700 ,           WeaponUpgradePath::Occult }, // Scythe [Occult]
+{ 1107800 ,             WeaponUpgradePath::Fire }, // Scythe [Fire]
+{ 1107900 ,            WeaponUpgradePath::Chaos }, // Scythe [Chaos]
+{ 1150000 ,         WeaponUpgradePath::Standard }, // Great Scythe
+{ 1150100 ,          WeaponUpgradePath::Crystal }, // Great Scythe [Crystal]
+{ 1150200 ,        WeaponUpgradePath::Lightning }, // Great Scythe [Lightning]
+{ 1150300 ,              WeaponUpgradePath::Raw }, // Great Scythe [Raw]
+{ 1150400 ,            WeaponUpgradePath::Magic }, // Great Scythe [Magic]
+{ 1150500 ,        WeaponUpgradePath::Enchanted }, // Great Scythe [Enchanted]
+{ 1150600 ,           WeaponUpgradePath::Divine }, // Great Scythe [Divine]
+{ 1150700 ,           WeaponUpgradePath::Occult }, // Great Scythe [Occult]
+{ 1150800 ,             WeaponUpgradePath::Fire }, // Great Scythe [Fire]
+{ 1150900 ,            WeaponUpgradePath::Chaos }, // Great Scythe [Chaos]
+{ 1151000 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Halberd]
+{ 1151100 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Lucerne]
+{ 1151200 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Scythe]
+{ 1151300 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Giant's Halberd]
+{ 1151400 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Gargoyle's Halberd]
+{ 1151500 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Great Scythe]
+{ 1151600 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Whip]
+{ 1151700 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Notched Whip]
+{ 1151800 ,   WeaponUpgradePath::DemonPriscilla }, // Lifehunt Scythe [Guardian Tail]
+{ 1199000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Scythe
+{ 1200000 ,         WeaponUpgradePath::Standard }, // Short Bow
+{ 1200100 ,          WeaponUpgradePath::Crystal }, // Short Bow [Crystal]
+{ 1200200 ,        WeaponUpgradePath::Lightning }, // Short Bow [Lightning]
+{ 1200300 ,              WeaponUpgradePath::Raw }, // Short Bow [Raw]
+{ 1200400 ,            WeaponUpgradePath::Magic }, // Short Bow [Magic]
+{ 1200500 ,        WeaponUpgradePath::Enchanted }, // Short Bow [Enchanted]
+{ 1200600 ,           WeaponUpgradePath::Divine }, // Short Bow [Divine]
+{ 1200700 ,           WeaponUpgradePath::Occult }, // Short Bow [Occult]
+{ 1200800 ,             WeaponUpgradePath::Fire }, // Short Bow [Fire]
+{ 1200900 ,            WeaponUpgradePath::Chaos }, // Short Bow [Chaos]
+{ 1201000 ,         WeaponUpgradePath::Standard }, // Longbow
+{ 1201100 ,          WeaponUpgradePath::Crystal }, // Longbow [Crystal]
+{ 1201200 ,        WeaponUpgradePath::Lightning }, // Longbow [Lightning]
+{ 1201300 ,              WeaponUpgradePath::Raw }, // Longbow [Raw]
+{ 1201400 ,            WeaponUpgradePath::Magic }, // Longbow [Magic]
+{ 1201500 ,        WeaponUpgradePath::Enchanted }, // Longbow [Enchanted]
+{ 1201600 ,           WeaponUpgradePath::Divine }, // Longbow [Divine]
+{ 1201700 ,           WeaponUpgradePath::Occult }, // Longbow [Occult]
+{ 1201800 ,             WeaponUpgradePath::Fire }, // Longbow [Fire]
+{ 1201900 ,            WeaponUpgradePath::Chaos }, // Longbow [Chaos]
+{ 1202000 ,         WeaponUpgradePath::Standard }, // Black Bow of Pharis
+{ 1202100 ,          WeaponUpgradePath::Crystal }, // Black Bow of Pharis [Crystal]
+{ 1202200 ,        WeaponUpgradePath::Lightning }, // Black Bow of Pharis [Lightning]
+{ 1202300 ,              WeaponUpgradePath::Raw }, // Black Bow of Pharis [Raw]
+{ 1202400 ,            WeaponUpgradePath::Magic }, // Black Bow of Pharis [Magic]
+{ 1202500 ,        WeaponUpgradePath::Enchanted }, // Black Bow of Pharis [Enchanted]
+{ 1202600 ,           WeaponUpgradePath::Divine }, // Black Bow of Pharis [Divine]
+{ 1202700 ,           WeaponUpgradePath::Occult }, // Black Bow of Pharis [Occult]
+{ 1202800 ,             WeaponUpgradePath::Fire }, // Black Bow of Pharis [Fire]
+{ 1202900 ,            WeaponUpgradePath::Chaos }, // Black Bow of Pharis [Chaos]
+{ 1203000 ,        WeaponUpgradePath::Twinkling }, // Dragonslayer Greatbow
+{ 1204000 ,         WeaponUpgradePath::Standard }, // Composite Bow
+{ 1204100 ,          WeaponUpgradePath::Crystal }, // Composite Bow [Crystal]
+{ 1204200 ,        WeaponUpgradePath::Lightning }, // Composite Bow [Lightning]
+{ 1204300 ,              WeaponUpgradePath::Raw }, // Composite Bow [Raw]
+{ 1204400 ,            WeaponUpgradePath::Magic }, // Composite Bow [Magic]
+{ 1204500 ,        WeaponUpgradePath::Enchanted }, // Composite Bow [Enchanted]
+{ 1204600 ,           WeaponUpgradePath::Divine }, // Composite Bow [Divine]
+{ 1204700 ,           WeaponUpgradePath::Occult }, // Composite Bow [Occult]
+{ 1204800 ,             WeaponUpgradePath::Fire }, // Composite Bow [Fire]
+{ 1204900 ,            WeaponUpgradePath::Chaos }, // Composite Bow [Chaos]
+{ 1205000 ,   WeaponUpgradePath::DemonGwyndolin }, // Darkmoon Bow [Short Bow]
+{ 1205100 ,   WeaponUpgradePath::DemonGwyndolin }, // Darkmoon Bow [Composite Bow]
+{ 1205200 ,   WeaponUpgradePath::DemonGwyndolin }, // Darkmoon Bow [Longbow]
+{ 1205300 ,   WeaponUpgradePath::DemonGwyndolin }, // Darkmoon Bow [Black Bow of Pharis]
+{ 1250000 ,         WeaponUpgradePath::Standard }, // Light Crossbow
+{ 1250100 ,          WeaponUpgradePath::Crystal }, // Light Crossbow [Crystal]
+{ 1250200 ,        WeaponUpgradePath::Lightning }, // Light Crossbow [Lightning]
+{ 1250400 ,            WeaponUpgradePath::Magic }, // Light Crossbow [Magic]
+{ 1250600 ,           WeaponUpgradePath::Divine }, // Light Crossbow [Divine]
+{ 1250800 ,             WeaponUpgradePath::Fire }, // Light Crossbow [Fire]
+{ 1251000 ,         WeaponUpgradePath::Standard }, // Heavy Crossbow
+{ 1251100 ,          WeaponUpgradePath::Crystal }, // Heavy Crossbow [Crystal]
+{ 1251200 ,        WeaponUpgradePath::Lightning }, // Heavy Crossbow [Lightning]
+{ 1251400 ,            WeaponUpgradePath::Magic }, // Heavy Crossbow [Magic]
+{ 1251600 ,           WeaponUpgradePath::Divine }, // Heavy Crossbow [Divine]
+{ 1251800 ,             WeaponUpgradePath::Fire }, // Heavy Crossbow [Fire]
+{ 1252000 ,         WeaponUpgradePath::Standard }, // Avelyn
+{ 1252100 ,          WeaponUpgradePath::Crystal }, // Avelyn [Crystal]
+{ 1252200 ,        WeaponUpgradePath::Lightning }, // Avelyn [Lightning]
+{ 1252400 ,            WeaponUpgradePath::Magic }, // Avelyn [Magic]
+{ 1252600 ,           WeaponUpgradePath::Divine }, // Avelyn [Divine]
+{ 1252800 ,             WeaponUpgradePath::Fire }, // Avelyn [Fire]
+{ 1253000 ,         WeaponUpgradePath::Standard }, // Sniper Crossbow
+{ 1253100 ,          WeaponUpgradePath::Crystal }, // Sniper Crossbow [Crystal]
+{ 1253200 ,        WeaponUpgradePath::Lightning }, // Sniper Crossbow [Lightning]
+{ 1253400 ,            WeaponUpgradePath::Magic }, // Sniper Crossbow [Magic]
+{ 1253600 ,           WeaponUpgradePath::Divine }, // Sniper Crossbow [Divine]
+{ 1253800 ,             WeaponUpgradePath::Fire }, // Sniper Crossbow [Fire]
+{ 1298000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Bow
+{ 1299000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Crossbow
+{ 1300000 ,         WeaponUpgradePath::Standard }, // Sorcerer's Catalyst
+{ 1301000 ,         WeaponUpgradePath::Standard }, // Beatrice's Catalyst
+{ 1302000 ,         WeaponUpgradePath::Standard }, // Tin Banishment Catalyst
+{ 1303000 ,         WeaponUpgradePath::Standard }, // Logan's Catalyst
+{ 1304000 ,   WeaponUpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Sorcerer's Catalyst]
+{ 1304100 ,   WeaponUpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Beatrice's Catalyst]
+{ 1304200 ,   WeaponUpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Tin Banishment Catalyst]
+{ 1304300 ,   WeaponUpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Logan's Catalyst]
+{ 1304400 ,   WeaponUpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Oolacile Ivory Catalyst]
+{ 1304500 ,   WeaponUpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Oolacile Catalyst]
+{ 1305000 ,         WeaponUpgradePath::Standard }, // Oolacile Ivory Catalyst
+{ 1306000 ,        WeaponUpgradePath::NoUpgrade }, // Tin Crystallization Ctlyst.
+{ 1307000 ,        WeaponUpgradePath::NoUpgrade }, // Demon's Catalyst
+{ 1308000 ,        WeaponUpgradePath::NoUpgrade }, // Izalith Catalyst
+{ 1330000 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame
+{ 1330100 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +1
+{ 1330200 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +2
+{ 1330300 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +3
+{ 1330400 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +4
+{ 1330500 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +5
+{ 1330600 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +6
+{ 1330700 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +7
+{ 1330800 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +8
+{ 1330900 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +9
+{ 1331000 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +10
+{ 1331100 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +11
+{ 1331200 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +12
+{ 1331300 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +13
+{ 1331400 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +14
+{ 1331500 ,         WeaponUpgradePath::Standard }, // Pyromancy Flame +15
+{ 1332000 ,         WeaponUpgradePath::Standard }, // Ascended Pyromancy Flame
+{ 1332100 ,         WeaponUpgradePath::Standard }, // Ascended Pyromancy Flame +1
+{ 1332200 ,         WeaponUpgradePath::Standard }, // Ascended Pyromancy Flame +2
+{ 1332300 ,         WeaponUpgradePath::Standard }, // Ascended Pyromancy Flame +3
+{ 1332400 ,         WeaponUpgradePath::Standard }, // Ascended Pyromancy Flame +4
+{ 1332500 ,         WeaponUpgradePath::Standard }, // Ascended Pyromancy Flame +5
+{ 1360000 ,        WeaponUpgradePath::NoUpgrade }, // Talisman
+{ 1361000 ,        WeaponUpgradePath::NoUpgrade }, // Canvas Talisman
+{ 1362000 ,        WeaponUpgradePath::NoUpgrade }, // Thorolund Talisman
+{ 1363000 ,        WeaponUpgradePath::NoUpgrade }, // Ivory Talisman
+{ 1365000 ,        WeaponUpgradePath::NoUpgrade }, // Sunlight Talisman
+{ 1366000 ,        WeaponUpgradePath::NoUpgrade }, // Darkmoon Talisman
+{ 1367000 ,        WeaponUpgradePath::NoUpgrade }, // Velka's Talisman
+{ 1396000 ,        WeaponUpgradePath::NoUpgrade }, // Skull Lantern
+{ 1397000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Staff
+{ 1398000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Pyromancy Flame
+{ 1399000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Talisman
+{ 1400000 ,         WeaponUpgradePath::Standard }, // East-West Shield
+{ 1400100 ,          WeaponUpgradePath::Crystal }, // East-West Shield [Crystal]
+{ 1400200 ,        WeaponUpgradePath::Lightning }, // East-West Shield [Lightning]
+{ 1400400 ,            WeaponUpgradePath::Magic }, // East-West Shield [Magic]
+{ 1400600 ,           WeaponUpgradePath::Divine }, // East-West Shield [Divine]
+{ 1400800 ,             WeaponUpgradePath::Fire }, // East-West Shield [Fire]
+{ 1401000 ,         WeaponUpgradePath::Standard }, // Wooden Shield
+{ 1401100 ,          WeaponUpgradePath::Crystal }, // Wooden Shield [Crystal]
+{ 1401200 ,        WeaponUpgradePath::Lightning }, // Wooden Shield [Lightning]
+{ 1401400 ,            WeaponUpgradePath::Magic }, // Wooden Shield [Magic]
+{ 1401600 ,           WeaponUpgradePath::Divine }, // Wooden Shield [Divine]
+{ 1401800 ,             WeaponUpgradePath::Fire }, // Wooden Shield [Fire]
+{ 1402000 ,         WeaponUpgradePath::Standard }, // Large Leather Shield
+{ 1402100 ,          WeaponUpgradePath::Crystal }, // Large Leather Shield [Crystal]
+{ 1402200 ,        WeaponUpgradePath::Lightning }, // Large Leather Shield [Lightning]
+{ 1402400 ,            WeaponUpgradePath::Magic }, // Large Leather Shield [Magic]
+{ 1402600 ,           WeaponUpgradePath::Divine }, // Large Leather Shield [Divine]
+{ 1402800 ,             WeaponUpgradePath::Fire }, // Large Leather Shield [Fire]
+{ 1403000 ,         WeaponUpgradePath::Standard }, // Small Leather Shield
+{ 1403100 ,          WeaponUpgradePath::Crystal }, // Small Leather Shield [Crystal]
+{ 1403200 ,        WeaponUpgradePath::Lightning }, // Small Leather Shield [Lightning]
+{ 1403400 ,            WeaponUpgradePath::Magic }, // Small Leather Shield [Magic]
+{ 1403600 ,           WeaponUpgradePath::Divine }, // Small Leather Shield [Divine]
+{ 1403800 ,             WeaponUpgradePath::Fire }, // Small Leather Shield [Fire]
+{ 1404000 ,         WeaponUpgradePath::Standard }, // Target Shield
+{ 1404100 ,          WeaponUpgradePath::Crystal }, // Target Shield [Crystal]
+{ 1404200 ,        WeaponUpgradePath::Lightning }, // Target Shield [Lightning]
+{ 1404400 ,            WeaponUpgradePath::Magic }, // Target Shield [Magic]
+{ 1404600 ,           WeaponUpgradePath::Divine }, // Target Shield [Divine]
+{ 1404800 ,             WeaponUpgradePath::Fire }, // Target Shield [Fire]
+{ 1405000 ,         WeaponUpgradePath::Standard }, // Buckler
+{ 1405100 ,          WeaponUpgradePath::Crystal }, // Buckler [Crystal]
+{ 1405200 ,        WeaponUpgradePath::Lightning }, // Buckler [Lightning]
+{ 1405400 ,            WeaponUpgradePath::Magic }, // Buckler [Magic]
+{ 1405600 ,           WeaponUpgradePath::Divine }, // Buckler [Divine]
+{ 1405800 ,             WeaponUpgradePath::Fire }, // Buckler [Fire]
+{ 1406000 ,         WeaponUpgradePath::Standard }, // Cracked Round Shield
+{ 1406100 ,          WeaponUpgradePath::Crystal }, // Cracked Round Shield [Crystal]
+{ 1406200 ,        WeaponUpgradePath::Lightning }, // Cracked Round Shield [Lightning]
+{ 1406400 ,            WeaponUpgradePath::Magic }, // Cracked Round Shield [Magic]
+{ 1406600 ,           WeaponUpgradePath::Divine }, // Cracked Round Shield [Divine]
+{ 1406800 ,             WeaponUpgradePath::Fire }, // Cracked Round Shield [Fire]
+{ 1408000 ,         WeaponUpgradePath::Standard }, // Leather Shield
+{ 1408100 ,          WeaponUpgradePath::Crystal }, // Leather Shield [Crystal]
+{ 1408200 ,        WeaponUpgradePath::Lightning }, // Leather Shield [Lightning]
+{ 1408400 ,            WeaponUpgradePath::Magic }, // Leather Shield [Magic]
+{ 1408600 ,           WeaponUpgradePath::Divine }, // Leather Shield [Divine]
+{ 1408800 ,             WeaponUpgradePath::Fire }, // Leather Shield [Fire]
+{ 1409000 ,         WeaponUpgradePath::Standard }, // Plank Shield
+{ 1409100 ,          WeaponUpgradePath::Crystal }, // Plank Shield [Crystal]
+{ 1409200 ,        WeaponUpgradePath::Lightning }, // Plank Shield [Lightning]
+{ 1409400 ,            WeaponUpgradePath::Magic }, // Plank Shield [Magic]
+{ 1409600 ,           WeaponUpgradePath::Divine }, // Plank Shield [Divine]
+{ 1409800 ,             WeaponUpgradePath::Fire }, // Plank Shield [Fire]
+{ 1410000 ,         WeaponUpgradePath::Standard }, // Caduceus Round Shield
+{ 1410100 ,          WeaponUpgradePath::Crystal }, // Caduceus Round Shield [Crystal]
+{ 1410200 ,        WeaponUpgradePath::Lightning }, // Caduceus Round Shield [Lightning]
+{ 1410400 ,            WeaponUpgradePath::Magic }, // Caduceus Round Shield [Magic]
+{ 1410600 ,           WeaponUpgradePath::Divine }, // Caduceus Round Shield [Divine]
+{ 1410800 ,             WeaponUpgradePath::Fire }, // Caduceus Round Shield [Fire]
+{ 1411000 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [East-West Shield]
+{ 1411100 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Wooden Shield]
+{ 1411200 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Plank Shield]
+{ 1411300 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Large Leather Shield]
+{ 1411400 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Small Leather Shield]
+{ 1411500 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Leather Shield
+{ 1411600 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Target Shield]
+{ 1411700 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Buckler]
+{ 1411800 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Cracked Round Shield]
+{ 1411900 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Caduceus Round Shield]
+{ 1412000 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Heater Shield]
+{ 1412100 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Knight Shield]
+{ 1412200 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Tower Kite Shield]
+{ 1412300 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Grass Crest Shield]
+{ 1412400 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Hollow Soldier Shield]
+{ 1412500 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Balder Shield]
+{ 1412600 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Warrior's Round Shield]
+{ 1412700 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Iron Round Shield]
+{ 1412800 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Spider Shield]
+{ 1412900 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Spiked Shield]
+{ 1413000 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Pierce Shield]
+{ 1413100 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Sunlight Shield]
+{ 1413200 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Red and White Round Shield]
+{ 1413300 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Caduceus Kite Shield]
+{ 1413400 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Gargoyle's Shield]
+{ 1413500 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Eagle Shield]
+{ 1413600 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Tower Shield]
+{ 1413700 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Giant Shield]
+{ 1413800 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Bonewheel Shield]
+{ 1413900 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Effigy Shield]
+{ 1414000 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Sanctus]
+{ 1414100 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Bloodshield]
+{ 1414200 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield [Black Iron Greatshield]
+{ 1414300 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield
+{ 1414400 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield
+{ 1414500 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield
+{ 1414600 ,   WeaponUpgradePath::DemonButterfly }, // Crystal Ring Shield
+{ 1450000 ,         WeaponUpgradePath::Standard }, // Heater Shield
+{ 1450100 ,          WeaponUpgradePath::Crystal }, // Heater Shield [Crystal]
+{ 1450200 ,        WeaponUpgradePath::Lightning }, // Heater Shield [Lightning]
+{ 1450400 ,            WeaponUpgradePath::Magic }, // Heater Shield [Magic]
+{ 1450600 ,           WeaponUpgradePath::Divine }, // Heater Shield [Divine]
+{ 1450800 ,             WeaponUpgradePath::Fire }, // Heater Shield [Fire]
+{ 1451000 ,         WeaponUpgradePath::Standard }, // Knight Shield
+{ 1451100 ,          WeaponUpgradePath::Crystal }, // Knight Shield [Crystal]
+{ 1451200 ,        WeaponUpgradePath::Lightning }, // Knight Shield [Lightning]
+{ 1451400 ,            WeaponUpgradePath::Magic }, // Knight Shield [Magic]
+{ 1451600 ,           WeaponUpgradePath::Divine }, // Knight Shield [Divine]
+{ 1451800 ,             WeaponUpgradePath::Fire }, // Knight Shield [Fire]
+{ 1452000 ,         WeaponUpgradePath::Standard }, // Tower Kite Shield
+{ 1452100 ,          WeaponUpgradePath::Crystal }, // Tower Kite Shield [Crystal]
+{ 1452200 ,        WeaponUpgradePath::Lightning }, // Tower Kite Shield [Lightning]
+{ 1452400 ,            WeaponUpgradePath::Magic }, // Tower Kite Shield [Magic]
+{ 1452600 ,           WeaponUpgradePath::Divine }, // Tower Kite Shield [Divine]
+{ 1452800 ,             WeaponUpgradePath::Fire }, // Tower Kite Shield [Fire]
+{ 1453000 ,         WeaponUpgradePath::Standard }, // Grass Crest Shield
+{ 1453100 ,          WeaponUpgradePath::Crystal }, // Grass Crest Shield [Crystal]
+{ 1453200 ,        WeaponUpgradePath::Lightning }, // Grass Crest Shield [Lightning]
+{ 1453400 ,            WeaponUpgradePath::Magic }, // Grass Crest Shield [Magic]
+{ 1453600 ,           WeaponUpgradePath::Divine }, // Grass Crest Shield [Divine]
+{ 1453800 ,             WeaponUpgradePath::Fire }, // Grass Crest Shield [Fire]
+{ 1454000 ,         WeaponUpgradePath::Standard }, // Hollow Soldier Shield
+{ 1454100 ,          WeaponUpgradePath::Crystal }, // Hollow Soldier Shield [Crystal]
+{ 1454200 ,        WeaponUpgradePath::Lightning }, // Hollow Soldier Shield [Lightning]
+{ 1454400 ,            WeaponUpgradePath::Magic }, // Hollow Soldier Shield [Magic]
+{ 1454600 ,           WeaponUpgradePath::Divine }, // Hollow Soldier Shield [Divine]
+{ 1454800 ,             WeaponUpgradePath::Fire }, // Hollow Soldier Shield [Fire]
+{ 1455000 ,         WeaponUpgradePath::Standard }, // Balder Shield
+{ 1455100 ,          WeaponUpgradePath::Crystal }, // Balder Shield [Crystal]
+{ 1455200 ,        WeaponUpgradePath::Lightning }, // Balder Shield [Lightning]
+{ 1455400 ,            WeaponUpgradePath::Magic }, // Balder Shield [Magic]
+{ 1455600 ,           WeaponUpgradePath::Divine }, // Balder Shield [Divine]
+{ 1455800 ,             WeaponUpgradePath::Fire }, // Balder Shield [Fire]
+{ 1456000 ,        WeaponUpgradePath::Twinkling }, // Crest Shield
+{ 1457000 ,        WeaponUpgradePath::Twinkling }, // Dragon Crest Shield
+{ 1460000 ,         WeaponUpgradePath::Standard }, // Warrior's Round Shield
+{ 1460100 ,          WeaponUpgradePath::Crystal }, // Warrior's Round Shield [Crystal]
+{ 1460200 ,        WeaponUpgradePath::Lightning }, // Warrior's Round Shield [Lightning]
+{ 1460400 ,            WeaponUpgradePath::Magic }, // Warrior's Round Shield [Magic]
+{ 1460600 ,           WeaponUpgradePath::Divine }, // Warrior's Round Shield [Divine]
+{ 1460800 ,             WeaponUpgradePath::Fire }, // Warrior's Round Shield [Fire]
+{ 1461000 ,         WeaponUpgradePath::Standard }, // Iron Round Shield
+{ 1461100 ,          WeaponUpgradePath::Crystal }, // Iron Round Shield [Crystal]
+{ 1461200 ,        WeaponUpgradePath::Lightning }, // Iron Round Shield [Lightning]
+{ 1461400 ,            WeaponUpgradePath::Magic }, // Iron Round Shield [Magic]
+{ 1461600 ,           WeaponUpgradePath::Divine }, // Iron Round Shield [Divine]
+{ 1461800 ,             WeaponUpgradePath::Fire }, // Iron Round Shield [Fire]
+{ 1462000 ,         WeaponUpgradePath::Standard }, // Spider Shield
+{ 1462100 ,          WeaponUpgradePath::Crystal }, // Spider Shield [Crystal]
+{ 1462200 ,        WeaponUpgradePath::Lightning }, // Spider Shield [Lightning]
+{ 1462400 ,            WeaponUpgradePath::Magic }, // Spider Shield [Magic]
+{ 1462600 ,           WeaponUpgradePath::Divine }, // Spider Shield [Divine]
+{ 1462800 ,             WeaponUpgradePath::Fire }, // Spider Shield [Fire]
+{ 1470000 ,         WeaponUpgradePath::Standard }, // Spiked Shield
+{ 1470100 ,          WeaponUpgradePath::Crystal }, // Spiked Shield [Crystal]
+{ 1470200 ,        WeaponUpgradePath::Lightning }, // Spiked Shield [Lightning]
+{ 1470400 ,            WeaponUpgradePath::Magic }, // Spiked Shield [Magic]
+{ 1470600 ,           WeaponUpgradePath::Divine }, // Spiked Shield [Divine]
+{ 1470800 ,             WeaponUpgradePath::Fire }, // Spiked Shield [Fire]
+{ 1471000 ,        WeaponUpgradePath::NoUpgrade }, // Crystal Shield
+{ 1472000 ,         WeaponUpgradePath::Standard }, // Sunlight Shield
+{ 1472100 ,          WeaponUpgradePath::Crystal }, // Sunlight Shield [Crystal]
+{ 1472200 ,        WeaponUpgradePath::Lightning }, // Sunlight Shield [Lightning]
+{ 1472400 ,            WeaponUpgradePath::Magic }, // Sunlight Shield [Magic]
+{ 1472600 ,           WeaponUpgradePath::Divine }, // Sunlight Shield [Divine]
+{ 1472800 ,             WeaponUpgradePath::Fire }, // Sunlight Shield [Fire]
+{ 1473000 ,        WeaponUpgradePath::Twinkling }, // Silver Knight Shield
+{ 1474000 ,        WeaponUpgradePath::Twinkling }, // Black Knight Shield
+{ 1475000 ,         WeaponUpgradePath::Standard }, // Pierce Shield
+{ 1475100 ,          WeaponUpgradePath::Crystal }, // Pierce Shield [Crystal]
+{ 1475200 ,        WeaponUpgradePath::Lightning }, // Pierce Shield [Lightning]
+{ 1475400 ,            WeaponUpgradePath::Magic }, // Pierce Shield [Magic]
+{ 1475600 ,           WeaponUpgradePath::Divine }, // Pierce Shield [Divine]
+{ 1475800 ,             WeaponUpgradePath::Fire }, // Pierce Shield [Fire]
+{ 1476000 ,         WeaponUpgradePath::Standard }, // Red and White Round Shield
+{ 1476100 ,          WeaponUpgradePath::Crystal }, // Red and White Round Shield [Crystal]
+{ 1476200 ,        WeaponUpgradePath::Lightning }, // Red and White Round Shield [Lightning]
+{ 1476400 ,            WeaponUpgradePath::Magic }, // Red and White Round Shield [Magic]
+{ 1476600 ,           WeaponUpgradePath::Divine }, // Red and White Round Shield [Divine]
+{ 1476800 ,             WeaponUpgradePath::Fire }, // Red and White Round Shield [Fire]
+{ 1477000 ,         WeaponUpgradePath::Standard }, // Caduceus Kite Shield
+{ 1477100 ,          WeaponUpgradePath::Crystal }, // Caduceus Kite Shield [Crystal]
+{ 1477200 ,        WeaponUpgradePath::Lightning }, // Caduceus Kite Shield [Lightning]
+{ 1477400 ,            WeaponUpgradePath::Magic }, // Caduceus Kite Shield [Magic]
+{ 1477600 ,           WeaponUpgradePath::Divine }, // Caduceus Kite Shield [Divine]
+{ 1477800 ,             WeaponUpgradePath::Fire }, // Caduceus Kite Shield [Fire]
+{ 1478000 ,         WeaponUpgradePath::Standard }, // Gargoyle's Shield
+{ 1478100 ,          WeaponUpgradePath::Crystal }, // Gargoyle's Shield [Crystal]
+{ 1478200 ,        WeaponUpgradePath::Lightning }, // Gargoyle's Shield [Lightning]
+{ 1478400 ,            WeaponUpgradePath::Magic }, // Gargoyle's Shield [Magic]
+{ 1478600 ,           WeaponUpgradePath::Divine }, // Gargoyle's Shield [Divine]
+{ 1478800 ,             WeaponUpgradePath::Fire }, // Gargoyle's Shield [Fire]
+{ 1498000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Small Shield
+{ 1499000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Medium Shield
+{ 1500000 ,         WeaponUpgradePath::Standard }, // Eagle Shield
+{ 1500100 ,          WeaponUpgradePath::Crystal }, // Eagle Shield [Crystal]
+{ 1500200 ,        WeaponUpgradePath::Lightning }, // Eagle Shield [Lightning]
+{ 1500400 ,            WeaponUpgradePath::Magic }, // Eagle Shield [Magic]
+{ 1500600 ,           WeaponUpgradePath::Divine }, // Eagle Shield [Divine]
+{ 1500800 ,             WeaponUpgradePath::Fire }, // Eagle Shield [Fire]
+{ 1501000 ,         WeaponUpgradePath::Standard }, // Tower Shield
+{ 1501100 ,          WeaponUpgradePath::Crystal }, // Tower Shield [Crystal]
+{ 1501200 ,        WeaponUpgradePath::Lightning }, // Tower Shield [Lightning]
+{ 1501400 ,            WeaponUpgradePath::Magic }, // Tower Shield [Magic]
+{ 1501600 ,           WeaponUpgradePath::Divine }, // Tower Shield [Divine]
+{ 1501800 ,             WeaponUpgradePath::Fire }, // Tower Shield [Fire]
+{ 1502000 ,         WeaponUpgradePath::Standard }, // Giant Shield
+{ 1502100 ,          WeaponUpgradePath::Crystal }, // Giant Shield [Crystal]
+{ 1502200 ,        WeaponUpgradePath::Lightning }, // Giant Shield [Lightning]
+{ 1502400 ,            WeaponUpgradePath::Magic }, // Giant Shield [Magic]
+{ 1502600 ,           WeaponUpgradePath::Divine }, // Giant Shield [Divine]
+{ 1502800 ,             WeaponUpgradePath::Fire }, // Giant Shield [Fire]
+{ 1503000 ,        WeaponUpgradePath::Twinkling }, // Stone Greatshield
+{ 1505000 ,        WeaponUpgradePath::Twinkling }, // Havel's Greatshield
+{ 1506000 ,         WeaponUpgradePath::Standard }, // Bonewheel Shield
+{ 1506100 ,          WeaponUpgradePath::Crystal }, // Bonewheel Shield [Crystal]
+{ 1506200 ,        WeaponUpgradePath::Lightning }, // Bonewheel Shield [Lightning]
+{ 1506400 ,            WeaponUpgradePath::Magic }, // Bonewheel Shield [Magic]
+{ 1506600 ,           WeaponUpgradePath::Divine }, // Bonewheel Shield [Divine]
+{ 1506800 ,             WeaponUpgradePath::Fire }, // Bonewheel Shield [Fire]
+{ 1507000 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [East-West Shield]
+{ 1507100 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Wooden Shield]
+{ 1507200 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Plank Shield]
+{ 1507300 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Large Leather Shield]
+{ 1507400 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Small Leather Shield]
+{ 1507500 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Leather Shield]
+{ 1507600 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Target Shield]
+{ 1507700 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Buckler]
+{ 1507800 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Cracked Round Shield]
+{ 1507900 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Caduceus Round Shield]
+{ 1508000 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Heater Shield]
+{ 1508100 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Knight Shield]
+{ 1508200 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Tower Kite Shield]
+{ 1508300 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Grass Crest Shield]
+{ 1508400 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Hollow Soldier Shield]
+{ 1508500 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Balder Shield]
+{ 1508600 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Warrior's Round Shield]
+{ 1508700 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Iron Round Shield]
+{ 1508800 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Spider Shield]
+{ 1508900 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Spiked Shield]
+{ 1509000 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Pierce Shield]
+{ 1509100 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Sunlight Shield]
+{ 1509200 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Red and White Round Shield
+{ 1509300 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Caduceus Kite Shield
+{ 1509400 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Gargoyle's Shield]
+{ 1509500 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Eagle Shield]
+{ 1509600 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Tower Shield]
+{ 1509700 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Giant Shield]
+{ 1509800 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Bonewheel Shield]
+{ 1509900 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Effigy Shield]
+{ 1510000 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Sanctus]
+{ 1510100 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Bloodshield]
+{ 1510200 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias [Black Iron Greatshield]
+{ 1510300 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias
+{ 1510400 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias
+{ 1510500 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias
+{ 1510600 ,         WeaponUpgradePath::DemonSif }, // Greatshield of Artorias
+{ 1599000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Greatshield
+{ 1600000 ,         WeaponUpgradePath::Standard }, // Whip
+{ 1600100 ,          WeaponUpgradePath::Crystal }, // Whip [Crystal]
+{ 1600200 ,        WeaponUpgradePath::Lightning }, // Whip [Lightning]
+{ 1600300 ,              WeaponUpgradePath::Raw }, // Whip [Raw]
+{ 1600400 ,            WeaponUpgradePath::Magic }, // Whip [Magic]
+{ 1600500 ,        WeaponUpgradePath::Enchanted }, // Whip [Enchanted]
+{ 1600600 ,           WeaponUpgradePath::Divine }, // Whip [Divine]
+{ 1600700 ,           WeaponUpgradePath::Occult }, // Whip [Occult]
+{ 1600800 ,             WeaponUpgradePath::Fire }, // Whip [Fire]
+{ 1600900 ,            WeaponUpgradePath::Chaos }, // Whip [Chaos]
+{ 1601000 ,         WeaponUpgradePath::Standard }, // Notched Whip
+{ 1601100 ,          WeaponUpgradePath::Crystal }, // Notched Whip [Crystal]
+{ 1601200 ,        WeaponUpgradePath::Lightning }, // Notched Whip [Lightning]
+{ 1601300 ,              WeaponUpgradePath::Raw }, // Notched Whip [Raw]
+{ 1601400 ,            WeaponUpgradePath::Magic }, // Notched Whip [Magic]
+{ 1601500 ,        WeaponUpgradePath::Enchanted }, // Notched Whip [Enchanted]
+{ 1601600 ,           WeaponUpgradePath::Divine }, // Notched Whip [Divine]
+{ 1601700 ,           WeaponUpgradePath::Occult }, // Notched Whip [Occult]
+{ 1601800 ,             WeaponUpgradePath::Fire }, // Notched Whip [Fire]
+{ 1601900 ,            WeaponUpgradePath::Chaos }, // Notched Whip [Chaos]
+{ 1699000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Whip
+{ 2000000 ,        WeaponUpgradePath::NoUpgrade }, // Standard Arrow
+{ 2001000 ,        WeaponUpgradePath::NoUpgrade }, // Large Arrow
+{ 2002000 ,        WeaponUpgradePath::NoUpgrade }, // Feather Arrow
+{ 2003000 ,        WeaponUpgradePath::NoUpgrade }, // Fire Arrow
+{ 2004000 ,        WeaponUpgradePath::NoUpgrade }, // Poison Arrow
+{ 2005000 ,        WeaponUpgradePath::NoUpgrade }, // Moonlight Arrow
+{ 2006000 ,        WeaponUpgradePath::NoUpgrade }, // Wooden Arrow
+{ 2007000 ,        WeaponUpgradePath::NoUpgrade }, // Dragonslayer Arrow
+{ 2008000 ,        WeaponUpgradePath::NoUpgrade }, // Gough's Great Arrow
+{ 2099000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Arrow
+{ 2100000 ,        WeaponUpgradePath::NoUpgrade }, // Standard Bolt
+{ 2101000 ,        WeaponUpgradePath::NoUpgrade }, // Heavy Bolt
+{ 2102000 ,        WeaponUpgradePath::NoUpgrade }, // Sniper Bolt
+{ 2103000 ,        WeaponUpgradePath::NoUpgrade }, // Wood Bolt
+{ 2104000 ,        WeaponUpgradePath::NoUpgrade }, // Lightning Bolt
+{ 2199000 ,        WeaponUpgradePath::NoUpgrade }, // [Ghost] Bolt
+{ 9000000 ,         WeaponUpgradePath::Standard }, // Effigy Shield
+{ 9000100 ,          WeaponUpgradePath::Crystal }, // Effigy Shield [Crystal]
+{ 9000200 ,        WeaponUpgradePath::Lightning }, // Effigy Shield [Lightning]
+{ 9000400 ,            WeaponUpgradePath::Magic }, // Effigy Shield [Magic]
+{ 9000600 ,           WeaponUpgradePath::Divine }, // Effigy Shield [Divine]
+{ 9000800 ,             WeaponUpgradePath::Fire }, // Effigy Shield [Fire]
+{ 9001000 ,         WeaponUpgradePath::Standard }, // Sanctus
+{ 9001100 ,          WeaponUpgradePath::Crystal }, // Sanctus [Crystal]
+{ 9001200 ,        WeaponUpgradePath::Lightning }, // Sanctus [Lightning]
+{ 9001400 ,            WeaponUpgradePath::Magic }, // Sanctus [Magic]
+{ 9001600 ,           WeaponUpgradePath::Divine }, // Sanctus [Divine]
+{ 9001800 ,             WeaponUpgradePath::Fire }, // Sanctus [Fire]
+{ 9002000 ,         WeaponUpgradePath::Standard }, // Bloodshield
+{ 9002100 ,          WeaponUpgradePath::Crystal }, // Bloodshield [Crystal]
+{ 9002200 ,        WeaponUpgradePath::Lightning }, // Bloodshield [Lightning]
+{ 9002400 ,            WeaponUpgradePath::Magic }, // Bloodshield [Magic]
+{ 9002600 ,           WeaponUpgradePath::Divine }, // Bloodshield [Divine]
+{ 9002800 ,             WeaponUpgradePath::Fire }, // Bloodshield [Fire]
+{ 9003000 ,         WeaponUpgradePath::Standard }, // Black Iron Greatshield
+{ 9003100 ,          WeaponUpgradePath::Crystal }, // Black Iron Greatshield [Crystal]
+{ 9003200 ,        WeaponUpgradePath::Lightning }, // Black Iron Greatshield [Lightning]
+{ 9003400 ,            WeaponUpgradePath::Magic }, // Black Iron Greatshield [Magic]
+{ 9003600 ,           WeaponUpgradePath::Divine }, // Black Iron Greatshield [Divine]
+{ 9003800 ,             WeaponUpgradePath::Fire }, // Black Iron Greatshield [Fire]
+{ 9004000 ,         WeaponUpgradePath::Standard }, // Unused - Design Content Shield E
+{ 9004100 ,          WeaponUpgradePath::Crystal }, // Unused - Design Content Shield E [Crystal]
+{ 9004200 ,        WeaponUpgradePath::Lightning }, // Unused - Design Content Shield E [Lightning]
+{ 9004400 ,            WeaponUpgradePath::Magic }, // Unused - Design Content Shield E [Magic]
+{ 9004600 ,           WeaponUpgradePath::Divine }, // Unused - Design Content Shield E [Divine]
+{ 9004800 ,             WeaponUpgradePath::Fire }, // Unused - Design Content Shield E [Fire]
+{ 9005000 ,         WeaponUpgradePath::Standard }, // Unused - Design Content Shield F
+{ 9005100 ,          WeaponUpgradePath::Crystal }, // Unused - Design Content Shield F [Crystal]
+{ 9005200 ,        WeaponUpgradePath::Lightning }, // Unused - Design Content Shield F [Lightning]
+{ 9005400 ,            WeaponUpgradePath::Magic }, // Unused - Design Content Shield F [Magic]
+{ 9005600 ,           WeaponUpgradePath::Divine }, // Unused - Design Content Shield F [Divine]
+{ 9005800 ,             WeaponUpgradePath::Fire }, // Unused - Design Content Shield F [Fire]
+{ 9006000 ,         WeaponUpgradePath::Standard }, // Unused - Design Content Shield G
+{ 9006100 ,          WeaponUpgradePath::Crystal }, // Unused - Design Content Shield G [Crystal]
+{ 9006200 ,        WeaponUpgradePath::Lightning }, // Unused - Design Content Shield G [Lightning]
+{ 9006400 ,            WeaponUpgradePath::Magic }, // Unused - Design Content Shield G [Magic]
+{ 9006600 ,           WeaponUpgradePath::Divine }, // Unused - Design Content Shield G [Divine]
+{ 9006800 ,             WeaponUpgradePath::Fire }, // Unused - Design Content Shield G [Fire]
+{ 9007000 ,         WeaponUpgradePath::Standard }, // Unused - Design Content Shield H
+{ 9007100 ,          WeaponUpgradePath::Crystal }, // Unused - Design Content Shield H [Crystal]
+{ 9007200 ,        WeaponUpgradePath::Lightning }, // Unused - Design Content Shield H [Lightning]
+{ 9007400 ,            WeaponUpgradePath::Magic }, // Unused - Design Content Shield H [Magic]
+{ 9007600 ,           WeaponUpgradePath::Divine }, // Unused - Design Content Shield H [Divine]
+{ 9007800 ,             WeaponUpgradePath::Fire }, // Unused - Design Content Shield H [Fire]
+{ 9010000 ,        WeaponUpgradePath::Twinkling }, // Gold Tracer
+{ 9011000 ,        WeaponUpgradePath::Twinkling }, // Dark Silver Tracer
+{ 9012000 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Dagger]
+{ 9012100 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Parrying Dagger]
+{ 9012200 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Bandit's Knife]
+{ 9012300 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Shortsword]
+{ 9012400 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Longsword]
+{ 9012500 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Broadsword]
+{ 9012600 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Balder Side Sword]
+{ 9012700 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Sunlight Straight Sword]
+{ 9012800 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Barbed Straight Sword]
+{ 9013000 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Darksword]
+{ 9013100 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Bastard Sword]
+{ 9013200 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Claymore]
+{ 9013300 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Man-serpent Greatsword]
+{ 9013400 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Flamberge]
+{ 9013500 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Zweihander]
+{ 9013600 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Greatsword]
+{ 9013700 ,    WeaponUpgradePath::DemonArtorias }, // Abyss Greatsword [Demon Great Machete]
+{ 9014000 ,        WeaponUpgradePath::Twinkling }, // Cleansing Greatshield
+{ 9015000 ,        WeaponUpgradePath::Twinkling }, // Stone Greataxe
+{ 9016000 ,         WeaponUpgradePath::Standard }, // Four-pronged Plow
+{ 9016100 ,          WeaponUpgradePath::Crystal }, // Four-pronged Plow [Crystal]
+{ 9016200 ,        WeaponUpgradePath::Lightning }, // Four-pronged Plow [Lightning]
+{ 9016300 ,              WeaponUpgradePath::Raw }, // Four-pronged Plow [Raw]
+{ 9016400 ,            WeaponUpgradePath::Magic }, // Four-pronged Plow [Magic]
+{ 9016500 ,        WeaponUpgradePath::Enchanted }, // Four-pronged Plow [Enchanted]
+{ 9016600 ,           WeaponUpgradePath::Divine }, // Four-pronged Plow [Divine]
+{ 9016700 ,           WeaponUpgradePath::Occult }, // Four-pronged Plow [Occult]
+{ 9016800 ,             WeaponUpgradePath::Fire }, // Four-pronged Plow [Fire]
+{ 9016900 ,            WeaponUpgradePath::Chaos }, // Four-pronged Plow [Chaos]
+{ 9017000 ,       WeaponUpgradePath::DemonManus }, // Manus Catalyst [Sorcerer's Catalyst]
+{ 9017100 ,       WeaponUpgradePath::DemonManus }, // Manus Catalyst [Beatrice's Catalyst]
+{ 9017200 ,       WeaponUpgradePath::DemonManus }, // Manus Catalyst [Tin Banishment Catalyst]
+{ 9017300 ,       WeaponUpgradePath::DemonManus }, // Manus Catalyst [Logan's Catalyst]
+{ 9017400 ,       WeaponUpgradePath::DemonManus }, // Manus Catalyst [Oolacile Ivory Catalyst]
+{ 9017500 ,       WeaponUpgradePath::DemonManus }, // Manus Catalyst [Izalith Catalyst]
+{ 9018000 ,         WeaponUpgradePath::Standard }, // Oolacile Catalyst
+{ 9019000 ,         WeaponUpgradePath::Standard }, // Guardian Tail
+{ 9019100 ,          WeaponUpgradePath::Crystal }, // Guardian Tail [Crystal]
+{ 9019200 ,        WeaponUpgradePath::Lightning }, // Guardian Tail [Lightning]
+{ 9019300 ,              WeaponUpgradePath::Raw }, // Guardian Tail [Raw]
+{ 9019400 ,            WeaponUpgradePath::Magic }, // Guardian Tail [Magic]
+{ 9019500 ,        WeaponUpgradePath::Enchanted }, // Guardian Tail [Enchanted]
+{ 9019600 ,           WeaponUpgradePath::Divine }, // Guardian Tail [Divine]
+{ 9019700 ,           WeaponUpgradePath::Occult }, // Guardian Tail [Occult]
+{ 9019800 ,             WeaponUpgradePath::Fire }, // Guardian Tail [Fire]
+{ 9019900 ,            WeaponUpgradePath::Chaos }, // Guardian Tail [Chaos]
+{ 9020000 ,           WeaponUpgradePath::Dragon }, // Obsidian Greatsword
+{ 9021000 ,        WeaponUpgradePath::Twinkling }, // Gough's Greatbow
 };

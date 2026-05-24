@@ -46,11 +46,11 @@ enum class AppState{
 };
 
 enum class ItemType :u32{
-    Weapon    = 0x00000000,
-    Armor     = 0x10000000,
-    Ring      = 0x20000000,
-    Consumable= 0x40000000,
-    None      = 0xFFFFFFFF
+    Weapon     = 0x00000000,
+    Armor      = 0x10000000,
+    Ring       = 0x20000000,
+    Consumable = 0x40000000,
+    None       = 0xFFFFFFFF
 };
 
 enum class ArmorType: u32{
@@ -62,99 +62,15 @@ enum class ArmorType: u32{
 };
 
 enum class WeaponType:u32{
-    RightHand,LeftHand,Arrow,Bolt,Unknown
+    RightHand,
+    LeftHand,
+    Arrow,
+    Bolt,
+    Unknown
 };
 
 enum class Change{
     Null=0,EquipWeapon,EquipArmor,EquipRing
-};
-
-enum class Reinforcement{
-    Normal_0  = 0,
-    Normal_1  = 1 ,
-    Normal_2  = 2 ,
-    Normal_3  = 3 ,
-    Normal_4  = 4 ,
-    Normal_5  = 5 ,
-    Normal_6  = 6 ,
-    Normal_7  = 7 ,
-    Normal_8  = 8 ,
-    Normal_9  = 9 ,
-    Normal_10 = 10,
-    Normal_11 = 11,
-    Normal_12 = 12,
-    Normal_13 = 13,
-    Normal_14 = 14,
-    Normal_15 = 15,
-    Crystal_0 = 100,
-    Crystal_1 = 101,
-    Crystal_2 = 102,
-    Crystal_3 = 103,
-    Crystal_4 = 104,
-    Crystal_5 = 105,
-    Light_0   = 200,
-    Light_1   = 201,
-    Light_2   = 202,
-    Light_3   = 203,
-    Light_4   = 204,
-    Light_5   = 205,
-    Raw_0 = 300,
-    Raw_1 = 301,
-    Raw_2 = 302,
-    Raw_3 = 303,
-    Raw_4 = 304,
-    Raw_5 = 305,
-    Magic_0 = 400,
-    Magic_1 = 401,
-    Magic_2 = 402,
-    Magic_3 = 403,
-    Magic_4 = 404,
-    Magic_5 = 405,
-    Magic_6 = 406,
-    Magic_7 = 407,
-    Magic_8 = 408,
-    Magic_9 = 409,
-    Magic_10 = 410,
-    Enchanted_0 = 500,
-    Enchanted_1 = 501,
-    Enchanted_2 = 502,
-    Enchanted_3 = 503,
-    Enchanted_4 = 504,
-    Enchanted_5 = 505,
-    Divine_0  = 600,
-    Divine_1  = 601,
-    Divine_2  = 602,
-    Divine_3  = 603,
-    Divine_4  = 604,
-    Divine_5  = 605,
-    Divine_6  = 606,
-    Divine_7  = 607,
-    Divine_8  = 608,
-    Divine_9  = 609,
-    Divine_10 = 610,
-    Occult_0 = 700,
-    Occult_1 = 701,
-    Occult_2 = 702,
-    Occult_3 = 703,
-    Occult_4 = 704,
-    Occult_5 = 705,
-    Fire_0  = 800,
-    Fire_1  = 801,
-    Fire_2  = 802,
-    Fire_3  = 803,
-    Fire_4  = 804,
-    Fire_5  = 805,
-    Fire_6  = 806,
-    Fire_7  = 807,
-    Fire_8  = 808,
-    Fire_9  = 809,
-    Fire_10 = 810,
-    Chaos_0 = 900,
-    Chaos_1 = 901,
-    Chaos_2 = 902,
-    Chaos_3 = 903,
-    Chaos_4 = 904,
-    Chaos_5 = 905
 };
 
 //structs
@@ -252,81 +168,120 @@ WeaponType weapon_type_from_id(u32 weapon_id){
     return WeaponType::RightHand;
 }
 
-u32 get_weapon_id_for_level(u32 weapon_id, s32 level){
+u32 get_weapon_id_for_level(u32 weapon_id, f32 level){
 
-    std::cout<<"Get_weapon_id_for_level: "<<weapon_id<<" "<<level<<'\n';
 
     //What if you pick up an upgraded weapon, should you nerfed it to 0?
-    if(level == 0) return weapon_id;
+    // if(level == 0) return weapon_id;
 
     //There is no need to iterate like 
-    // for(s32 i = 0; i <= 15; i++){
+    //for(s32 i = 0; i <= 15; i++){
     //We can extract the weapon level with modulo 100
 
-    u32 weapon_level = weapon_id % 100;
-    u32 search_weapon_id = weapon_id - weapon_level;
-    
-    u32 weapon_level_out = weapon_level;
+    u32 search_weapon_id = (weapon_id / 100) * 100;
+    f32 weapon_level = (f32)(weapon_id % 100);
 
     if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
+        f32 weapon_level_out = 0.f;
         WeaponUpgradePath weapon_type = weapon_ids.at(search_weapon_id);
-        if(weapon_type == WeaponUpgradePath::NoUpgrade){
-            weapon_level_out = 0;
-        }else if((s32)weapon_type > 1000 || weapon_type == WeaponUpgradePath::Crystal || weapon_type == WeaponUpgradePath::Lightning || weapon_type == WeaponUpgradePath::Occult || weapon_type == WeaponUpgradePath::Chaos || weapon_type == WeaponUpgradePath::Raw){
-            weapon_level_out = (level / 3);
-        }else if(weapon_type == WeaponUpgradePath::Divine || weapon_type == WeaponUpgradePath::Magic || weapon_type == WeaponUpgradePath::Fire){
-            weapon_level_out = ((level * 2) / 3);
-        }else{
-            weapon_level_out = level;
+
+
+        switch(weapon_type){
+            case WeaponUpgradePath::NoUpgrade: 
+                // Levels 0-0
+                weapon_level_out = 0.f;
+                break;
+            case WeaponUpgradePath::Standard:
+                // Levels 0-15
+                weapon_level_out = level;
+                break;
+            case WeaponUpgradePath::Divine:
+            case WeaponUpgradePath::Magic:
+            case WeaponUpgradePath::Fire:
+                //Levels 0-10
+                weapon_level_out = ((level * 2.f) / 3.f);
+                break;
+            default:
+                // Levels 0-5
+                weapon_level_out = level / 3.f;
+                break;
         }
-        std::cout<<"Weapon level In: "<<level<<"  Out: "<<weapon_level_out<<'\n';
-        return search_weapon_id + weapon_level_out;
+
+        if(weapon_level_out > 15.f) weapon_level_out = 15.f;
+        //I think round down is best
+        u32 level_to_apply = (u32)weapon_level_out;
+        // std::cout<<"Weapon level In: "<<level<<"  Out: "<<weapon_level_out<<'\n';
+        // std::cout<<"Orignal level: "<<weapon_level<<'\n';
+        return search_weapon_id + level_to_apply;
     }
     
-    std::cout<<"Unable to find matching id for weapon: "<<std::hex<<weapon_id<<std::dec<<"\n";
+    std::cout<<"Unable to find matching id for weapon: "<<weapon_id<<"\n";
     return weapon_id;
 }
 
-s32 get_weapon_level_from_id(u32 weapon_id){
-
-    u32 weapon_level = weapon_id % 100;
-    u32 search_weapon_id = weapon_id - weapon_level; 
-    u32 weapon_level_out = weapon_level;
+f32 get_weapon_level_from_id(u32 weapon_id){
+    //Use floating points for increased precision
+    //Ex lvl7 fire into a fire weapon would transform into lvl6 fire
+    f32 weapon_level = (f32)(weapon_id % 100);
+    u32 search_weapon_id = (weapon_id / 100) * 100;
     if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
+
         // Found base (+0) weapon, now determine infusion type to calculate level
-        weapon_id = search_weapon_id;
-        WeaponUpgradePath weapon_type = weapon_ids.at(weapon_id);
 
-        // std::cout<<upgrade_path_names[weapon_type]<<'\n';
+        //Double access to the map
+        WeaponUpgradePath weapon_type = weapon_ids.at(search_weapon_id);
+        f32 weapon_level_out = 0.f;
 
-        if(weapon_type == WeaponUpgradePath::NoUpgrade){
-            weapon_level_out = 0;
+        //Rare instance where cascading switch is nice(so im going to take it)
+        switch(weapon_type){
+            case WeaponUpgradePath::NoUpgrade: 
+                // Levels 0-0
+                weapon_level_out = 0.f;
+                break;
+            case WeaponUpgradePath::Standard:
+                // Levels 0-15
+                weapon_level_out = weapon_level;
+                break;
+            case WeaponUpgradePath::Raw:
+                // Levels 0-5
+                // Raw infusion caps at +5 for 10 total levels
+                weapon_level_out = weapon_level + 5.f;
+
+                //Proposed balance weapon_level_out = weapon_level * 3;
+                break;
+            case WeaponUpgradePath::Divine:
+            case WeaponUpgradePath::Magic:
+            case WeaponUpgradePath::Fire:
+                //Levels 0-10
+                // Infusions already effectively at +5
+                weapon_level_out = weapon_level + 5.f;
+
+                //Proposed balance weapon_level_out = (weapon_level * 3) / 2;
+                break;
+            case WeaponUpgradePath::Crystal: 
+            case WeaponUpgradePath::Lightning:
+            case WeaponUpgradePath::Occult:
+            case WeaponUpgradePath::Chaos:
+            case WeaponUpgradePath::Enchanted:
+                // Levels 0-5
+                // Infusions already effectively at +10
+                weapon_level_out = weapon_level + 10.f;
+
+                //Proposed balance weapon_level_out = weapon_level * 3;
+                break;
+            default:
+                // Scale unique levels 0-5 up to 15.
+                weapon_level_out = weapon_level * 3.f;
+                break;
         }
-        else if(weapon_level <= 5 && (s32)weapon_type > 1000){
-            // Scale unique levels 1-5 up to 15.
-            weapon_level_out = weapon_level * 3;
-        }
-        else if(weapon_level <= 5 && weapon_type == WeaponUpgradePath::Raw){
-            // Raw infusion caps at +5 for 10 total levels
-            weapon_level_out = weapon_level + 5;
-        }
-        else if(weapon_level <= 5 && (weapon_type == WeaponUpgradePath::Crystal || weapon_type == WeaponUpgradePath::Lightning || weapon_type == WeaponUpgradePath::Occult || weapon_type == WeaponUpgradePath::Chaos || weapon_type == WeaponUpgradePath::Enchanted)){
-            // Infusions already effectively at +10
-            weapon_level_out = weapon_level + 10;
-        }
-        else if(weapon_level <= 10 && (weapon_type == WeaponUpgradePath::Divine || weapon_type == WeaponUpgradePath::Magic || weapon_type == WeaponUpgradePath::Fire)){
-            // Infusions already effectively at +5
-            weapon_level_out = weapon_level + 5;
-        }else{
-            weapon_level_out = weapon_level;//Redundant
-        }
-    }else{
-        std::cout<<"Unable to find matching level for weapon: "<<weapon_id<<"\n";
-        return 0;
+        // std::cout<<"In: "<<weapon_level<<" Out: "<<weapon_level_out<<'\n';
+
+        if(weapon_level > 15.f) weapon_level = 15.f;
+        return weapon_level_out;
     }
-    
-    // std::cout<<"In: "<<weapon_level<<" Out: "<<weapon_level_out<<'\n';
-    return weapon_level_out;
+
+    std::cout<<"Unable to find matching level for weapon: "<<weapon_id<<"\n";
+    return 0;
 }
 
 
@@ -659,7 +614,6 @@ bool read_ring_slots(State& state, RingSlots& ring_slot){
 }
 
 void execute_change(Change change, State& state, u32 inv_index){
-
     if(change == Change::Null)return; //Also redundant
 
     u32& item_id = state.inventory_copy[inv_index].id;
@@ -712,17 +666,18 @@ void execute_change(Change change, State& state, u32 inv_index){
                 std::cout<<"Equip right hand weapon\n";
                 offset = 4;
 
-                u32 equipped_weapon_id = 0;
-                if(read_weapon_slot(state, equipped_weapon_id)){
-                    s32 existing_weapon_level = get_weapon_level_from_id(equipped_weapon_id);
-                    std::cout<<"Detected existing weapon level (scaled 0-15): "<<existing_weapon_level<<"\n";
-                    item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
-                    state.inventory_copy[inv_index].id = item_id;
-                    write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
-                }
-                else{
-                    std::cout<<"Failed to read currently equipped weapon, equipping incoming weapon unmodified\n";
-                }
+                // u32 equipped_weapon_id = 0;
+                // if(read_weapon_slot(state, equipped_weapon_id)){
+
+                //     f32 existing_weapon_level = get_weapon_level_from_id(equipped_weapon_id);
+                //     std::cout<<"Detected existing weapon level (scaled 0-15): "<<existing_weapon_level<<"\n";
+                //     item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
+                //     state.inventory_copy[inv_index].id = item_id;
+                //     write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
+
+                // }else{
+                //     std::cout<<"Failed to read currently equipped weapon, equipping incoming weapon unmodified\n";
+                // }
 
             }
             id_ptr   = offset_address(addrs.weapon_id,   offset);

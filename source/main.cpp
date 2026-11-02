@@ -508,10 +508,7 @@ void* find_world_flags_address(Process process){
 void* find_world_chr_man_addr(Process process){
     std::cout<<"Finding WorldChrMan signature...\n";
     Pattern world_chr_man_pattern; 
-    world_chr_man_pattern.load_bytes(
-        { 0x48, 0x8B, 0x05, 0x00, 0x00, 0x00, 0x00, 0x48, 0x8B, 0x48, 0x68, 0x48, 0x85, 0xC9, 0x0F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x48, 0x39, 0x5E, 0x10, 0x0F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x48 },
-        { 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1 }  
-    );
+    world_chr_man_pattern.load_bytes("48 8B 05 ?? ?? ?? ?? 48 8B 38 68 48 85 C9 0F 84 ?? ?? ?? ?? 48 39 5E 10 0F 84 ?? ?? ?? ?? 48");
 
     void* aob_ptr = find_pattern_dsr_process(process, world_chr_man_pattern);
     if(!aob_ptr){

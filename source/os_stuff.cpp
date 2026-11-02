@@ -175,7 +175,7 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
     u64 total_size = 0;
     u64 scanned_size = 0;
     
-    std::cout << "STARTING PROCESS SCAN\n";
+    std::cout << "Starting Process Scan...\n";
 
     MemBlock module_mem = get_module_memory_block(process, module_name);
 
@@ -196,19 +196,18 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
             buffer.resize(info.RegionSize);
             SIZE_T buffer_bytes_read = 0;
             if(ReadProcessMemory(process.handle, virtual_address, buffer.data(), info.RegionSize, &buffer_bytes_read)){
-
                 for(const u64& offset: pattern_scan(buffer, pattern)){
                     result_addresses.push_back(offset_address(base, offset));
                 }
             }
 
             valid_blocks += 1;
-            scanned_size+=info.RegionSize;
+            scanned_size += info.RegionSize;
         }
         virtual_address = offset_address(virtual_address, info.RegionSize);
     }
-    //I was confused at the beggining why total_size was so huge
-    //Turns out Windows does whatever it wants in virtual space
+    // I was confused at the beggining why total_size was so huge
+    // Turns out Windows does whatever it wants in virtual space
     std::cout << "\nSCANNED: " << beutify_bytes(scanned_size) << " out of " << beutify_bytes(total_size);
     std::cout << " | " << valid_blocks << " out of " << total_blocks << " blocks\n";
     // std::cout << "Valid mem blocks: " << valid_blocks << '\n';

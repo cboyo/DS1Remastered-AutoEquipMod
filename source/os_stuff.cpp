@@ -10,35 +10,42 @@ struct MemBlock{
 };
 
 std::string read_file_contents_binary(const std::filesystem::path& file_path){
-    std::ifstream file(file_path, std::ifstream::binary);
+    std::ifstream file(file_path, std::ifstream::binary | std::ifstream::ate);
     if(!file){
-        std::cout<<"Cant open file: "<<file_path<<"\n";
+        std::cout << "Cant open file: " << file_path << "\n";
         return "";
-    }   
-    std::stringstream ss;
-    ss<<file.rdbuf();
-    return ss.str();
+    }
+    size_t size = file.tellg();
+    file.seekg(0);
+    std::string str;
+    str.resize(size, '\0');
+    // This throws if it fails
+    file.read(str.data(), size);
+    if(file.good()){
+        return str;
+    }
+    return "";
 }
 
 void write_file_contents_binary(const std::filesystem::path& file_path, const std::string& contents){
     std::ofstream file(file_path, std::ifstream::binary);
     if(!file){
-        std::cout<<"Cant open file: "<<file_path<<"\n";
+        std::cout << "Cant open file: " << file_path << "\n";
         return;
     }  
-    file<<contents;
+    file << contents;
     return;
 }
 
 HANDLE handle_from_id(DWORD process_id){
     HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process_id);
     if(!handle){
-        std::cout<<"Can't get a valid process handle: ";
+        std::cout << "Can't get a valid process handle: ";
         DWORD error = GetLastError();
         if(error == 5){
-            std::cout<<"Try launching the application as administrator\n";
+            std::cout << "Try launching the application as administrator\n";
         }else{
-            std::cout<<"Error code: "<<error<<'\n';
+            std::cout << "Error code: " << error << '\n';
         }
     }
     return handle;
@@ -48,7 +55,7 @@ Process find_process_id(const wchar_t* process_name){
     // Take a snapshot of all processes in the system.
     HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (INVALID_HANDLE_VALUE == hProcessSnap) {
-        std::cout<<"Invalid process snapshot finding the process id\n";
+        std::cout << "Invalid process snapshot finding the process id\n";
     };
 
     PROCESSENTRY32W pe32;
@@ -111,7 +118,10 @@ void* chase_pointer(Process& process, void* starting_address, const std::vector<
         // pointer = pointer + offset;
         void* memory_value = 0;
         if(read_memory(process, pointer, memory_value)){
-
+            
+            if(!memory_value){
+                return nullptr;
+            }
             pointer = offset_address(memory_value, offset);
 
         }else{
@@ -136,7 +146,7 @@ MemBlock get_module_memory_block(Process& process, const wchar_t* module_name){
                 if(CompareStringW(LOCALE_NAME_USER_DEFAULT,0, module_name, -1, module_entry.szModule, -1) == CSTR_EQUAL){
                     block.base = module_entry.modBaseAddr;
                     block.size = module_entry.modBaseSize;
-                    // std::cout<<"Module size: "<<module_entry.modBaseSize<<'\n';
+                    // std::cout << "Module size: " << module_entry.modBaseSize << '\n';
                     break;
                 }
             } while (Module32NextW(snapshot_handle, &module_entry));
@@ -161,12 +171,11 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
     std::vector<u8> buffer;
     
     void* virtual_address = 0;
-
     MEMORY_BASIC_INFORMATION info;
     u64 total_size = 0;
     u64 scanned_size = 0;
     
-    std::cout<<"STARTING PROCESS SCAN\n";
+    std::cout << "STARTING PROCESS SCAN\n";
 
     MemBlock module_mem = get_module_memory_block(process, module_name);
 
@@ -183,7 +192,7 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
 
         if(is_searchable(info, module_start, module_end)){
             void* base = info.BaseAddress;
-            // std::cout<<"SCANNING: "<<base<<" "<<offset_address(base, info.RegionSize)<<'\r';
+            // std::cout << "SCANNING: " << base << " " << offset_address(base, info.RegionSize) << '\r';
             buffer.resize(info.RegionSize);
             SIZE_T buffer_bytes_read = 0;
             if(ReadProcessMemory(process.handle, virtual_address, buffer.data(), info.RegionSize, &buffer_bytes_read)){
@@ -200,9 +209,9 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
     }
     //I was confused at the beggining why total_size was so huge
     //Turns out Windows does whatever it wants in virtual space
-    std::cout<<"\nSCANNED: "<<beutify_bytes(scanned_size)<<" out of "<<beutify_bytes(total_size);
-    std::cout<<" | "<<valid_blocks<<" out of "<<total_blocks<<" blocks\n";
-    // std::cout<<"Valid mem blocks: "<<valid_blocks<<'\n';
+    std::cout << "\nSCANNED: " << beutify_bytes(scanned_size) << " out of " << beutify_bytes(total_size);
+    std::cout << " | " << valid_blocks << " out of " << total_blocks << " blocks\n";
+    // std::cout << "Valid mem blocks: " << valid_blocks << '\n';
     return result_addresses;
 }
 
@@ -216,7 +225,7 @@ std::vector<void*> scan_process(Process process,const Pattern& pattern){
     u64 total_size = 0;
     u64 scanned_size = 0;
     
-    std::cout<<"STARTING PROCESS SCAN\n";
+    std::cout << "STARTING PROCESS SCAN\n";
 
     s32 valid_blocks = 0;
     s32 total_blocks = 0;
@@ -232,7 +241,7 @@ std::vector<void*> scan_process(Process process,const Pattern& pattern){
 
         if(valid_mem_block){
             void* base = info.BaseAddress;
-            // std::cout<<"SCANNING: "<<base<<" "<<offset_address(base, info.RegionSize)<<'\r';
+            // std::cout << "SCANNING: " << base << " " << offset_address(base, info.RegionSize) << '\r';
             buffer.resize(info.RegionSize);
             SIZE_T buffer_bytes_read = 0;
             if(ReadProcessMemory(process.handle, virtual_address, buffer.data(), info.RegionSize, &buffer_bytes_read)){
@@ -249,9 +258,9 @@ std::vector<void*> scan_process(Process process,const Pattern& pattern){
     }
     //I was confused at the beggining why total_size was so huge
     //Turns out Windows does whatever it wants in virtual space
-    std::cout<<"\nSCANNED: "<<beutify_bytes(scanned_size)<<" out of "<<beutify_bytes(total_size);
-    std::cout<<" | "<<valid_blocks<<" out of "<<total_blocks<<" blocks\n";
-    // std::cout<<"Valid mem blocks: "<<valid_blocks<<'\n';
+    std::cout << "\nSCANNED: " << beutify_bytes(scanned_size) << " out of " << beutify_bytes(total_size);
+    std::cout << " | " << valid_blocks << " out of " << total_blocks << " blocks\n";
+    // std::cout << "Valid mem blocks: " << valid_blocks << '\n';
     return result_addresses;
 }
 
@@ -260,7 +269,7 @@ bool set_path(){
     path.resize(MAX_PATH);
     DWORD nSize = GetModuleFileNameW(NULL, path.data(), (DWORD)path.size());
     if(nSize==0){
-        std::cout<<"Error getting module path. Error code:"<<GetLastError()<<'\n';
+        std::cout << "Error getting module path. Error code:" << GetLastError() << '\n';
         return false;
     }
     while(nSize==path.size() && GetLastError()==ERROR_INSUFFICIENT_BUFFER){
@@ -268,11 +277,11 @@ bool set_path(){
             //Path is huge???
             return false;
         }else if(nSize==0){
-            std::cout<<"Error getting module path. Error code:"<<GetLastError()<<'\n';
+            std::cout << "Error getting module path. Error code:" << GetLastError() << '\n';
             return false;
         }
-        path.resize(path.size()*2);
-        nSize = GetModuleFileNameW(NULL,path.data(),(DWORD)path.size());
+        path.resize(path.size() * 2);
+        nSize = GetModuleFileNameW(NULL, path.data(), (DWORD)path.size());
     }
     std::filesystem::current_path(std::filesystem::path{path}.parent_path());
     return true;

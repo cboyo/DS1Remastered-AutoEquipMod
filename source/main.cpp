@@ -10,7 +10,6 @@
 #include <iomanip>
 #include <string>
 #include <array>
-#include <sstream>
 #include <cassert>
 #include <filesystem>
 #include <fstream>
@@ -27,7 +26,6 @@ using s64 = int64_t;
 using f32 = float;
 using f64 = double;
 
-
 //Other modules
 #include "utils.cpp"
 #include "scanner.cpp"
@@ -36,6 +34,7 @@ using f64 = double;
 #include "weapon_ids.cpp"
 
 //Enums
+const wchar_t* EXE_NAME = L"DarkSoulsRemastered.exe";
 
 enum class AppState{
     FindingGame,
@@ -45,7 +44,7 @@ enum class AppState{
     InvUpdate
 };
 
-enum class ItemType :u32{
+enum class ItemType : u32{
     Weapon     = 0x00000000,
     Armor      = 0x10000000,
     Ring       = 0x20000000,
@@ -53,7 +52,7 @@ enum class ItemType :u32{
     None       = 0xFFFFFFFF
 };
 
-enum class ArmorType: u32{
+enum class ArmorType : u32{
     Head  = 0,
     Chest = 1,
     Hands = 2,
@@ -61,15 +60,15 @@ enum class ArmorType: u32{
     Unknown
 };
 
-enum class WeaponType:u32{
-    RightHand,
+enum class WeaponType : u32{
+    RightHand = 0,
     LeftHand,
     Arrow,
     Bolt,
     Unknown
 };
 
-enum class Change{
+enum class Change : u32{
     Null=0,
     EquipWeapon,
     EquipArmor,
@@ -93,7 +92,6 @@ struct Addresses{
 };
 
 struct ConfigOptions{
-
     s32 auto_upgrades = 0;
     bool equip_weapons = true;
     bool equip_head = true;
@@ -102,25 +100,25 @@ struct ConfigOptions{
     bool equip_pants = true;
     bool equip_ring = true;
     bool count_bosses_defeated = false;
-
 };
 
 struct InvSlot{
     ItemType type;
     u32 id;
     u32 count;
-    u32 mysterious_number;//Has to do with display order but other than that im clueless
+    u32 mysterious_number; //Has to do with display order but other than that im clueless
     u32 valid;
     u32 durability;
     u32 hits;
 
-
     bool operator ==(const InvSlot& rhs)const{
-        return type==rhs.type && id==rhs.id && count==rhs.count && mysterious_number==rhs.mysterious_number&& valid==rhs.valid && durability==rhs.durability && hits==rhs.hits;
+        // Plain memory compare suffices
+        return std::memcmp(this, &rhs, sizeof(*this)) == 0;
+        //return type==rhs.type && id==rhs.id && count==rhs.count && mysterious_number==rhs.mysterious_number && valid==rhs.valid && durability==rhs.durability && hits==rhs.hits;
     }
 
     bool operator !=(const InvSlot& rhs)const{
-        return !(*this==rhs);
+        return !(*this == rhs);
     }
 };
 
@@ -174,7 +172,7 @@ struct UpgradeLevels{
     // DemonManus = 2500,
 };
 
-using inv_t = std::array<InvSlot,2048>;
+using inv_t = std::array<InvSlot, 2048>;
 struct State{
     AppState state;
     Process process;
@@ -187,7 +185,6 @@ struct State{
 };
 
 
-
 //Utilities
 
 ArmorType armor_type_from_id(u32 armor_id){
@@ -197,19 +194,26 @@ ArmorType armor_type_from_id(u32 armor_id){
 }
 
 WeaponType weapon_type_from_id(u32 weapon_id){
-    if      (in_range(weapon_id, 101000, 102000)){//Parry Dagger
+    if      (in_range(weapon_id, 101000u, 102000u)){
+        // Parry Dagger
         return WeaponType::LeftHand;
-    }else if(in_range(weapon_id,2000000,2100000)){
+    }else if(in_range(weapon_id, 2000000u, 2100000u)){
+        // Arrows
         return WeaponType::Arrow;
-    }else if(in_range(weapon_id,2100000,2200000)){
+    }else if(in_range(weapon_id, 2100000u, 2200000u)){
+        // Bolts
         return WeaponType::Bolt;
-    }else if(in_range(weapon_id,1300000,1600000)){//Catalyst+Shields
+    }else if(in_range(weapon_id, 1300000u, 1600000u)){
+        // Catalyst + Shields
         return WeaponType::LeftHand;
-    }else if(in_range(weapon_id,9000000,9010000)){//More shields
+    }else if(in_range(weapon_id, 9000000u, 9010000u)){
+        // More shields
         return WeaponType::LeftHand;
-    }else if(in_range(weapon_id,9014000,9015000)){//Cleansing Greatshield
+    }else if(in_range(weapon_id, 9014000u, 9015000u)){
+        // Cleansing Greatshield
         return WeaponType::LeftHand;
-    }else if(in_range(weapon_id,9017000,9019000)){//Manus and Oolacile Catalyst
+    }else if(in_range(weapon_id, 9017000u, 9019000u)){
+        // Manus and Oolacile Catalyst
         return WeaponType::LeftHand;
     }
     //I should really do a better check for invalid values
@@ -228,14 +232,12 @@ WeaponUpgradePath get_weapon_path_from_id(u32 weapon_id){
 }
 
 u32 get_weapon_id_for_level(u32 weapon_id, f32 level){
-
-
-    //What if you pick up an upgraded weapon, should you nerfed it to 0?
+    // What if you pick up an upgraded weapon, should you nerfed it to 0?
     // if(level == 0) return weapon_id;
 
-    //There is no need to iterate like 
-    //for(s32 i = 0; i <= 15; i++){
-    //We can extract the weapon level with modulo 100
+    // There is no need to iterate like 
+    // for(s32 i = 0; i <= 15; i++){
+    // We can extract the weapon level with modulo 100
 
     u32 search_weapon_id = (weapon_id / 100) * 100;
 
@@ -243,7 +245,6 @@ u32 get_weapon_id_for_level(u32 weapon_id, f32 level){
     if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
         f32 weapon_level_out = 0.f;
         WeaponUpgradePath weapon_type = weapon_ids.at(search_weapon_id);
-
 
         switch(weapon_type){
             case WeaponUpgradePath::NoUpgrade: 
@@ -267,20 +268,20 @@ u32 get_weapon_id_for_level(u32 weapon_id, f32 level){
         }
 
         if(weapon_level_out > 15.f) weapon_level_out = 15.f;
-        //I think round down is best
+        // I think round down is best
         u32 level_to_apply = (u32)weapon_level_out;
-        // std::cout<<"Weapon level In: "<<level<<"  Out: "<<weapon_level_out<<'\n';
-        // std::cout<<"Orignal level: "<<weapon_level<<'\n';
+        // std::cout << "Weapon level In: " << level << "  Out: " << weapon_level_out << '\n';
+        // std::cout << "Orignal level: " << weapon_level << '\n';
         return search_weapon_id + level_to_apply;
     }
     
-    std::cout<<"Unable to find matching id for weapon: "<<weapon_id<<"\n";
+    std::cout << "Unable to find matching id for weapon: " << weapon_id << "\n";
     return weapon_id;
 }
 
 f32 get_weapon_level_from_id(u32 weapon_id){
-    //Use floating points for increased precision
-    //Ex lvl7 fire into a fire weapon would transform into lvl6 fire
+    // Use floating points for increased precision
+    // Ex lvl7 fire into a fire weapon would transform into lvl6 fire
     f32 weapon_level = (f32)(weapon_id % 100);
     u32 search_weapon_id = (weapon_id / 100) * 100;
     if(weapon_ids.find(search_weapon_id) != weapon_ids.end()){
@@ -333,13 +334,13 @@ f32 get_weapon_level_from_id(u32 weapon_id){
                 weapon_level_out = weapon_level * 3.f;
                 break;
         }
-        // std::cout<<"In: "<<weapon_level<<" Out: "<<weapon_level_out<<'\n';
+        // std::cout << "In: " << weapon_level << " Out: " << weapon_level_out << '\n';
 
         if(weapon_level > 15.f) weapon_level = 15.f;
         return weapon_level_out;
     }
 
-    std::cout<<"Unable to find matching level for weapon: "<<weapon_id<<"\n";
+    std::cout << "Unable to find matching level for weapon: " << weapon_id << "\n";
     return 0;
 }
 
@@ -392,12 +393,12 @@ bool read_ds1r_flag(Process& process, void* flags_base_address, u64 flag_id){
 
     u32 value;
     if(read_memory(process, offset_address(flags_base_address, offset), value)){
-        // std::cout<<offset_address(flags_base_address, offset)<<" "<<value<<" "<<mask<<" "<<((value & mask) > 0)<<'\n';
+        // std::cout << offset_address(flags_base_address, offset) << " " << value << " " << mask << " " << ((value & mask) > 0) << '\n';
         return ((value & mask) > 0);
     }
-    std::cout<<"Failed to read flag value: "<<flag_id<<'\n';
-    std::cout<<"\tGroup:"<<group<<" Area:"<<area<<" Section:"<<section<<" Number:"<<number<<'\n';
-    std::cout<<"\tBase address: "<<flags_base_address<<" Reading at: "<<offset_address(flags_base_address, offset)<<'\n';
+    std::cout << "Failed to read flag value: " << flag_id << '\n';
+    std::cout << "\tGroup:" << group << " Area:" << area << " Section:" << section << " Number:" << number << '\n';
+    std::cout << "\tBase address: " << flags_base_address << " Reading at: " << offset_address(flags_base_address, offset) << '\n';
     return 0;
 }
 
@@ -410,7 +411,7 @@ u64 get_defeated_boss_count(Process& process, void* flags_base){
         std::string name;
     };
 
-    std::vector<BossFlagEntry> boss_flags_table={
+    std::vector<BossFlagEntry> boss_flags_table = {
         {       2,     0,   536870912, "Gaping Dragon"},
         {       3,     0,   268435456, "Bell Gargoyles"},
         {       4,     0,   134217728, "Priscilla"},
@@ -438,25 +439,26 @@ u64 get_defeated_boss_count(Process& process, void* flags_base){
         {11510900, 18032,   134217728, "Gwyndolin"},
         {11810900, 23152,   134217728, "Stray Demon"},
     };
-    u64 last_offset = 123456712345;//Value not in table
-    u32 cached_value = 0;
-    u64 total = 0;
-    //Small optimization from ~40us to ~15 by not reading the memory for every single flag
-    //Use the fact that some of these are in the same bucket
-    //Might not be much but this kind of applications should have as minimal CPU time as possible IMO
-    for(BossFlagEntry& e:boss_flags_table){
+
+    u64 last_offset = 123456712345u; // Value not in table
+    u32 cached_value = 0u;
+    u64 total = 0u;
+    // Small optimization from ~40us to ~15 by not reading the memory for every single flag
+    // Use the fact that some of these are in the same bucket
+    // Might not be much but this kind of applications should have as minimal CPU time as possible IMO
+    for(BossFlagEntry& e : boss_flags_table){
         // bool result = read_ds1r_flag(process,  flags_base, e.defeated_id);
         bool result = false;
         if(last_offset != e.offset){
             last_offset = e.offset;
             if(!read_memory(process, offset_address(flags_base, e.offset), cached_value)){
-                std::cout<<"Failed to read memory for bosses defeated\n";
+                std::cout << "Failed to read memory for bosses defeated\n";
                 return 0;
             }
         }
         result = (cached_value & e.mask) > 0;
         if(result) total += 1;
-        // std::cout<<"Defeated?: "<<result<<" "<<e.name<<'\n';
+        // std::cout << "Defeated?: " << result << " " << e.name << '\n';
     }
     return total;
 }
@@ -464,13 +466,12 @@ u64 get_defeated_boss_count(Process& process, void* flags_base){
 void* find_world_flags_address(Process process){
 
     Pattern p;
-    p.load_bytes({0x48, 0x8B, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x99, 0x33, 0xC2, 0x45, 0x33, 0xC0, 0x2B, 0xC2, 0x8D, 0x50, 0xF6},
-                    {1,    1,    1,    0,    0,    0,    0,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1});
+    p.load_bytes("48 8B 0D ?? ?? ?? ?? 99 33 C2 45 33 C0 2B C2 8D 50 F6");
 
-    auto addresses = scan_process_module(process, p, L"DarkSoulsRemastered.exe");
+    std::vector<void*> addresses = scan_process_module(process, p, EXE_NAME);
     if(addresses.size() != 1){
-        std::cout<<"Disaster"<<'\n';
-        return 0;
+        std::cout << "Failed to get the world flags address" << '\n';
+        return nullptr;
     }
 
     void* ptr = addresses[0];
@@ -478,7 +479,7 @@ void* find_world_flags_address(Process process){
 
     read_memory(process, offset_address(ptr, 3llu), my_int);
     void* new_ptr = offset_address(offset_address(ptr, my_int), 7llu);
-    // std::cout<<"New ptr: "<<new_ptr<<'\n';
+    // std::cout << "New ptr: " << new_ptr << '\n';
     new_ptr = chase_pointer(process, (u8*)new_ptr, {0x0, 0x0});
     // possible_addresses[i] = (u64)new_ptr;
     
@@ -487,23 +488,17 @@ void* find_world_flags_address(Process process){
 
 std::vector<void*> find_inventory_address(Process process){
     
-    Pattern p;
-    
-    //Htf did this work right
-    //Basic pattern to find the inventory
-    // p.load_words({-1u,0u,2048u,0u},{0,1,1,1}); 
-    
     //Got this from a Cheat Engine Table, not sure how good it is(actually good)
     // 48 8B 05 xx xx xx xx 45 33 ED 48 8B F1 48 85 C0
-    p.load_bytes({0x48, 0x8B, 0x05, 0x00, 0x00, 0x00, 0x00, 0x45, 0x33, 0xED, 0x48, 0x8B, 0xF1, 0x48, 0x85, 0xC0}, 
-                 {   1,    1,    1,    0,    0,    0,    0,    1,    1,    1,    1,    1,    1,    1,    1,    1});
-    
+    Pattern p;
+    p.load_bytes("48 8B 05 ?? ?? ?? ?? 45 33 ED 48 8B F1 48 85 C0");
 
-    std::vector<void*> addresses = scan_process_module(process, p, L"DarkSoulsRemastered.exe");
+    std::vector<void*> addresses = scan_process_module(process, p, EXE_NAME);
 
-    std::cout<<"Found "<<addresses.size()<<" possible addresses\n";
-
-    if(addresses.size() != 1) return addresses;
+    if(addresses.size() != 1){
+        std::cout << "Failed to get the inventory address" << '\n';
+        return addresses;
+    }
 
     void* address = addresses[0];
     s32 my_int = 0;
@@ -511,9 +506,7 @@ std::vector<void*> find_inventory_address(Process process){
     read_memory(process, offset_address(address, 3), my_int);
     void* new_ptr = offset_address(offset_address(address, my_int), 7);
 
-    // std::cout<<"New ptr: "<<new_ptr<<'\n';
     new_ptr = chase_pointer(process, (u8*)new_ptr, {0x10, 0x10});
-
     addresses[0] = new_ptr;
         
     return addresses;
@@ -531,15 +524,15 @@ void setup_inventory_addresses(Addresses& addrs, void* signature_address){
 }
 
 bool try_find_process(Process& process){
-    const wchar_t* process_name = L"DarkSoulsRemastered.exe";
+    const wchar_t* process_name = EXE_NAME;
     process = find_process_id(process_name);
     return process.handle;
 }
 
 bool read_inventory(Process process,void* addr,inv_t& inv){
-    SIZE_T read=0;
+    SIZE_T read = 0;
     if(ReadProcessMemory(process.handle, addr, inv.data(), sizeof(inv), &read)){
-        return read==sizeof(inv);
+        return read == sizeof(inv);
     }
     return false;
 }
@@ -556,12 +549,12 @@ bool in_main_menu(State& state){
 
 bool find_addresses(State& state){
     
-    auto inventory_address = find_inventory_address(state.process);
-    if(inventory_address.size()>1){
-        std::cout<<"Multiple signatures found, can't pin down correct address\n";
+    std::vector<void*> inventory_address = find_inventory_address(state.process);
+    if(inventory_address.size() > 1){
+        std::cout << "Multiple signatures found, can't pin down correct address\n";
         return false;
-    }else if(inventory_address.size()==0){
-        std::cout<<"No signatures found, can't pin down correct address\n";
+    }else if(inventory_address.size() == 0){
+        std::cout << "No signatures found, can't pin down correct address\n";
         return false;
     }else{
 
@@ -569,29 +562,22 @@ bool find_addresses(State& state){
 
             state.addrs.flags_base = find_world_flags_address(state.process);
             if(!state.addrs.flags_base){
-                std::cout<<"Failed to find boss count address\n";
+                std::cout << "Failed to find boss count address\n";
                 return false;
             }
         }
     }
     setup_inventory_addresses(state.addrs, inventory_address[0]);
+    std::cout << "Inv address: " << inventory_address[0] << '\n';
     return true;
 
     
 }
 
-
-
-
 // Program actions
 bool read_weapon_slot(State& state, u32& weapon_id){
     // read currently equipped weapon id from right hand slot (offset +4)
     void* weapon_id_ptr = offset_address(state.addrs.weapon_id, 4);
-
-    /*
-        Why sizeof(u32)*2u? -> Bad copy paste from the rings logic?
-        if(!ReadProcessMemory(state.process.handle,weapon_id_ptr, weapon_id, sizeof(u32)*2u,nullptr)){
-    */
     if(!ReadProcessMemory(state.process.handle,weapon_id_ptr, &weapon_id, sizeof(weapon_id), nullptr)){
         return false;
     }
@@ -601,7 +587,7 @@ bool read_weapon_slot(State& state, u32& weapon_id){
 void write_inv_slot(State& state, InvSlot& slot, u32 inv_index){
     void* inv_slot_ptr = offset_address(state.addrs.inv, inv_index * sizeof(InvSlot));
     if(!WriteProcessMemory(state.process.handle, inv_slot_ptr, &slot, sizeof(slot), nullptr)){
-        std::cout<<"Failed to write inventory slot back\n";
+        std::cout << "Failed to write inventory slot back\n";
     }
 }
 
@@ -613,13 +599,13 @@ Change identify_change(const InvSlot& old,const InvSlot& current){
     if(!old.valid&&current.valid){
         //Got a new item let's check it out!
         if(current.type==ItemType::Armor){
-            // std::cout<<"Equip armor here\n";
+            // std::cout << "Equip armor here\n";
             return Change::EquipArmor;
         }else if(current.type==ItemType::Weapon){
-            // std::cout<<"Equip weapon here\n";
+            // std::cout << "Equip weapon here\n";
             return Change::EquipWeapon;
         }else if(current.type==ItemType::Ring){
-            // std::cout<<"Equip ring here\n";
+            // std::cout << "Equip ring here\n";
             return Change::EquipRing;
         }
     }else{
@@ -630,7 +616,7 @@ Change identify_change(const InvSlot& old,const InvSlot& current){
             return Change::Null;
         }else if(current.type==ItemType::Weapon&&old.type==current.type){
             //Upgraded weapon most likely
-            std::cout<<"Detected weapon upgrade\n";
+            std::cout << "Detected weapon upgrade\n";
             return Change::UpgradedWeapon;
         }
     }
@@ -641,35 +627,50 @@ Change identify_change(const InvSlot& old,const InvSlot& current){
 void write_id_and_slot(State& state, u32 item_id, void* id_ptr, u32 slot, void* slot_ptr){
     if(id_ptr && slot_ptr){
         if(!WriteProcessMemory(state.process.handle, id_ptr, &item_id, sizeof(item_id), nullptr)){
-            std::cout<<"Failed to write item id, item not equipped\n";
+            std::cout << "Failed to write item id, item not equipped\n";
         }
         //Writing the slot is more a convenience than anything
         if(!WriteProcessMemory(state.process.handle, slot_ptr, &slot, sizeof(slot), nullptr)){
-            std::cout<<"Failed to write item slot(Not much of a problem)\n";
+            std::cout << "Failed to write item slot(Not much of a problem)\n";
         }
     }
 }
 
 void write_rings_slots(State& state, RingSlots& rings){
     //@CAUTION: Trick to write both in only one pass assumes that left and right are contiguous in memory
-    if(!WriteProcessMemory(state.process.handle, state.addrs.ring_id, &rings.left_id, sizeof(u32)*2, nullptr)){
-        std::cout<<"Failed to write ring id, ring not equipped\n";
+    if(!WriteProcessMemory(state.process.handle, state.addrs.ring_id, &rings.left_id, sizeof(u32) * 2, nullptr)){
+        std::cout << "Failed to write ring id, ring not equipped\n";
     }
     //Writing the slot is more a convenience than anything
-    if(!WriteProcessMemory(state.process.handle, state.addrs.ring_slot, &rings.left_slot, sizeof(u32)*2, nullptr)){
-        std::cout<<"Failed to write ring slot(Not much of a problem)\n";
+    if(!WriteProcessMemory(state.process.handle, state.addrs.ring_slot, &rings.left_slot, sizeof(u32) * 2, nullptr)){
+        std::cout << "Failed to write ring slot(Not much of a problem)\n";
     }
 }
 
 bool read_ring_slots(State& state, RingSlots& ring_slot){
     //@CAUTION: Trick to read both in only one pass assumes that left and right are contiguous in memory
-    if(!ReadProcessMemory(state.process.handle, state.addrs.ring_id, &ring_slot.left_id, sizeof(u32)*2u, nullptr)){
+    if(!ReadProcessMemory(state.process.handle, state.addrs.ring_id, &ring_slot.left_id, sizeof(u32) * 2u, nullptr)){
         return false;
     }
-    if(!ReadProcessMemory(state.process.handle, state.addrs.ring_slot, &ring_slot.left_slot, sizeof(u32)*2u, nullptr)){
+    if(!ReadProcessMemory(state.process.handle, state.addrs.ring_slot, &ring_slot.left_slot, sizeof(u32) * 2u, nullptr)){
         return false;
     }
     return true;
+}
+void print_weapon_levels(State& state){
+    std::cout << "Standard: " << state.upg_levels.standard << '\n';
+    std::cout << "Crystal: " << state.upg_levels.crystal << '\n';
+    std::cout << "Lighting: " << state.upg_levels.lighting << '\n';
+    std::cout << "Raw: " << state.upg_levels.raw << '\n';
+    std::cout << "Magic: " << state.upg_levels.magic << '\n';
+    std::cout << "Enchanted: " << state.upg_levels.enchanted << '\n';
+    std::cout << "Divine: " << state.upg_levels.divine << '\n';
+    std::cout << "Occult: " << state.upg_levels.occult << '\n';
+    std::cout << "Fire: " << state.upg_levels.fire << '\n';
+    std::cout << "Chaos: " << state.upg_levels.chaos << '\n';
+    std::cout << "Twinkling: " << state.upg_levels.twinkling << '\n';
+    std::cout << "Dragon: " << state.upg_levels.dragon << '\n';
+    std::cout << "Demon: " << state.upg_levels.demon << '\n';
 }
 
 void update_weapon_level(State& state, u32 weapon_id){
@@ -721,19 +722,6 @@ void update_weapon_level(State& state, u32 weapon_id){
                 make_max(state.upg_levels.demon, weapon_level);
                 break;
         }
-        std::cout<<"Standard: "<<state.upg_levels.standard<<'\n';
-        std::cout<<"Crystal: "<<state.upg_levels.crystal<<'\n';
-        std::cout<<"Lighting: "<<state.upg_levels.lighting<<'\n';
-        std::cout<<"Raw: "<<state.upg_levels.raw<<'\n';
-        std::cout<<"Magic: "<<state.upg_levels.magic<<'\n';
-        std::cout<<"Enchanted: "<<state.upg_levels.enchanted<<'\n';
-        std::cout<<"Divine: "<<state.upg_levels.divine<<'\n';
-        std::cout<<"Occult: "<<state.upg_levels.occult<<'\n';
-        std::cout<<"Fire: "<<state.upg_levels.fire<<'\n';
-        std::cout<<"Chaos: "<<state.upg_levels.chaos<<'\n';
-        std::cout<<"Twinkling: "<<state.upg_levels.twinkling<<'\n';
-        std::cout<<"Dragon: "<<state.upg_levels.dragon<<'\n';
-        std::cout<<"Demon: "<<state.upg_levels.demon<<'\n';
     }
 }
 
@@ -748,20 +736,20 @@ void execute_change(Change change, State& state, u32 inv_index){
     if(change == Change::EquipArmor){
         ArmorType armor_type = armor_type_from_id(item_id);
         if(armor_type == ArmorType::Unknown){
-            std::cout<<"Unknown armor type, no action executed\n";
+            std::cout << "Unknown armor type, no action executed\n";
         }else{
             bool execute = true;
             if(armor_type == ArmorType::Head){
-                std::cout<<"Equip helmet\n";
+                std::cout << "Equip helmet\n";
                 execute = state.config.equip_head;
             }else if(armor_type == ArmorType::Hands){
-                std::cout<<"Equip gloves\n";
+                std::cout << "Equip gloves\n";
                 execute = state.config.equip_glove;
             }else if(armor_type == ArmorType::Chest){
-                std::cout<<"Equip chest armor\n";
+                std::cout << "Equip chest armor\n";
                 execute = state.config.equip_chest;
             }else if(armor_type == ArmorType::Legs){
-                std::cout<<"Equip pantalons\n";
+                std::cout << "Equip pantalons\n";
                 execute = state.config.equip_pants;
             }
 
@@ -775,42 +763,43 @@ void execute_change(Change change, State& state, u32 inv_index){
     }else if(change == Change::EquipWeapon && state.config.equip_weapons){
         WeaponType weapon_type = weapon_type_from_id(item_id);
         if(weapon_type == WeaponType::Unknown){
-            std::cout<<"Unknown weapon type, no action executed\n";
+            std::cout << "Unknown weapon type, no action executed\n";
         }else{
             s32 offset = 0;
             if(weapon_type == WeaponType::Arrow){
-                std::cout<<"Equip arrows\n";
+                std::cout << "Equip arrows\n";
                 offset=16;
             }else if(weapon_type == WeaponType::Bolt){
-                std::cout<<"Equip bolts\n";
+                std::cout << "Equip bolts\n";
                 offset=20;
             }else if(weapon_type == WeaponType::LeftHand){
-                std::cout<<"Equip left hand weapon\n";
+                std::cout << "Equip left hand weapon\n";
                 offset = 0;//Redundant
             }else if(weapon_type == WeaponType::RightHand){
                 offset = 4;
-                std::cout<<"Equip right hand weapon";
+                std::cout << "Equip right hand weapon";
 
                 if(state.config.auto_upgrades == 2){
+                    std::cout << ". System 2 autoupgrade";
                     
                     u32 equipped_weapon_id = 0;
                     if(read_weapon_slot(state, equipped_weapon_id)){
 
                         f32 existing_weapon_level = get_weapon_level_from_id(equipped_weapon_id);
-                        // std::cout<<"Detected existing weapon level (scaled 0-15): "<<existing_weapon_level<<"\n";
+                        std::cout << ". Detected existing weapon level (scaled 0-15): " << existing_weapon_level << "";
                         item_id = get_weapon_id_for_level(item_id, existing_weapon_level);
                         state.inventory_copy[inv_index].id = item_id;
                         write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
                         u32 upgrades = item_id % 100;
                         if(upgrades > 0){
-                            std::cout<<". Upgraded to +"<<upgrades;
+                            std::cout << ". Upgraded to +" << upgrades;
                         }
                     }else{
-                        std::cout<<"Failed to read currently equipped weapon, equipping weapon unmodified\n";
+                        std::cout << "Failed to read currently equipped weapon, equipping weapon unmodified\n";
                     }
-                    update_weapon_level(state, item_id);
-                }else if(state.config.auto_upgrades == 1){
                     
+                }else if(state.config.auto_upgrades == 1){
+                    std::cout << ". System 1 autoupgrade";
                     WeaponUpgradePath path = get_weapon_path_from_id(item_id);
                     u32 upgrades = 0;
                     switch(path){
@@ -863,14 +852,15 @@ void execute_change(Change change, State& state, u32 inv_index){
                     state.inventory_copy[inv_index].id = item_id;
                     write_inv_slot(state, state.inventory_copy[inv_index], inv_index);
                     if(upgrades > 0){
-                        std::cout<<". Upgraded to +"<<upgrades;
+                        std::cout << ". Upgraded to +" << upgrades;
                     }
                 }
-                std::cout<<'\n';
+                std::cout << '\n';
             }
             id_ptr   = offset_address(addrs.weapon_id,   offset);
             slot_ptr = offset_address(addrs.weapon_slot, offset);
             write_id_and_slot(state, item_id, id_ptr, inv_index, slot_ptr);
+            update_weapon_level(state, item_id);
         }
     }else if(change==Change::EquipRing && state.config.equip_ring){
         //V0.3 change
@@ -881,14 +871,14 @@ void execute_change(Change change, State& state, u32 inv_index){
         //even between sessions!!
         RingSlots ring_slots;
         if(!read_ring_slots(state,ring_slots)){
-            std::cout<<"Failed to read ring slots\n";
+            std::cout << "Failed to read ring slots\n";
             return;
         }
         if(ring_slots.left_id==item_id){
-            std::cout<<"Ring duplicate detected, ring not equipped\n";
+            std::cout << "Ring duplicate detected, ring not equipped\n";
             return;
         }
-        std::cout<<"Equip ring\n";
+        std::cout << "Equip ring\n";
         //If left slot is empty and right is not, only no need to push first ring
         if(!    ((ring_slots.left_id == 0xFFFFFFFF)   &&   (ring_slots.right_id != 0xFFFFFFFF))    ){
             ring_slots.right_id   = ring_slots.left_id;
@@ -901,7 +891,6 @@ void execute_change(Change change, State& state, u32 inv_index){
         update_weapon_level(state, item_id);
     }
 }
-
 
 bool initial_inv_read(State& state){
 
@@ -917,33 +906,63 @@ bool initial_inv_read(State& state){
                 }
             }
 
-            // std::cout<<"Standard: "<<state.upg_levels.standard<<'\n';
-            // std::cout<<"Crystal: "<<state.upg_levels.crystal<<'\n';
-            // std::cout<<"Lighting: "<<state.upg_levels.lighting<<'\n';
-            // std::cout<<"Raw: "<<state.upg_levels.raw<<'\n';
-            // std::cout<<"Magic: "<<state.upg_levels.magic<<'\n';
-            // std::cout<<"Enchanted: "<<state.upg_levels.enchanted<<'\n';
-            // std::cout<<"Divine: "<<state.upg_levels.divine<<'\n';
-            // std::cout<<"Occult: "<<state.upg_levels.occult<<'\n';
-            // std::cout<<"Fire: "<<state.upg_levels.fire<<'\n';
-            // std::cout<<"Chaos: "<<state.upg_levels.chaos<<'\n';
-            // std::cout<<"Twinkling: "<<state.upg_levels.twinkling<<'\n';
-            // std::cout<<"Dragon: "<<state.upg_levels.dragon<<'\n';
-            // std::cout<<"Demon: "<<state.upg_levels.demon<<'\n';
-
+            // std::cout << "Standard: " << state.upg_levels.standard << '\n';
+            // std::cout << "Crystal: " << state.upg_levels.crystal << '\n';
+            // std::cout << "Lighting: " << state.upg_levels.lighting << '\n';
+            // std::cout << "Raw: " << state.upg_levels.raw << '\n';
+            // std::cout << "Magic: " << state.upg_levels.magic << '\n';
+            // std::cout << "Enchanted: " << state.upg_levels.enchanted << '\n';
+            // std::cout << "Divine: " << state.upg_levels.divine << '\n';
+            // std::cout << "Occult: " << state.upg_levels.occult << '\n';
+            // std::cout << "Fire: " << state.upg_levels.fire << '\n';
+            // std::cout << "Chaos: " << state.upg_levels.chaos << '\n';
+            // std::cout << "Twinkling: " << state.upg_levels.twinkling << '\n';
+            // std::cout << "Dragon: " << state.upg_levels.dragon << '\n';
+            // std::cout << "Demon: " << state.upg_levels.demon << '\n';
         }
-
         return true;
     }else{
         return false;
     }
+}
 
+bool wait_for_process_init(HANDLE process_handle, ULONGLONG ms_delay){
+    ULONGLONG diff = 0;
+    do{
+        FILETIME system_time;
+        FILETIME process_time;
+        FILETIME temp_time;
+        GetSystemTimeAsFileTime(&system_time);
+        if(!GetProcessTimes(process_handle, &process_time, &temp_time, &temp_time, &temp_time)){
+            std::cout << "Failed to get process time: " << GetLastError() << '\n';
+            return false;
+        }
 
+        // As per FILETIME windows documentation remark section
+        // to compare is recommended to first copy to ULARGE_INTEGER
+        // and compare the quadparts
+        ULARGE_INTEGER system_ularge;
+        system_ularge.HighPart = system_time.dwHighDateTime;
+        system_ularge.LowPart = system_time.dwLowDateTime;
 
+        ULARGE_INTEGER process_ularge;
+        process_ularge.HighPart = process_time.dwHighDateTime;
+        process_ularge.LowPart = process_time.dwLowDateTime;
+
+        diff = system_ularge.QuadPart - process_ularge.QuadPart;
+        // Each unit is 100 nanoseconds, we want ms
+        diff /= 10'000;
+        // std::cout << "System time: " << system_ularge.QuadPart << '\n';
+        // std::cout << "Process time: " << process_ularge.QuadPart << '\n';
+        // std::cout << "Time difference: " << diff << '\n';
+        if(diff < ms_delay){
+            Sleep((DWORD)(ms_delay - diff));
+        }
+    }while(diff < ms_delay);
+    return true;
 }
 
 // Program logic
-
 void update_loop(State& state){
     bool trying_to_find = false;
     u64 search_fails = 0;
@@ -955,7 +974,7 @@ void update_loop(State& state){
     while(true){
         if(state.state==AppState::FindingGame){
             if(!trying_to_find){
-                std::cout<<"Trying to find Dark Souls Remastered process\n";
+                std::cout << "Trying to find Dark Souls Remastered process\n";
                 trying_to_find = true;
                 search_fails = 0;
             }
@@ -963,14 +982,16 @@ void update_loop(State& state){
             if(try_find_process(state.process)){
                 state.state=AppState::FindingInv;
                 trying_to_find = false;
-                std::cout<<'\n';
-                std::cout<<"Found Dark Souls Remastered process\n";
+                std::cout << '\n';
+                std::cout << "Found Dark Souls Remastered process\n";
+                // 3 seconds should be fine
+                wait_for_process_init(state.process.handle, 3000);
 
             }else{
                 search_fails += 1;
-                std::cout<<"\rFailed to find Dark Souls Remastered process";
+                std::cout << "\rFailed to find Dark Souls Remastered process";
                 if(search_fails > 1){
-                    std::cout<<" x "<<search_fails;
+                    std::cout << " x " << search_fails;
                 }
                 Sleep(5000);
             }
@@ -981,24 +1002,24 @@ void update_loop(State& state){
             DWORD statuscode;
             GetExitCodeProcess(state.process.handle,&statuscode);
             if(statuscode!=STILL_ACTIVE){
-                std::cout<<"\nGame closed, going back to search for it\n";
-                std::cout<<"---------------->Close the terminal if you are done<-----------------\n";
+                std::cout << "\nGame closed, going back to search for it\n";
+                std::cout << "---------------->Close the terminal if you are done<-----------------\n";
                 state.state=AppState::FindingGame;
                 CloseHandle(state.process.handle);
             }
         }
         if(state.state==AppState::FindingInv){
-            std::cout<<"Scanning game to find signatures...\n";
+            std::cout << "Scanning game to find signatures...\n";
 
             bool search_result = find_addresses(state);
             if(search_result){
-                std::cout<<"Unique signature found! Setting everything up\n";
+                std::cout << "Unique signature found! Setting everything up\n";
                 state.state=AppState::MainMenu;
                 state.inventory={};
                 state.inventory_copy={};
                 boss_count_watch = time_start_watch();
             }else{
-                std::cout<<"Try restarting the game or wait for another scan\n";
+                std::cout << "Try restarting the game or wait for another scan\n";
                 Sleep(5000);
             }
 
@@ -1006,29 +1027,29 @@ void update_loop(State& state){
             bool good = initial_inv_read(state);
             if(good){
                 state.state = AppState::InvUpdate;
-                std::cout<<"Initial inventory read successful\n";
+                std::cout << "Initial inventory read successful\n";
             }else{
-                std::cout<<"Initial inventory read failed, trying again\n";
+                std::cout << "Initial inventory read failed, trying again\n";
                 Sleep(1000);
             }
         }else if(state.state==AppState::MainMenu){
             auto main_menu = in_main_menu(state);
             if(!main_menu){
-                std::cout<<"\nGoing into the game\n";
+                std::cout << "\nGoing into the game\n";
                 main_menu_stares = 0;
                 state.state=AppState::InvStart;
             }else{
                 main_menu_stares += 1;
-                std::cout<<"\rStaring at the main menu";
+                std::cout << "\rStaring at the main menu";
                 if(main_menu_stares > 1){
-                    std::cout<<" x "<<main_menu_stares;
+                    std::cout << " x " << main_menu_stares;
                 }
                 Sleep(5000);
             }
         }else if(state.state==AppState::InvUpdate){
 
             if(in_main_menu(state)){
-                std::cout<<"Going back to main menu\n";
+                std::cout << "Going back to main menu\n";
                 state.state=AppState::MainMenu;
             }else{
 
@@ -1036,7 +1057,7 @@ void update_loop(State& state){
                 bool good = read_inventory(state.process,state.addrs.inv,state.inventory_copy);
 
                 if(!good){
-                    std::cout<<"Inventory update failed, trying again\n";
+                    std::cout << "Inventory update failed, trying again\n";
                 }else{
                     s32 free_slots = 0;
                     for(s32 i = 0; i<state.inventory.size(); i++){
@@ -1058,8 +1079,8 @@ void update_loop(State& state){
                         // Stopwatch a = time_start_watch();
                         u64 count = get_defeated_boss_count(state.process, state.addrs.flags_base);
                         // microsecond_t b = time_watch_elapsed(&a);
-                        // std::cout<<"Time for boss count: "<<b<<"Us\n";
-                        // std::cout<<"Boss count: "<<count<<'\n';
+                        // std::cout << "Time for boss count: " << b << "Us\n";
+                        // std::cout << "Boss count: " << count << '\n';
                         write_file_contents_binary("boss_count.txt", std::to_string(count));
                     }
                 }
@@ -1074,21 +1095,19 @@ void parse_confing_file(std::string& buffer, ConfigOptions& config){
     buffer_copy.reserve(buffer.size());
     //Increase if need to fit larger variable names
     char var_name[32] = {};
-    int var_value = -1;
-    std::cout<<"Reading config file\n";
-    for(u64 i = 0; i<buffer.size(); i++){
+    s32 var_value = -1;
+    std::cout << "Reading config file\n";
+    for(u64 i = 0; i < buffer.size(); i++){
         
         char c = buffer[i];
         buffer_copy.push_back(c);
 
-        if(c == '\n' || i+1 == buffer.size()){
+        if(c == '\n' || i + 1 == buffer.size()){
             //@CAUTION: scanf takes the size of the buffer, minus null at the end
             static_assert(sizeof(var_name) == 32);
             std::sscanf(buffer_copy.data(), "%31s %i", var_name, &var_value);
 
-
-
-            std::cout<<"\""<<var_name<<"\" "<<var_value<<'\n';
+            std::cout << "\"" << var_name << "\" " << var_value << '\n';
             if(std::strcmp(var_name, "weapon") == 0){
                 config.equip_weapons = var_value;
             }        
@@ -1127,7 +1146,7 @@ bool read_config_file(State& state){
     std::string file_contents = read_file_contents_binary(config_file_path);
 
     if(file_contents.empty()){
-        std::cout<<"Configuration file not loaded, using defaults\n";
+        std::cout << "Configuration file not loaded, using defaults\n";
 
         //Default configuration file
         ///////////////////////////////////////////
@@ -1141,7 +1160,7 @@ bool read_config_file(State& state){
         file_contents += "boss_defeated_count 0\n";
         ///////////////////////////////////////////
         if(!std::filesystem::exists(config_file_path)){
-            std::cout<<"Writing configuration file\n";
+            std::cout << "Writing configuration file\n";
             write_file_contents_binary(config_file_path, file_contents);
         }
     }
@@ -1151,8 +1170,8 @@ bool read_config_file(State& state){
 }
 
 int exit_with_error(std::string error_message){
-        std::cout<<error_message;
-        std::cout<<"This console will close in 5 seconds\n";
+        std::cout << error_message;
+        std::cout << "This console will close in 5 seconds\n";
         Sleep(5000);
         return EXIT_FAILURE;
 }
@@ -1174,7 +1193,7 @@ int main(){
     assert(beutify_bytes(1234567890) == "1.23GB");
 
     std::string logo = "AutoEquip for Dark Souls Remastered by chainsboyo\n";
-    std::cout<<logo;
+    std::cout << logo;
 
     HANDLE handle = CreateMutexW( NULL, TRUE, L"chainsboyo_AutoEquip_DSR");
     if(!handle){

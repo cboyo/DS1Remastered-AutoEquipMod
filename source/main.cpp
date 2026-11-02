@@ -1191,6 +1191,8 @@ int main(){
     assert(beutify_bytes(12345678) == "12.34MB");
     assert(beutify_bytes(123456789) == "123.45MB");
     assert(beutify_bytes(1234567890) == "1.23GB");
+    pattern_tests();
+
 
     std::string logo = "AutoEquip for Dark Souls Remastered by chainsboyo\n";
     std::cout << logo;

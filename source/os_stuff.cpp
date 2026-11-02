@@ -277,8 +277,8 @@ bool set_path(){
             std::cout << "Error getting module path. Error code:" << GetLastError() << '\n';
             return false;
         }
-        path.resize(path.size()*2);
-        nSize = GetModuleFileNameW(NULL,path.data(),(DWORD)path.size());
+        path.resize(path.size() * 2);
+        nSize = GetModuleFileNameW(NULL, path.data(), (DWORD)path.size());
     }
     std::filesystem::current_path(std::filesystem::path{path}.parent_path());
     return true;

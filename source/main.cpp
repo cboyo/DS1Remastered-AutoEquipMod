@@ -15,7 +15,6 @@
 #include <filesystem>
 #include <fstream>
 #include <unordered_map>
-#include <algorithm>
 
 using u8  = uint8_t;
 using u16 = uint16_t;
@@ -76,6 +75,13 @@ enum class Change{
     EquipArmor,
     EquipRing,
     UpgradedWeapon
+};
+
+enum class SpEffects{
+    DragonHeadStone = 1520,
+    DragonTorsoStone = 1530,
+    EggParasite = 5213,
+    EvolvedEggParasite = 5214
 };
 
 //structs
@@ -499,9 +505,6 @@ void* find_world_flags_address(Process process){
 
 
 void* find_world_chr_man_addr(Process process){
-    static DWORD cached_process_id = 0;
-    static void* cached_address = nullptr;
-
     std::cout<<"Finding WorldChrMan signature...\n";
     Pattern world_chr_man_pattern; 
     world_chr_man_pattern.load_bytes(
@@ -523,12 +526,7 @@ void* find_world_chr_man_addr(Process process){
         return nullptr;
     }
 
-    void* world_chr_man_addr = offset_address(aob_jmp_ptr, relative_jmp + 4);
-    if(world_chr_man_addr){
-        cached_process_id = process.id;
-        cached_address = world_chr_man_addr;
-    }
-    return world_chr_man_addr;
+    return offset_address(aob_jmp_ptr, relative_jmp + 4);
 }
 
 void* get_player_ins_addr(Process process){
@@ -686,17 +684,19 @@ std::vector<int> get_active_speffects(State& state)
     void* next_entry_ptr = offset_address(player_speffect_addr, 0x8);
     void* next_entry_node = nullptr;
     if(!read_memory(state.process, next_entry_ptr, next_entry_node)){
-        std::cout<<"Failed to read SpEffect location\n";
+        std::cout<<"Failed to fetch first SpEffect node\n";
         return spEffectIDs;
     }
-    if (next_entry_node == nullptr)
-        return {}; // no SpEffects (extremely unlikely)
+    if (next_entry_node == nullptr){
+        std::cout<<"No active player SpEffects found\n";
+        return spEffectIDs;
+    }
 
     s32 spEffectId;
-    while (next_entry_node != nullptr)
-    {
+    while (next_entry_node != nullptr){
         void* spEffectIdOffset = offset_address(next_entry_node, 0x30);
         if(!read_memory(state.process, spEffectIdOffset, spEffectId)){
+            std::cout<<"Error when attempting to read SpEffect ID from player list\n";
             return spEffectIDs;
         }
         spEffectIDs.push_back(spEffectId);
@@ -704,6 +704,7 @@ std::vector<int> get_active_speffects(State& state)
         // Read next entry address (nullptr for last entry).
         void* nextNodePtrOffset = offset_address(next_entry_node, 0x40);
         if(!read_memory(state.process, nextNodePtrOffset, next_entry_node)){
+            std::cout<<"Failed to fetch next SpEffect list entry from player list\n";
             return spEffectIDs;
         }
     }
@@ -712,27 +713,31 @@ std::vector<int> get_active_speffects(State& state)
 }
 
 bool is_equip_enabled_for_armor_type(const std::vector<int>& active_sp_effects, ArmorType armor_type){
-
-    static const int DISABLED_EFFECTS[] = {
-        1520, // Dragon Head Stone Effect
-        1530, // Dragon Torso Stone Effect
-        5213  // Egg Head Effect
-    };
-
     if(armor_type == ArmorType::Head){
-        // Check for any of the SpEffect IDs that disable head armor equip
-        std::vector<int>::const_iterator blocking_effect = std::find_first_of(active_sp_effects.begin(), active_sp_effects.end(), std::begin(DISABLED_EFFECTS), std::end(DISABLED_EFFECTS));
-        if(blocking_effect != active_sp_effects.end()){
-            std::cout << "Disabling SpEffect found (" << *blocking_effect << "), head armor autoequip cancelled\n";
-            return false; 
+        for(int effect_id : active_sp_effects){
+            switch(effect_id){
+                case static_cast<int>(SpEffects::DragonHeadStone):
+                    std::cout << "Detected active Dragon Head Stone effect. Skipping helmet autoequip\n";
+                    return false; 
+                case static_cast<int>(SpEffects::DragonTorsoStone):
+                    std::cout << "Detected active Dragon Torso Stone effect. Skipping helmet autoequip\n";
+                    return false; 
+                case static_cast<int>(SpEffects::EggParasite):
+                    std::cout << "Detected active Egg Parasite effect. Skipping helmet autoequip\n";
+                    return false;
+                case static_cast<int>(SpEffects::EvolvedEggParasite):
+                    std::cout << "Detected active Evolved Egg Parasite effect. Skipping helmet autoequip\n";
+                    return false;
+            }
         }
     }
     else{
         // Dragon Torso Stone disables all armor
-        std::vector<int>::const_iterator blocking_effect = std::find(active_sp_effects.begin(), active_sp_effects.end(), 1530);
-        if(blocking_effect != active_sp_effects.end()){
-            std::cout << "Detected Dragon Torso Stone active, armor autoequip cancelled\n";
-            return false;
+        for(int effect_id : active_sp_effects){
+            if(effect_id == static_cast<int>(SpEffects::DragonTorsoStone)){
+                std::cout << "Detected active Dragon Torso Stone effect. Skipping armor autoequip\n";
+                return false; 
+            }
         }
     }
     return true;

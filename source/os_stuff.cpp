@@ -156,6 +156,15 @@ MemBlock get_module_memory_block(Process& process, const wchar_t* module_name){
     return block;
 }
 
+bool is_searchable(MEMORY_BASIC_INFORMATION& info, void* module_start, void* module_end){
+    if (info.BaseAddress < module_start || info.BaseAddress >= module_end)
+        return false; 
+    if (info.Protect & (0x100 | 0x01)){ // PAGE_GUARD | PAGE_NOACCESS
+        return false; 
+    } 
+    return info.Protect & (0x20 | 0x40); // PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE
+}
+
 std::vector<void*> scan_process_module(Process& process, const Pattern& pattern, const wchar_t* module_name){
     
     std::vector<void*> result_addresses;
@@ -180,14 +189,8 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
 
         total_size += info.RegionSize;
         total_blocks += 1;
-        bool valid_mem_block = true;
 
-        if(info.State != MEM_COMMIT) valid_mem_block = false;
-        if(!(info.Type==MEM_PRIVATE||info.Type==MEM_IMAGE)) valid_mem_block = false;
-        if(info.BaseAddress >= module_end)   valid_mem_block = false;
-        if(info.BaseAddress <  module_start) valid_mem_block = false;
-
-        if(valid_mem_block){
+        if(is_searchable(info, module_start, module_end)){
             void* base = info.BaseAddress;
             // std::cout << "SCANNING: " << base << " " << offset_address(base, info.RegionSize) << '\r';
             buffer.resize(info.RegionSize);

@@ -33,9 +33,10 @@ using f64 = double;
 #include "os_stuff.cpp"
 #include "weapon_ids.cpp"
 
-//Enums
+// constants
 const wchar_t* EXE_NAME = L"DarkSoulsRemastered.exe";
 
+// enums
 enum class AppState{
     FindingGame,
     FindingInv,
@@ -76,14 +77,14 @@ enum class Change : u32{
     UpgradedWeapon
 };
 
-enum class SpEffects : s32{
+enum class SpEffects : u32{
     DragonHeadStone = 1520,
     DragonTorsoStone = 1530,
     EggParasite = 5213,
     EvolvedEggParasite = 5214
 };
 
-//structs
+// structs
 struct Addresses{
     void* inv;
     void* armor_id;
@@ -358,6 +359,10 @@ f32 get_weapon_level_from_id(u32 weapon_id){
 
 
 //Looking in memory
+bool try_find_process(Process& process){
+    process = find_process_id(EXE_NAME);
+    return process.handle;
+}
 
 bool read_ds1r_flag(Process& process, void* flags_base_address, u64 flag_id){
     //Magic tables found from DS1 debugger
@@ -473,104 +478,114 @@ u64 get_defeated_boss_count(Process& process, void* flags_base){
     return total;
 }
 
-void* find_pattern_dsr_process(Process process, const Pattern& pattern){
-    std::vector<void*> addresses = scan_process_module(process, pattern, L"DarkSoulsRemastered.exe");
+void* find_pattern_exe_module(Process process, std::string_view byte_pattern){
+    Pattern pattern;
+    pattern.load_bytes(byte_pattern);
+    std::vector<void*> addresses = scan_process_module(process, pattern, EXE_NAME);
     if(addresses.size() != 1){
-        std::cout<<"Disaster"<<'\n';
-        return 0;
+        std::cout << "Pattern scan failed: ";
+        if(addresses.size() > 1){
+            std::cout << "Multiple addresses found\n";
+        }else{
+            std::cout << "No address found\n";
+        }
+        std::cout << "Pattern:" << byte_pattern << "\n";
+        return nullptr;
     }
     return addresses[0];
 }
 
 void* find_world_flags_address(Process process){
-
-    Pattern p;
-    p.load_bytes("48 8B 0D ?? ?? ?? ?? 99 33 C2 45 33 C0 2B C2 8D 50 F6");
-
-    std::vector<void*> addresses = scan_process_module(process, p, EXE_NAME);
-    if(addresses.size() != 1){
+    void* ptr = find_pattern_exe_module(process, "48 8B 0D ?? ?? ?? ?? 99 33 C2 45 33 C0 2B C2 8D 50 F6");
+    if(!ptr){
         std::cout << "Failed to get the world flags address" << '\n';
         return nullptr;
     }
 
-    void* ptr = addresses[0];
-    s32 my_int = 0;
-
-    read_memory(process, offset_address(ptr, 3llu), my_int);
-    void* new_ptr = offset_address(offset_address(ptr, my_int), 7llu);
-    // std::cout << "New ptr: " << new_ptr << '\n';
-    new_ptr = chase_pointer(process, (u8*)new_ptr, {0x0, 0x0});
-    // possible_addresses[i] = (u64)new_ptr;
-    return new_ptr;
-    
-}
-
-std::vector<void*> find_inventory_address(Process process){
-    
-    //Got this from a Cheat Engine Table, not sure how good it is(actually good)
-    // 48 8B 05 xx xx xx xx 45 33 ED 48 8B F1 48 85 C0
-    Pattern p;
-    p.load_bytes("48 8B 05 ?? ?? ?? ?? 45 33 ED 48 8B F1 48 85 C0");
-
-    std::vector<void*> addresses = scan_process_module(process, p, EXE_NAME);
-
-    if(addresses.size() != 1){
-        std::cout << "Failed to get the inventory address" << '\n';
-        return addresses;
+    s32 jmp_offset = 0;
+    if(!read_memory(process, offset_address(ptr, 3llu), jmp_offset)){
+        std::cout << "Failed to read relative jmp offset for world flags\n";
+        return nullptr;
     }
 
-    void* address = addresses[0];
-    s32 my_int = 0;
-    //The offset based of 3 and 7 are just based on the cheat engine table
-    read_memory(process, offset_address(address, 3), my_int);
-    void* new_ptr = offset_address(offset_address(address, my_int), 7);
-
-    new_ptr = chase_pointer(process, (u8*)new_ptr, {0x10, 0x10});
-    addresses[0] = new_ptr;
-        
-    return addresses;
+    void* new_ptr = offset_address(offset_address(ptr, jmp_offset), 7llu);
+    new_ptr = chase_pointer(process, new_ptr, {0x0, 0x0});
+    return new_ptr;
 }
 
-void setup_inventory_addresses(Addresses& addrs, void* signature_address){
-    addrs.inv         = offset_address(offset_address(signature_address,  0x010), 0x660);
-    addrs.armor_id    = offset_address(offset_address(signature_address, -0x32C), 0x660);
-    addrs.weapon_id   = offset_address(offset_address(signature_address, -0x34C), 0x660);
-    addrs.armor_slot  = offset_address(offset_address(signature_address, -0x3AC), 0x660);
-    addrs.weapon_slot = offset_address(offset_address(signature_address, -0x3CC), 0x660);
-    addrs.ring_slot   = offset_address(offset_address(signature_address, -0x398), 0x660);
-    addrs.ring_id     = offset_address(offset_address(signature_address, -0x318), 0x660);
-    addrs.in_game     = offset_address(offset_address(signature_address, -0x660), 0x660);
+void* find_useful_address(Process process){
+    // Got this from a Cheat Engine Table, not sure how good it is(actually good)
+    void* address = find_pattern_exe_module(process, "48 8B 05 ?? ?? ?? ?? 45 33 ED 48 8B F1 48 85 C0");
+    if(!address){
+        std::cout << "Failed to get the inventory address" << '\n';
+    }
+    
+    s32 jmp_offset = 0;
+    if(!read_memory(process, offset_address(address, 3llu), jmp_offset)){
+        std::cout << "Failed to read relative jmp offset for inventory address\n";
+        return nullptr;
+    }
+    
+    void* new_ptr = offset_address(offset_address(address, jmp_offset), 7);
+    new_ptr = chase_pointer(process, new_ptr, {0x10, 0x10});
+    return new_ptr;
 }
 
 void* find_world_chr_man_address(Addresses& addrs, Process process){
-    std::cout<<"Finding WorldChrMan signature...\n";
-    Pattern world_chr_man_pattern; 
-    world_chr_man_pattern.load_bytes("48 8B 05 ?? ?? ?? ?? 48 8B 48 68 48 85 C9 0F 84 ?? ?? ?? ?? 48 39 5E 10 0F 84 ?? ?? ?? ?? 48");
-    void* aob_ptr = find_pattern_dsr_process(process, world_chr_man_pattern);
-    if(!aob_ptr){
-        std::cout<<"Failed to find world_chr_man AOB pattern\n";
+    // std::cout << "Finding WorldChrMan signature...\n";
+    void* address = find_pattern_exe_module(process, "48 8B 05 ?? ?? ?? ?? 48 8B 48 68 48 85 C9 0F 84 ?? ?? ?? ?? 48 39 5E 10 0F 84 ?? ?? ?? ?? 48");
+    if(!address){
+        std::cout << "Failed to find world_chr_man AOB pattern\n";
         return nullptr;
     }
 
     // read relative jmp instr offset and follow it
-    void* aob_jmp_ptr = offset_address(aob_ptr, 3);
-    s32 relative_jmp;
-    if(!read_memory(process, aob_jmp_ptr, relative_jmp)){
+    s32 jmp_offset = 0;
+    if(!read_memory(process, offset_address(address, 3), jmp_offset)){
         std::cout << "Failed to read relative jmp offset for world_chr_man AOB\n";
         return nullptr;
     }
-    // std::cout << "Relative jmp : " << offset_address(aob_jmp_ptr, relative_jmp + 4) << '\n';
 
+    // void* aob_jmp_ptr = offset_address(address, 3);
+    void* aob_jmp_ptr = offset_address(offset_address(address, jmp_offset), 7);
+
+    std::cout << "Relative jmp : " << offset_address(aob_jmp_ptr, jmp_offset + 4) << " " << offset_address(offset_address(address, jmp_offset), 7) << '\n';
     // This memory address is only valid while the player is in game
     // Also changes everytime the game loads a character (homeward bones / teleport / death)
     // So this is as far as we can go during the setup
-    return offset_address(aob_jmp_ptr, relative_jmp + 4);
+    return aob_jmp_ptr;
 }
 
-bool try_find_process(Process& process){
-    const wchar_t* process_name = EXE_NAME;
-    process = find_process_id(process_name);
-    return process.handle;
+bool find_addresses(State& state){
+    
+    void* useful_address = find_useful_address(state.process);
+    if(!useful_address){
+        return false;
+    }
+    state.addrs.inv         = offset_address(offset_address(useful_address,  0x010), 0x660);
+    state.addrs.armor_id    = offset_address(offset_address(useful_address, -0x32C), 0x660);
+    state.addrs.weapon_id   = offset_address(offset_address(useful_address, -0x34C), 0x660);
+    state.addrs.armor_slot  = offset_address(offset_address(useful_address, -0x3AC), 0x660);
+    state.addrs.weapon_slot = offset_address(offset_address(useful_address, -0x3CC), 0x660);
+    state.addrs.ring_slot   = offset_address(offset_address(useful_address, -0x398), 0x660);
+    state.addrs.ring_id     = offset_address(offset_address(useful_address, -0x318), 0x660);
+    state.addrs.in_game     = offset_address(offset_address(useful_address, -0x660), 0x660);
+
+    if(state.config.count_bosses_defeated){
+        state.addrs.flags_base = find_world_flags_address(state.process);
+        if(!state.addrs.flags_base){
+            std::cout << "Failed to find boss count address\n";
+            return false;
+        }
+    }
+    
+    state.addrs.world_chr_base = find_world_chr_man_address(state.addrs, state.process);
+    if(!state.addrs.world_chr_base){
+        std::cout << "Failed to setup SpEffect base address\n";
+        return false;
+    }
+
+    return true;
 }
 
 bool read_inventory(Process process,void* addr,inv_t& inv){
@@ -583,56 +598,25 @@ bool read_inventory(Process process,void* addr,inv_t& inv){
 
 bool in_main_menu(State& state){
     u32 menu = 0;
-    SIZE_T read = 0;
-    if(ReadProcessMemory(state.process.handle, state.addrs.in_game, &menu, sizeof(menu), &read)){
-        if(read != sizeof(menu)) return true;
-        return menu == UINT32_MAX;
+    if(!read_memory(state.process, state.addrs.in_game, menu)){
+        std::cout << "Failed to read in_game memory\n";
+        // By default say we are in the menu for safety
+        return true;
     }
-    return true;
+    return menu == UINT32_MAX;
 }
 
-bool find_addresses(State& state){
-    
-    std::vector<void*> inventory_address = find_inventory_address(state.process);
-    if(inventory_address.size() > 1){
-        std::cout << "Multiple signatures found, can't pin down correct address\n";
-        return false;
-    }else if(inventory_address.size() == 0){
-        std::cout << "No signatures found, can't pin down correct address\n";
-        return false;
-    }else{
-
-        if(state.config.count_bosses_defeated){
-
-            state.addrs.flags_base = find_world_flags_address(state.process);
-            if(!state.addrs.flags_base){
-                std::cout << "Failed to find boss count address\n";
-                return false;
-            }
-        }
-    }
-    setup_inventory_addresses(state.addrs, inventory_address[0]);
-
-    state.addrs.world_chr_base = find_world_chr_man_address(state.addrs, state.process);
-    if(!state.addrs.world_chr_base){
-        std::cout<<"Failed to setup SpEffect base address\n";
-        return false;
-    }
-
-    return true;
-}
-
-std::vector<u32> get_active_speffects(State& state){
-    std::vector<u32> sp_effect_ids;
-    
+bool get_active_speffects(State& state, std::vector<u32>& sp_effects){
+    sp_effects.clear();
+    // This is just a chase_pointer()
     void* world_chr_man_val = nullptr;
     if(!read_memory(state.process, state.addrs.world_chr_base, world_chr_man_val)){
         std::cout << "Failed to read world_chr_man value\n";
-        return {};
+        return false;
     }
     if(!world_chr_man_val){
         std::cout << "Failed to get world_chr_man value\n";
-        return {};
+        return false;
     }
     // std::cout << "World char man val: " << world_chr_man_val << '\n';
 
@@ -642,11 +626,11 @@ std::vector<u32> get_active_speffects(State& state){
     void* player_ins_addr = nullptr;
     if(!read_memory(state.process, offset_address(world_chr_man_val, 0x68), player_ins_addr)){
         std::cout << "Failed to read player instance address\n";
-        return {};
+        return false;
     }
     if(!player_ins_addr){
         std::cout << "Failed to get player ins address\n";
-        return {};
+        return false;
     }
     // std::cout << "Player ins addr: " << player_ins_addr << '\n';
 
@@ -658,11 +642,11 @@ std::vector<u32> get_active_speffects(State& state){
     void* sp_effect_head = nullptr;
     if(!read_memory(state.process, offset_address(player_ins_addr, 0xB38), sp_effect_head)){
         std::cout << "Failed to read SpEffect location\n";
-        return {};
+        return false;
     }
     if(!sp_effect_head){
         std::cout << "Failed to read SpEffect location\n";
-        return {};
+        return false;
     }
     // std::cout << "Sp effect list head: " << sp_effect_head << '\n';
 
@@ -672,18 +656,18 @@ std::vector<u32> get_active_speffects(State& state){
     while (next_entry_node != nullptr){
         if(!read_memory(state.process, offset_address(next_entry_node, 0x30), sp_effect_id)){
             std::cout << "Error when attempting to read SpEffect ID from player list\n";
-            return sp_effect_ids;
+            return false;
         }
         // std::cout << "Found sp effect id: " << sp_effect_id << '\n';
-        sp_effect_ids.push_back(sp_effect_id);
+        sp_effects.push_back(sp_effect_id);
 
         // Read next entry address (nullptr for last entry).
         if(!read_memory(state.process, offset_address(next_entry_node, 0x40), next_entry_node)){
             std::cout << "Failed to fetch next SpEffect list entry from player list\n";
-            return sp_effect_ids;
+            return false;
         }
     }
-    return sp_effect_ids;
+    return true;
 }
 
 bool is_equip_enabled_for_armor_type(const std::vector<u32>& active_sp_effects, ArmorType armor_type){
@@ -704,8 +688,7 @@ bool is_equip_enabled_for_armor_type(const std::vector<u32>& active_sp_effects, 
                     return false;
             }
         }
-    }
-    else{
+    }else{
         // Dragon Torso Stone disables all armor
         for(u32 effect_id : active_sp_effects){
             if(effect_id == (u32)(SpEffects::DragonTorsoStone)){
@@ -716,6 +699,7 @@ bool is_equip_enabled_for_armor_type(const std::vector<u32>& active_sp_effects, 
     }
     return true;
 }
+
 
 // Program actions
 bool read_weapon_slot(State& state, u32& weapon_id){
@@ -869,9 +853,6 @@ void update_weapon_level(State& state, u32 weapon_id){
     }
 }
 
-
-
-
 void execute_change(Change change, State& state, u32 inv_index){
     if(change == Change::Null)return; //Also redundant
 
@@ -900,14 +881,16 @@ void execute_change(Change change, State& state, u32 inv_index){
             }
 
             if(execute){
-                // check if an active SpEffect is disabling armor equip
-                std::vector<u32> activeSpEffects = get_active_speffects(state);
-                if(is_equip_enabled_for_armor_type(activeSpEffects, armor_type)){
-                    s32 offset = 4 * (int)armor_type;
-                    id_ptr   = offset_address(addrs.armor_id,   offset);
-                    slot_ptr = offset_address(addrs.armor_slot, offset);
-                    write_id_and_slot(state, item_id, id_ptr, inv_index, slot_ptr);
-                }     
+                // Check if an active SpEffect is disabling armor equip
+                std::vector<u32> active_sp_effects;
+                if(get_active_speffects(state, active_sp_effects)){                    
+                    if(is_equip_enabled_for_armor_type(active_sp_effects, armor_type)){
+                        s32 offset = 4 * (s32)armor_type;
+                        id_ptr   = offset_address(addrs.armor_id,   offset);
+                        slot_ptr = offset_address(addrs.armor_slot, offset);
+                        write_id_and_slot(state, item_id, id_ptr, inv_index, slot_ptr);
+                    }     
+                }
             }
         }
     }else if(change == Change::EquipWeapon && state.config.equip_weapons){
@@ -1071,9 +1054,8 @@ bool initial_inv_read(State& state){
             // std::cout << "Demon: " << state.upg_levels.demon << '\n';
         }
         return true;
-    }else{
-        return false;
     }
+    return false;
 }
 
 bool wait_for_process_init(HANDLE process_handle, ULONGLONG ms_delay){
@@ -1111,6 +1093,8 @@ bool wait_for_process_init(HANDLE process_handle, ULONGLONG ms_delay){
     }while(diff < ms_delay);
     return true;
 }
+
+
 
 // Program logic
 void update_loop(State& state){
@@ -1351,11 +1335,11 @@ int main(){
     std::string logo = "AutoEquip for Dark Souls Remastered by chainsboyo\n";
     std::cout << logo;
 
-    HANDLE handle = CreateMutexW( NULL, TRUE, L"chainsboyo_AutoEquip_DSR");
+    HANDLE handle = CreateMutexW(NULL, TRUE, L"chainsboyo_AutoEquip_DSR");
     if(!handle){
         return exit_with_error("Failed to created instance mutex\n");
     }
-    if(ERROR_ALREADY_EXISTS == GetLastError()){
+    if(GetLastError() == ERROR_ALREADY_EXISTS){
         return exit_with_error("Another instance of AutoEquip_DSR is already running\n");
     }
     if(!set_path()){
@@ -1363,10 +1347,9 @@ int main(){
     }
 
     State state;
-
     read_config_file(state);
     update_loop(state);
-    //Will never reach here but Windows should take of it
+    //Will never reach this point but Windows should take of it
     ReleaseMutex(handle); 
     CloseHandle(handle);
     return 0;

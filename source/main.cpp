@@ -76,7 +76,7 @@ enum class Change : u32{
     UpgradedWeapon
 };
 
-enum class SpEffects{
+enum class SpEffects : s32{
     DragonHeadStone = 1520,
     DragonTorsoStone = 1530,
     EggParasite = 5213,
@@ -98,6 +98,7 @@ struct Addresses{
     void* flags_base;
 
     void* speffect_list_base;
+    void* world_chr_base;
 };
 
 struct ConfigOptions{
@@ -500,54 +501,8 @@ void* find_world_flags_address(Process process){
     // std::cout << "New ptr: " << new_ptr << '\n';
     new_ptr = chase_pointer(process, (u8*)new_ptr, {0x0, 0x0});
     // possible_addresses[i] = (u64)new_ptr;
-    
     return new_ptr;
-}
-
-
-void* find_world_chr_man_addr(Process process){
-    std::cout<<"Finding WorldChrMan signature...\n";
-    Pattern world_chr_man_pattern; 
-    world_chr_man_pattern.load_bytes("48 8B 05 ?? ?? ?? ?? 48 8B 38 68 48 85 C9 0F 84 ?? ?? ?? ?? 48 39 5E 10 0F 84 ?? ?? ?? ?? 48");
-
-    void* aob_ptr = find_pattern_dsr_process(process, world_chr_man_pattern);
-    if(!aob_ptr){
-        std::cout<<"Failed to find world_chr_man AOB pattern\n";
-        return nullptr;
-    }
-
-    // read relative jmp instr offset and follow it
-    void* aob_jmp_ptr = offset_address(aob_ptr, 3);
-    s32 relative_jmp;
-    if(!read_memory(process, aob_jmp_ptr, relative_jmp)){
-        std::cout<<"Failed to read relative jmp offset for world_chr_man AOB\n";
-        return nullptr;
-    }
-
-    return offset_address(aob_jmp_ptr, relative_jmp + 4);
-}
-
-void* get_player_ins_addr(Process process){
-    void* world_chr_man_addr = find_world_chr_man_addr(process);
-    if(!world_chr_man_addr){
-        std::cout<<"Failed to find world_chr_man address\n";
-        return nullptr;
-    }
-
-    void* world_chr_man_val;
-    if(!read_memory(process, world_chr_man_addr, world_chr_man_val)){
-        std::cout<<"Failed to read world_chr_man value\n";
-        return nullptr;
-    }
     
-    // Read the player instance address from the world_chr_man structure
-    void* player_ins_ptr = offset_address(world_chr_man_val, 0x68);
-    void* player_ins_addr;
-    if(!read_memory(process, player_ins_ptr, player_ins_addr)){
-        std::cout<<"Failed to read player instance address\n";
-        return nullptr;
-    }
-    return player_ins_addr;
 }
 
 std::vector<void*> find_inventory_address(Process process){
@@ -577,33 +532,39 @@ std::vector<void*> find_inventory_address(Process process){
 }
 
 void setup_inventory_addresses(Addresses& addrs, void* signature_address){
-    addrs.inv         = offset_address(offset_address(signature_address, +0X010), +0x660);
-    addrs.armor_id    = offset_address(offset_address(signature_address, -0x32C), +0x660);
-    addrs.weapon_id   = offset_address(offset_address(signature_address, -0x34C), +0x660);
-    addrs.armor_slot  = offset_address(offset_address(signature_address, -0x3AC), +0x660);
-    addrs.weapon_slot = offset_address(offset_address(signature_address, -0x3CC), +0x660);
-    addrs.ring_slot   = offset_address(offset_address(signature_address, -0x398), +0x660);
-    addrs.ring_id     = offset_address(offset_address(signature_address, -0x318), +0x660);
-    addrs.in_game     = offset_address(offset_address(signature_address, -0x660), +0x660);
+    addrs.inv         = offset_address(offset_address(signature_address,  0x010), 0x660);
+    addrs.armor_id    = offset_address(offset_address(signature_address, -0x32C), 0x660);
+    addrs.weapon_id   = offset_address(offset_address(signature_address, -0x34C), 0x660);
+    addrs.armor_slot  = offset_address(offset_address(signature_address, -0x3AC), 0x660);
+    addrs.weapon_slot = offset_address(offset_address(signature_address, -0x3CC), 0x660);
+    addrs.ring_slot   = offset_address(offset_address(signature_address, -0x398), 0x660);
+    addrs.ring_id     = offset_address(offset_address(signature_address, -0x318), 0x660);
+    addrs.in_game     = offset_address(offset_address(signature_address, -0x660), 0x660);
 }
 
-bool setup_speffect_address(Addresses& addrs, Process process){
-    void* player_ins_addr = get_player_ins_addr(process);
-    if(!player_ins_addr){
-        std::cout<<"Failed to get player ins address\n";
-        return false;
-    }
-    
-    // Read the SpEffect location from the player instance structure
-    void* speffect_location_ptr = offset_address(player_ins_addr, 0x278);
-    void* speffect_location;
-    if(!read_memory(process, speffect_location_ptr, speffect_location)){
-        std::cout<<"Failed to read SpEffect location\n";
-        return false;
+void* find_world_chr_man_address(Addresses& addrs, Process process){
+    std::cout<<"Finding WorldChrMan signature...\n";
+    Pattern world_chr_man_pattern; 
+    world_chr_man_pattern.load_bytes("48 8B 05 ?? ?? ?? ?? 48 8B 48 68 48 85 C9 0F 84 ?? ?? ?? ?? 48 39 5E 10 0F 84 ?? ?? ?? ?? 48");
+    void* aob_ptr = find_pattern_dsr_process(process, world_chr_man_pattern);
+    if(!aob_ptr){
+        std::cout<<"Failed to find world_chr_man AOB pattern\n";
+        return nullptr;
     }
 
-    addrs.speffect_list_base = speffect_location;
-    return true;
+    // read relative jmp instr offset and follow it
+    void* aob_jmp_ptr = offset_address(aob_ptr, 3);
+    s32 relative_jmp;
+    if(!read_memory(process, aob_jmp_ptr, relative_jmp)){
+        std::cout << "Failed to read relative jmp offset for world_chr_man AOB\n";
+        return nullptr;
+    }
+    // std::cout << "Relative jmp : " << offset_address(aob_jmp_ptr, relative_jmp + 4) << '\n';
+
+    // This memory address is only valid while the player is in game
+    // Also changes everytime the game loads a character (homeward bones / teleport / death)
+    // So this is as far as we can go during the setup
+    return offset_address(aob_jmp_ptr, relative_jmp + 4);
 }
 
 bool try_find_process(Process& process){
@@ -652,7 +613,8 @@ bool find_addresses(State& state){
     }
     setup_inventory_addresses(state.addrs, inventory_address[0]);
 
-    if(!setup_speffect_address(state.addrs, state.process)){
+    state.addrs.world_chr_base = find_world_chr_man_address(state.addrs, state.process);
+    if(!state.addrs.world_chr_base){
         std::cout<<"Failed to setup SpEffect base address\n";
         return false;
     }
@@ -660,62 +622,84 @@ bool find_addresses(State& state){
     return true;
 }
 
-std::vector<int> get_active_speffects(State& state)
-{
-    std::vector<int> spEffectIDs;
+std::vector<u32> get_active_speffects(State& state){
+    std::vector<u32> sp_effect_ids;
     
-    void* player_speffect_addr = state.addrs.speffect_list_base;
-    if(!player_speffect_addr){
-        std::cout<<"Failed to get player SpEffect address\n";
-        return spEffectIDs;
+    void* world_chr_man_val = nullptr;
+    if(!read_memory(state.process, state.addrs.world_chr_base, world_chr_man_val)){
+        std::cout << "Failed to read world_chr_man value\n";
+        return {};
     }
+    if(!world_chr_man_val){
+        std::cout << "Failed to get world_chr_man value\n";
+        return {};
+    }
+    // std::cout << "World char man val: " << world_chr_man_val << '\n';
+
+
+
+    // Read the player instance address from the world_chr_man structure
+    void* player_ins_addr = nullptr;
+    if(!read_memory(state.process, offset_address(world_chr_man_val, 0x68), player_ins_addr)){
+        std::cout << "Failed to read player instance address\n";
+        return {};
+    }
+    if(!player_ins_addr){
+        std::cout << "Failed to get player ins address\n";
+        return {};
+    }
+    // std::cout << "Player ins addr: " << player_ins_addr << '\n';
+
+
+
+    // Read the SpEffect location from the player instance structure
+    // void* speffect_location_ptr = offset_address(player_ins_addr, 0x278);
+    std::cout << "Speffect location ptr: " << offset_address(player_ins_addr, 0xB38) << '\n';
+    void* sp_effect_head = nullptr;
+    if(!read_memory(state.process, offset_address(player_ins_addr, 0xB38), sp_effect_head)){
+        std::cout << "Failed to read SpEffect location\n";
+        return {};
+    }
+    if(!sp_effect_head){
+        std::cout << "Failed to read SpEffect location\n";
+        return {};
+    }
+    // std::cout << "Sp effect list head: " << sp_effect_head << '\n';
 
     // Active SpEffects are implemented in the game engine as a linked list.
-    void* next_entry_ptr = offset_address(player_speffect_addr, 0x8);
-    void* next_entry_node = nullptr;
-    if(!read_memory(state.process, next_entry_ptr, next_entry_node)){
-        std::cout<<"Failed to fetch first SpEffect node\n";
-        return spEffectIDs;
-    }
-    if (next_entry_node == nullptr){
-        std::cout<<"No active player SpEffects found\n";
-        return spEffectIDs;
-    }
-
-    s32 spEffectId;
+    void* next_entry_node = sp_effect_head;
+    u32 sp_effect_id = 0;
     while (next_entry_node != nullptr){
-        void* spEffectIdOffset = offset_address(next_entry_node, 0x30);
-        if(!read_memory(state.process, spEffectIdOffset, spEffectId)){
-            std::cout<<"Error when attempting to read SpEffect ID from player list\n";
-            return spEffectIDs;
+        if(!read_memory(state.process, offset_address(next_entry_node, 0x30), sp_effect_id)){
+            std::cout << "Error when attempting to read SpEffect ID from player list\n";
+            return sp_effect_ids;
         }
-        spEffectIDs.push_back(spEffectId);
+        // std::cout << "Found sp effect id: " << sp_effect_id << '\n';
+        sp_effect_ids.push_back(sp_effect_id);
 
         // Read next entry address (nullptr for last entry).
-        void* nextNodePtrOffset = offset_address(next_entry_node, 0x40);
-        if(!read_memory(state.process, nextNodePtrOffset, next_entry_node)){
-            std::cout<<"Failed to fetch next SpEffect list entry from player list\n";
-            return spEffectIDs;
+        if(!read_memory(state.process, offset_address(next_entry_node, 0x40), next_entry_node)){
+            std::cout << "Failed to fetch next SpEffect list entry from player list\n";
+            return sp_effect_ids;
         }
     }
-
-    return spEffectIDs;
+    return sp_effect_ids;
 }
 
-bool is_equip_enabled_for_armor_type(const std::vector<int>& active_sp_effects, ArmorType armor_type){
+bool is_equip_enabled_for_armor_type(const std::vector<u32>& active_sp_effects, ArmorType armor_type){
     if(armor_type == ArmorType::Head){
-        for(int effect_id : active_sp_effects){
+        for(u32 effect_id : active_sp_effects){
             switch(effect_id){
-                case static_cast<int>(SpEffects::DragonHeadStone):
+                case (u32)(SpEffects::DragonHeadStone):
                     std::cout << "Detected active Dragon Head Stone effect. Skipping helmet autoequip\n";
                     return false; 
-                case static_cast<int>(SpEffects::DragonTorsoStone):
+                case (u32)(SpEffects::DragonTorsoStone):
                     std::cout << "Detected active Dragon Torso Stone effect. Skipping helmet autoequip\n";
                     return false; 
-                case static_cast<int>(SpEffects::EggParasite):
+                case (u32)(SpEffects::EggParasite):
                     std::cout << "Detected active Egg Parasite effect. Skipping helmet autoequip\n";
                     return false;
-                case static_cast<int>(SpEffects::EvolvedEggParasite):
+                case (u32)(SpEffects::EvolvedEggParasite):
                     std::cout << "Detected active Evolved Egg Parasite effect. Skipping helmet autoequip\n";
                     return false;
             }
@@ -723,8 +707,8 @@ bool is_equip_enabled_for_armor_type(const std::vector<int>& active_sp_effects, 
     }
     else{
         // Dragon Torso Stone disables all armor
-        for(int effect_id : active_sp_effects){
-            if(effect_id == static_cast<int>(SpEffects::DragonTorsoStone)){
+        for(u32 effect_id : active_sp_effects){
+            if(effect_id == (u32)(SpEffects::DragonTorsoStone)){
                 std::cout << "Detected active Dragon Torso Stone effect. Skipping armor autoequip\n";
                 return false; 
             }
@@ -816,6 +800,7 @@ bool read_ring_slots(State& state, RingSlots& ring_slot){
     }
     return true;
 }
+
 void print_weapon_levels(State& state){
     std::cout << "Standard: " << state.upg_levels.standard << '\n';
     std::cout << "Crystal: " << state.upg_levels.crystal << '\n';
@@ -885,6 +870,8 @@ void update_weapon_level(State& state, u32 weapon_id){
 }
 
 
+
+
 void execute_change(Change change, State& state, u32 inv_index){
     if(change == Change::Null)return; //Also redundant
 
@@ -914,7 +901,7 @@ void execute_change(Change change, State& state, u32 inv_index){
 
             if(execute){
                 // check if an active SpEffect is disabling armor equip
-                std::vector<int> activeSpEffects = get_active_speffects(state);
+                std::vector<u32> activeSpEffects = get_active_speffects(state);
                 if(is_equip_enabled_for_armor_type(activeSpEffects, armor_type)){
                     s32 offset = 4 * (int)armor_type;
                     id_ptr   = offset_address(addrs.armor_id,   offset);
@@ -1149,6 +1136,7 @@ void update_loop(State& state){
                 std::cout << "Found Dark Souls Remastered process\n";
                 // 3 seconds should be fine
                 wait_for_process_init(state.process.handle, 3000);
+                
 
             }else{
                 search_fails += 1;
@@ -1177,10 +1165,13 @@ void update_loop(State& state){
             bool search_result = find_addresses(state);
             if(search_result){
                 std::cout << "Unique signature found! Setting everything up\n";
-                state.state=AppState::MainMenu;
-                state.inventory={};
-                state.inventory_copy={};
+                state.state = AppState::MainMenu;
+                state.inventory = {};
+                state.inventory_copy = {};
                 boss_count_watch = time_start_watch();
+                // while(1){
+                //     get_active_speffects(state);
+                // }
             }else{
                 std::cout << "Try restarting the game or wait for another scan\n";
                 Sleep(5000);

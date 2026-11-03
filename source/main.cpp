@@ -534,6 +534,9 @@ void* find_useful_address(Process process){
 
 void* find_world_chr_man_address(Addresses& addrs, Process process){
     // std::cout << "Finding WorldChrMan signature...\n";
+    // Tentative patterns, way less stable(gets written to often)
+    // 49 8B 40 18 48 89 05 ?? ?? ?? ?? 8D 42 9C 83 F8 14
+    // This pattern is more stable, only gets written during game loads
     void* address = find_pattern_exe_module(process, "48 8B 05 ?? ?? ?? ?? 48 8B 48 68 48 85 C9 0F 84 ?? ?? ?? ?? 48 39 5E 10 0F 84 ?? ?? ?? ?? 48");
     if(!address){
         std::cout << "Failed to find world_chr_man AOB pattern\n";
@@ -607,51 +610,9 @@ bool in_main_menu(State& state){
 
 bool get_active_speffects(State& state, std::vector<u32>& sp_effects){
     sp_effects.clear();
-    // This is just a chase_pointer()
-    void* world_chr_man_val = nullptr;
-    if(!read_memory(state.process, state.addrs.world_chr_base, world_chr_man_val)){
-        std::cout << "Failed to read world_chr_man value\n";
-        return false;
-    }
-    if(!world_chr_man_val){
-        std::cout << "Failed to get world_chr_man value\n";
-        return false;
-    }
-    // std::cout << "World char man val: " << world_chr_man_val << '\n';
-
-
-
-    // Read the player instance address from the world_chr_man structure
-    void* player_ins_addr = nullptr;
-    if(!read_memory(state.process, offset_address(world_chr_man_val, 0x68), player_ins_addr)){
-        std::cout << "Failed to read player instance address\n";
-        return false;
-    }
-    if(!player_ins_addr){
-        std::cout << "Failed to get player ins address\n";
-        return false;
-    }
-    // std::cout << "Player ins addr: " << player_ins_addr << '\n';
-
-
-
-    // Read the SpEffect location from the player instance structure
-    // Changed from 0x278 to 0xB38
-    // void* speffect_location_ptr = offset_address(player_ins_addr, 0x278);
-    // std::cout << "Speffect location ptr: " << offset_address(player_ins_addr, 0xB38) << '\n';
-    void* sp_effect_head = nullptr;
-    if(!read_memory(state.process, offset_address(player_ins_addr, 0xB38), sp_effect_head)){
-        std::cout << "Failed to read SpEffect location\n";
-        return false;
-    }
-    if(!sp_effect_head){
-        std::cout << "Failed to read SpEffect location\n";
-        return false;
-    }
-    // std::cout << "Sp effect list head: " << sp_effect_head << '\n';
 
     // Active SpEffects are implemented in the game engine as a linked list.
-    void* next_entry_node = sp_effect_head;
+    void* next_entry_node = chase_pointer(state.process, state.addrs.world_chr_base, {0x40, 0x18, 0x8, 0x0});
     u32 sp_effect_id = 0;
     while (next_entry_node != nullptr){
         if(!read_memory(state.process, offset_address(next_entry_node, 0x30), sp_effect_id)){

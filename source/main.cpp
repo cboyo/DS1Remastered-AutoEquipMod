@@ -502,15 +502,15 @@ void* find_world_flags_address(Process process){
         return nullptr;
     }
 
-    s32 jmp_offset = 0;
-    if(!read_memory(process, offset_address(ptr, 3llu), jmp_offset)){
+    s32 offset = 0;
+    if(!read_memory(process, offset_address(ptr, 3llu), offset)){
         std::cout << "Failed to read relative jmp offset for world flags\n";
         return nullptr;
     }
 
-    void* new_ptr = offset_address(offset_address(ptr, jmp_offset), 7llu);
-    new_ptr = chase_pointer(process, new_ptr, {0x0, 0x0});
-    return new_ptr;
+    void* out_address = offset_address(offset_address(ptr, offset), 7llu);
+    out_address = chase_pointer(process, out_address, {0x0, 0x0});
+    return out_address;
 }
 
 void* find_useful_address(Process process){
@@ -520,15 +520,16 @@ void* find_useful_address(Process process){
         std::cout << "Failed to get the inventory address" << '\n';
     }
     
-    s32 jmp_offset = 0;
-    if(!read_memory(process, offset_address(address, 3llu), jmp_offset)){
+    s32 offset = 0;
+    if(!read_memory(process, offset_address(address, 3llu), offset)){
         std::cout << "Failed to read relative jmp offset for inventory address\n";
         return nullptr;
     }
-    
-    void* new_ptr = offset_address(offset_address(address, jmp_offset), 7);
-    new_ptr = chase_pointer(process, new_ptr, {0x10, 0x10});
-    return new_ptr;
+    // The instruction is 7 bytes and the mov is relative to the NEXT
+    // instruction address
+    void* out_address = offset_address(offset_address(address, offset), 7);
+    out_address = chase_pointer(process, out_address, {0x10, 0x10});
+    return out_address;
 }
 
 void* find_world_chr_man_address(Addresses& addrs, Process process){
@@ -539,21 +540,19 @@ void* find_world_chr_man_address(Addresses& addrs, Process process){
         return nullptr;
     }
 
-    // read relative jmp instr offset and follow it
-    s32 jmp_offset = 0;
-    if(!read_memory(process, offset_address(address, 3), jmp_offset)){
+    // Read relative mov instr offset and follow it
+    s32 offset = 0;
+    if(!read_memory(process, offset_address(address, 3), offset)){
         std::cout << "Failed to read relative jmp offset for world_chr_man AOB\n";
         return nullptr;
     }
 
-    // void* aob_jmp_ptr = offset_address(address, 3);
-    void* aob_jmp_ptr = offset_address(offset_address(address, jmp_offset), 7);
+    void* out_address = offset_address(offset_address(address, offset), 7);
 
-    std::cout << "Relative jmp : " << offset_address(aob_jmp_ptr, jmp_offset + 4) << " " << offset_address(offset_address(address, jmp_offset), 7) << '\n';
     // This memory address is only valid while the player is in game
     // Also changes everytime the game loads a character (homeward bones / teleport / death)
     // So this is as far as we can go during the setup
-    return aob_jmp_ptr;
+    return out_address;
 }
 
 bool find_addresses(State& state){
@@ -637,8 +636,9 @@ bool get_active_speffects(State& state, std::vector<u32>& sp_effects){
 
 
     // Read the SpEffect location from the player instance structure
+    // Changed from 0x278 to 0xB38
     // void* speffect_location_ptr = offset_address(player_ins_addr, 0x278);
-    std::cout << "Speffect location ptr: " << offset_address(player_ins_addr, 0xB38) << '\n';
+    // std::cout << "Speffect location ptr: " << offset_address(player_ins_addr, 0xB38) << '\n';
     void* sp_effect_head = nullptr;
     if(!read_memory(state.process, offset_address(player_ins_addr, 0xB38), sp_effect_head)){
         std::cout << "Failed to read SpEffect location\n";

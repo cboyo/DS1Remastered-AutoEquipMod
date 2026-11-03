@@ -120,12 +120,13 @@ void* chase_pointer(Process& process, void* starting_address, const std::vector<
         if(read_memory(process, pointer, memory_value)){
             
             if(!memory_value){
+                std::cout << "Chase pointer encountered NULL\n";
                 return nullptr;
             }
             pointer = offset_address(memory_value, offset);
 
         }else{
-
+            std::cout << "Chase pointer read failed\n";
             return nullptr;
 
         }

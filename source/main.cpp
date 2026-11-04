@@ -97,9 +97,7 @@ struct Addresses{
 
     void* inv_search_base;
     void* flags_base;
-
-    void* speffect_list_base;
-    void* world_chr_base;
+    void* sp_effect_base;
 };
 
 struct ConfigOptions{
@@ -532,7 +530,7 @@ void* find_useful_address(Process process){
     return out_address;
 }
 
-void* find_world_chr_man_address(Addresses& addrs, Process process){
+void* find_world_chr_man_address(Process process){
     // std::cout << "Finding WorldChrMan signature...\n";
     // Tentative patterns, way less stable(gets written to often)
     // 49 8B 40 18 48 89 05 ?? ?? ?? ?? 8D 42 9C 83 F8 14
@@ -581,8 +579,8 @@ bool find_addresses(State& state){
         }
     }
     
-    state.addrs.world_chr_base = find_world_chr_man_address(state.addrs, state.process);
-    if(!state.addrs.world_chr_base){
+    state.addrs.sp_effect_base = find_world_chr_man_address(state.process);
+    if(!state.addrs.sp_effect_base){
         std::cout << "Failed to setup SpEffect base address\n";
         return false;
     }
@@ -590,7 +588,7 @@ bool find_addresses(State& state){
     return true;
 }
 
-bool read_inventory(Process process,void* addr,inv_t& inv){
+bool read_inventory(Process process, void* addr, inv_t& inv){
     SIZE_T read = 0;
     if(ReadProcessMemory(process.handle, addr, inv.data(), sizeof(inv), &read)){
         return read == sizeof(inv);
@@ -609,18 +607,38 @@ bool in_main_menu(State& state){
 }
 
 bool get_active_speffects(State& state, std::vector<u32>& sp_effects){
+
     sp_effects.clear();
 
+    // Linked list can be dangerous in this case where
+    // the processes are not synced. At some point a
+    // node might be updated while we chase and can lead
+    // to reading arbitrary memory
+    u64 nodes_read = 0;
+    u64 max_nodes = 100;
+
     // Active SpEffects are implemented in the game engine as a linked list.
-    void* next_entry_node = chase_pointer(state.process, state.addrs.world_chr_base, {0x40, 0x18, 0x8, 0x0});
+    void* next_entry_node = chase_pointer(state.process, state.addrs.sp_effect_base, {0x40, 0x18, 0x8, 0x0});
     u32 sp_effect_id = 0;
     while (next_entry_node != nullptr){
         if(!read_memory(state.process, offset_address(next_entry_node, 0x30), sp_effect_id)){
             std::cout << "Error when attempting to read SpEffect ID from player list\n";
             return false;
         }
-        // std::cout << "Found sp effect id: " << sp_effect_id << '\n';
-        sp_effects.push_back(sp_effect_id);
+
+        if(sp_effect_id > 0 && sp_effect_id < 100'000){
+            // std::cout << "Found sp effect id: " << sp_effect_id << '\n';
+            sp_effects.push_back(sp_effect_id);
+        }else{
+            std::cout << "Error when attempting to read SpEffect ID from player list. Invalid speffect id\n";
+            return false;
+        }
+
+        nodes_read += 1;
+        if(nodes_read > max_nodes){
+            std::cout << "Error when attempting to read SpEffect ID from player list. speffects limit reached\n";
+            return false;
+        }
 
         // Read next entry address (nullptr for last entry).
         if(!read_memory(state.process, offset_address(next_entry_node, 0x40), next_entry_node)){
@@ -681,24 +699,21 @@ void write_inv_slot(State& state, InvSlot& slot, u32 inv_index){
 
 Change identify_change(const InvSlot& old,const InvSlot& current){
     if(old.valid && !current.valid){
-        //Removed item from inventory we don't care about this I think
+        // Removed item from inventory we don't care about this
         return Change::Null;
     }
-    if(!old.valid&&current.valid){
-        //Got a new item let's check it out!
-        if(current.type==ItemType::Armor){
-            // std::cout << "Equip armor here\n";
+    if(!old.valid && current.valid){
+        // Got a new item let's check it out!
+        if(current.type == ItemType::Armor){
             return Change::EquipArmor;
-        }else if(current.type==ItemType::Weapon){
-            // std::cout << "Equip weapon here\n";
+        }else if(current.type == ItemType::Weapon){
             return Change::EquipWeapon;
-        }else if(current.type==ItemType::Ring){
-            // std::cout << "Equip ring here\n";
+        }else if(current.type == ItemType::Ring){
             return Change::EquipRing;
         }
     }else{
         //In here the slot in the inventory changed its nothing new or lost
-        if(current.id==old.id){
+        if(current.id == old.id){
             //If the id doesnt change it means its the same item 
             //Probably some durability or amount change we don't care about those
             return Change::Null;
@@ -1059,37 +1074,30 @@ bool wait_for_process_init(HANDLE process_handle, ULONGLONG ms_delay){
 
 // Program logic
 void update_loop(State& state){
-    bool trying_to_find = false;
     u64 search_fails = 0;
     u64 main_menu_stares = 0;
     Stopwatch run_time = time_start_watch();
     Stopwatch boss_count_watch;
-    u64 boss_count_cooldown_us = 5000000;
-
+    u64 boss_count_cooldown_us = 5'000'000;
+    Stopwatch timing;
+    char spinner[2] = {'<', ' '};
     while(true){
         if(state.state==AppState::FindingGame){
-            if(!trying_to_find){
-                std::cout << "Trying to find Dark Souls Remastered process\n";
-                trying_to_find = true;
-                search_fails = 0;
-            }
+            
 
             if(try_find_process(state.process)){
-                state.state=AppState::FindingInv;
-                trying_to_find = false;
+                std::cout << "\rTrying to find Dark Souls Remastered process ";
+                state.state = AppState::FindingInv;
                 std::cout << '\n';
                 std::cout << "Found Dark Souls Remastered process\n";
                 // 3 seconds should be fine
                 wait_for_process_init(state.process.handle, 3000);
-                
-
             }else{
                 search_fails += 1;
-                std::cout << "\rFailed to find Dark Souls Remastered process";
-                if(search_fails > 1){
-                    std::cout << " x " << search_fails;
-                }
-                Sleep(5000);
+                // Print in one call
+                // the cursor moving annoys me
+                printf("\rTrying to find Dark Souls Remastered process %c", spinner[search_fails % sizeof(spinner)]);
+                Sleep(1000);
             }
         }else{//Check if application closes
             //No clue if this is the correct way
@@ -1097,10 +1105,10 @@ void update_loop(State& state){
             //But works so IDK Windows is weird
             DWORD statuscode;
             GetExitCodeProcess(state.process.handle,&statuscode);
-            if(statuscode!=STILL_ACTIVE){
+            if(statuscode != STILL_ACTIVE){
                 std::cout << "\nGame closed, going back to search for it\n";
                 std::cout << "---------------->Close the terminal if you are done<-----------------\n";
-                state.state=AppState::FindingGame;
+                state.state = AppState::FindingGame;
                 CloseHandle(state.process.handle);
             }
         }
@@ -1134,43 +1142,45 @@ void update_loop(State& state){
         }else if(state.state==AppState::MainMenu){
             auto main_menu = in_main_menu(state);
             if(!main_menu){
-                std::cout << "\nGoing into the game\n";
+                std::cout << "\nGoing into the game          \n";
                 main_menu_stares = 0;
-                state.state=AppState::InvStart;
+                state.state = AppState::InvStart;
             }else{
                 main_menu_stares += 1;
-                std::cout << "\rStaring at the main menu";
-                if(main_menu_stares > 1){
-                    std::cout << " x " << main_menu_stares;
-                }
+                printf("\rStaring at the main menu %c", spinner[main_menu_stares % sizeof(spinner)]);
                 Sleep(5000);
             }
         }else if(state.state==AppState::InvUpdate){
-
             if(in_main_menu(state)){
                 std::cout << "Going back to main menu\n";
-                state.state=AppState::MainMenu;
+                state.state = AppState::MainMenu;
             }else{
 
-
                 bool good = read_inventory(state.process,state.addrs.inv,state.inventory_copy);
-
                 if(!good){
                     std::cout << "Inventory update failed, trying again\n";
                 }else{
-                    s32 free_slots = 0;
-                    for(s32 i = 0; i<state.inventory.size(); i++){
-                        if(state.inventory[i] != state.inventory_copy[i]){
-                            Change change = identify_change(state.inventory[i],state.inventory_copy[i]);
-                            if(change!=Change::Null) execute_change(change,state,i);
-                        }
-                        if(!state.inventory[i].valid) free_slots += 1;
+                    // Optimization to reduce time for 99.9% of the process lifetime
+                    // a single memcmp takes ~half of the individual memcps
+                    // Also helps to only make the copy if neccessary
+                    bool diff = false;
+                    if(std::memcmp(state.inventory.data(), state.inventory_copy.data(), sizeof(state.inventory)) != 0){
+                        diff = true;
                     }
 
-
-                    state.inventory = state.inventory_copy;
+                    if(diff){
+                        s32 free_slots = 0;
+                        for(u32 i = 0; i < state.inventory.size(); i++){
+                            if(state.inventory[i] != state.inventory_copy[i]){
+                                Change change = identify_change(state.inventory[i], state.inventory_copy[i]);
+                                execute_change(change, state, i);
+                            }
+                            if(!state.inventory[i].valid) free_slots += 1;
+                        }
+                        state.inventory = state.inventory_copy;
+                    }
                 }
-
+                
                 if(state.config.count_bosses_defeated){
 
                     if(time_watch_elapsed(&boss_count_watch) > boss_count_cooldown_us){
@@ -1184,7 +1194,7 @@ void update_loop(State& state){
                     }
                 }
             }
-            Sleep(1000);
+            Sleep(333);
         }
     }
 }

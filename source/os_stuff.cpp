@@ -136,7 +136,6 @@ void* chase_pointer(Process& process, void* starting_address, const std::vector<
 }
 
 MemBlock get_module_memory_block(Process& process, const wchar_t* module_name){
-
     HANDLE snapshot_handle = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, process.id);
     MemBlock block = {};
     if (snapshot_handle != INVALID_HANDLE_VALUE){
@@ -183,7 +182,6 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
         // it was allocated from
         if(info.AllocationBase == module_mem.base){
             void* base = info.BaseAddress;
-            // std::cout << "SCANNING: " << base << " " << offset_address(base, info.RegionSize) << '\r';
             buffer.resize(info.RegionSize);
             SIZE_T buffer_bytes_read = 0;
             if(ReadProcessMemory(process.handle, virtual_address, buffer.data(), info.RegionSize, &buffer_bytes_read)){

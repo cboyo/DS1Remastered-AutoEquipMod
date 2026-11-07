@@ -264,9 +264,20 @@ u32 get_weapon_id_for_level(u32 weapon_id, u32 level){
                     weapon_level_out = level / 2;
                 }
                 break;
-            default:
+            case UpgradePath::Demon:
+            case UpgradePath::Crystal:
+            case UpgradePath::Lightning:
+            case UpgradePath::Raw:
+            case UpgradePath::Occult:
+            case UpgradePath::Enchanted:
+            case UpgradePath::Chaos:
+            case UpgradePath::Dragon:
+            case UpgradePath::Twinkling:
                 // Levels 0-5
                 weapon_level_out = level / 6;
+                break;
+            default:
+                weapon_level_out = 0;
                 break;
         }
 
@@ -334,28 +345,6 @@ u32 get_weapon_level_from_id(u32 weapon_id){
                 // in the lower id, but rather all the levels of the
                 // flame are a different item id, kinda like
                 // infusion
-                //   1330000,        UpgradePath::Pyromancy }, // Pyromancy Flame
-                // { 1330100,        UpgradePath::Pyromancy }, // Pyromancy Flame +1
-                // { 1330200,        UpgradePath::Pyromancy }, // Pyromancy Flame +2
-                // { 1330300,        UpgradePath::Pyromancy }, // Pyromancy Flame +3
-                // { 1330400,        UpgradePath::Pyromancy }, // Pyromancy Flame +4
-                // { 1330500,        UpgradePath::Pyromancy }, // Pyromancy Flame +5
-                // { 1330600,        UpgradePath::Pyromancy }, // Pyromancy Flame +6
-                // { 1330700,        UpgradePath::Pyromancy }, // Pyromancy Flame +7
-                // { 1330800,        UpgradePath::Pyromancy }, // Pyromancy Flame +8
-                // { 1330900,        UpgradePath::Pyromancy }, // Pyromancy Flame +9
-                // { 1331000,        UpgradePath::Pyromancy }, // Pyromancy Flame +10
-                // { 1331100,        UpgradePath::Pyromancy }, // Pyromancy Flame +11
-                // { 1331200,        UpgradePath::Pyromancy }, // Pyromancy Flame +12
-                // { 1331300,        UpgradePath::Pyromancy }, // Pyromancy Flame +13
-                // { 1331400,        UpgradePath::Pyromancy }, // Pyromancy Flame +14
-                // { 1331500,        UpgradePath::Pyromancy }, // Pyromancy Flame +15
-                // { 1332000,        UpgradePath::Pyromancy }, // Ascended Pyromancy Flame
-                // { 1332100,        UpgradePath::Pyromancy }, // Ascended Pyromancy Flame +1
-                // { 1332200,        UpgradePath::Pyromancy }, // Ascended Pyromancy Flame +2
-                // { 1332300,        UpgradePath::Pyromancy }, // Ascended Pyromancy Flame +3
-                // { 1332400,        UpgradePath::Pyromancy }, // Ascended Pyromancy Flame +4
-                // { 1332500,        UpgradePath::Pyromancy }, // Ascended Pyromancy Flame +5
                 weapon_level = (weapon_id / 100) % 100;
                 if(weapon_level > 15){
                     // Ascended pyro flame 0-5
@@ -927,13 +916,14 @@ void update_weapon_level(State& state, u32 weapon_id){
                 make_max(state.upg_levels.twinkling[hand_offset], weapon_level);
                 break;
             case UpgradePath::Dragon:
-            case UpgradePath::DragonGolem:
                 make_max(state.upg_levels.dragon[hand_offset], weapon_level);
                 break;
             case UpgradePath::Pyromancy:
                 make_max(state.upg_levels.pyro[hand_offset], weapon_level);
-            default:
+                break;
+            case UpgradePath::Demon:
                 make_max(state.upg_levels.demon[hand_offset], weapon_level);
+            default:
                 break;
         }
     }
@@ -971,9 +961,6 @@ u32 upgrade_weapon(State& state, u32 weapon_id){
         UpgradePath path = get_weapon_path_from_id(weapon_id);
         u32* path_level = nullptr;
         switch(path){
-            case UpgradePath::Unknown:
-            case UpgradePath::NoUpgrade:
-                break;
             case UpgradePath::Standard:
                 path_level = state.upg_levels.standard;
                 break;
@@ -1008,14 +995,15 @@ u32 upgrade_weapon(State& state, u32 weapon_id){
                 path_level = state.upg_levels.twinkling;
                 break;
             case UpgradePath::Dragon:
-            case UpgradePath::DragonGolem:
                 path_level = state.upg_levels.dragon;
                 break;
             case UpgradePath::Pyromancy:
                 path_level = state.upg_levels.pyro;
                 break;
-            default:
+            case UpgradePath::Demon:
                 path_level = state.upg_levels.demon;
+                break;
+            default:
                 break;
         }
 
@@ -1054,8 +1042,8 @@ u32 upgrade_weapon(State& state, u32 weapon_id){
         make_max(upgrades, state.upg_levels.dragon[hand_offset]);
         make_max(upgrades, state.upg_levels.twinkling[hand_offset]);
         make_max(upgrades, state.upg_levels.demon[hand_offset]);
+        make_max(upgrades, state.upg_levels.pyro[hand_offset]);
 
-        u32 equipped_weapon_id = 0;
         weapon_id = get_weapon_id_for_level(weapon_id, upgrades);
         std::cout << "Level set to to +" << weapon_id % 100 << '\n';
     }
@@ -1109,7 +1097,7 @@ u32 upgrade_armor(State& state, u32 armor_id){
 }
 
 void execute_change(Change change, State& state, u32 inv_index){
-    if(change == Change::Null) return; //Also redundant
+    if(change == Change::Null) return;
 
     u32& item_id = state.inventory_copy[inv_index].id;
     Addresses& addrs = state.addrs;
@@ -1365,6 +1353,72 @@ bool read_config_file(State& state){
 }
 
 
+void autoupgrade_testbench(){
+    State s;
+
+    // No autoupgrades keep all at the level it was picked up
+    s.config.auto_upgrades = 0;
+    s.upg_levels = {};
+    u32 dagger_id = 100000;
+    assert(upgrade_weapon(s, dagger_id) == dagger_id);
+
+    // Should ignore the upgrade levels
+    s.upg_levels.standard[0] = 6;
+    assert(upgrade_weapon(s, dagger_id) == dagger_id);
+
+    // Infused with greatness
+    for(u32 i = 0; i < 15; i++){
+        assert(upgrade_weapon(s, 100000 + i) == 100000 + i); // Dagger
+    }
+    for(u32 i = 0; i < 10; i++){
+        assert(upgrade_weapon(s, 100400 + i) == 100400 + i); // Dagger [Magic]
+        assert(upgrade_weapon(s, 100600 + i) == 100600 + i); // Dagger [Divine]
+        assert(upgrade_weapon(s, 100800 + i) == 100800 + i); // Dagger [Fire]
+    }
+    for(u32 i = 0; i < 5; i++){
+        assert(upgrade_weapon(s, 100100 + i) == 100100 + i); // Dagger [Crystal]
+        assert(upgrade_weapon(s, 100200 + i) == 100200 + i); // Dagger [Lightning]
+        assert(upgrade_weapon(s, 100300 + i) == 100300 + i); // Dagger [Raw]
+        assert(upgrade_weapon(s, 100500 + i) == 100500 + i); // Dagger [Enchanted]
+        assert(upgrade_weapon(s, 100700 + i) == 100700 + i); // Dagger [Occult]
+        assert(upgrade_weapon(s, 100900 + i) == 100900 + i); // Dagger [Chaos]
+        assert(upgrade_weapon(s, 102000 + i) == 102000 + i); // Ghost Blade
+        assert(upgrade_weapon(s, 311000 + i) == 311000 + i); // Greatsword of Artorias [Dagger]
+    }
+
+    assert(upgrade_weapon(s, 1330000) == 1330000); // Pyromancy Flame
+    assert(upgrade_weapon(s, 1330100) == 1330100); // Pyromancy Flame +1
+    assert(upgrade_weapon(s, 1330200) == 1330200); // Pyromancy Flame +2
+    assert(upgrade_weapon(s, 1330300) == 1330300); // Pyromancy Flame +3
+    assert(upgrade_weapon(s, 1330400) == 1330400); // Pyromancy Flame +4
+    assert(upgrade_weapon(s, 1330500) == 1330500); // Pyromancy Flame +5
+    assert(upgrade_weapon(s, 1330600) == 1330600); // Pyromancy Flame +6
+    assert(upgrade_weapon(s, 1330700) == 1330700); // Pyromancy Flame +7
+    assert(upgrade_weapon(s, 1330800) == 1330800); // Pyromancy Flame +8
+    assert(upgrade_weapon(s, 1330900) == 1330900); // Pyromancy Flame +9
+    assert(upgrade_weapon(s, 1331000) == 1331000); // Pyromancy Flame +10
+    assert(upgrade_weapon(s, 1331100) == 1331100); // Pyromancy Flame +11
+    assert(upgrade_weapon(s, 1331200) == 1331200); // Pyromancy Flame +12
+    assert(upgrade_weapon(s, 1331300) == 1331300); // Pyromancy Flame +13
+    assert(upgrade_weapon(s, 1331400) == 1331400); // Pyromancy Flame +14
+    assert(upgrade_weapon(s, 1331500) == 1331500); // Pyromancy Flame +15
+    assert(upgrade_weapon(s, 1332000) == 1332000); // Ascended Pyromancy Flame
+    assert(upgrade_weapon(s, 1332100) == 1332100); // Ascended Pyromancy Flame +1
+    assert(upgrade_weapon(s, 1332200) == 1332200); // Ascended Pyromancy Flame +2
+    assert(upgrade_weapon(s, 1332300) == 1332300); // Ascended Pyromancy Flame +3
+    assert(upgrade_weapon(s, 1332400) == 1332400); // Ascended Pyromancy Flame +4
+    assert(upgrade_weapon(s, 1332500) == 1332500); // Ascended Pyromancy Flame +5
+
+    // Upgrades should keep the value across paths
+    s.config.auto_upgrades = 2;
+    
+    // Test for each upg level that the output for each path is correct
+    s.upg_levels = {};
+
+
+
+}
+
 // Program logic
 void update_loop(State& state){
     u64 search_fails = 0;
@@ -1501,7 +1555,8 @@ int exit_with_error(std::string error_message){
 
 int main(){
 
-
+    autoupgrade_testbench();
+    return 0;
     //Cool ladder test
     assert(beutify_bytes(1) == "1B");
     assert(beutify_bytes(12) == "12B");

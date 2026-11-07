@@ -14,19 +14,20 @@ enum class UpgradePath : s32{
     Chaos = 900,
     Dragon = 1100,
     Twinkling = 1200,
-    DemonSif = 1300, 
-    DemonGwyn = 1400, 
-    DemonQuelaag = 1500,
-    DemonOrnstein = 1600,
-    DemonButterfly = 1700,
-    DemonGolem = 1800,
-    DemonSmough = 1900,
-    DemonPriscilla = 2000,
-    DemonGwyndolin = 2100,
-    DragonGolem = 2200,
-    DemonNonBoss = 2300,
-    DemonArtorias = 2400,
-    DemonManus = 2500,
+    Demon = 1300,
+    // DemonSif = 1300, 
+    // DemonGwyn = 1400, 
+    // DemonQuelaag = 1500,
+    // DemonOrnstein = 1600,
+    // DemonButterfly = 1700,
+    // DemonGolem = 1800,
+    // DemonSmough = 1900,
+    // DemonPriscilla = 2000,
+    // DemonGwyndolin = 2100,
+    // DragonGolem = 2200,
+    // DemonNonBoss = 2300,
+    // DemonArtorias = 2400,
+    // DemonManus = 2500,
     ArmorLight = 7000,
     ArmorSpecial = 7100,
     ArmorHeavy = 7200,
@@ -47,19 +48,7 @@ std::unordered_map<UpgradePath, std::string> upgrade_path_names = {
     {UpgradePath::Chaos,  "Chaos"},
     {UpgradePath::Dragon,  "Dragon"},
     {UpgradePath::Twinkling,  "Twinkling"},
-    {UpgradePath::DemonSif,  " DemonSif"},
-    {UpgradePath::DemonGwyn,  "DemonGwyn"},
-    {UpgradePath::DemonQuelaag,  "DemonQuelaag"},
-    {UpgradePath::DemonOrnstein,  "DemonOrnstein"},
-    {UpgradePath::DemonButterfly,  "DemonButterfly"},
-    {UpgradePath::DemonGolem,  "DemonGolem"},
-    {UpgradePath::DemonSmough,  "DemonSmough"},
-    {UpgradePath::DemonPriscilla,  "DemonPriscilla"},
-    {UpgradePath::DemonGwyndolin,  "DemonGwyndolin"},
-    {UpgradePath::DragonGolem,  "DragonGolem"},
-    {UpgradePath::DemonNonBoss,  "DemonNonBoss"},
-    {UpgradePath::DemonArtorias,  "DemonArtorias"},
-    {UpgradePath::DemonManus,  " DemonManus"},
+    {UpgradePath::Demon,  "Demon"},
 };
 
 std::unordered_map<u32, UpgradePath> armor_upgrade_paths = {
@@ -560,46 +549,46 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 {  303900,            UpgradePath::Chaos }, // Flamberge [Chaos]
 {  304000,        UpgradePath::NoUpgrade }, // Crystal Greatsword
 {  306000,        UpgradePath::Twinkling }, // Stone Greatsword
-{  307000,         UpgradePath::DemonSif }, // Greatsword of Artorias [Broken Straight Sword]
-{  307100,         UpgradePath::DemonSif }, // Greatsword of Artorias [Straight Sword Hilt]
+{  307000,        UpgradePath::Demon }, // Greatsword of Artorias [Broken Straight Sword]
+{  307100,        UpgradePath::Demon }, // Greatsword of Artorias [Straight Sword Hilt]
 {  309000,           UpgradePath::Dragon }, // Moonlight Greatsword
 {  310000,        UpgradePath::Twinkling }, // Black Knight Sword
-{  311000,         UpgradePath::DemonSif }, // Greatsword of Artorias [Dagger]
-{  311100,         UpgradePath::DemonSif }, // Greatsword of Artorias [Parrying Dagger]
-{  311200,         UpgradePath::DemonSif }, // Greatsword of Artorias [Bandit's Knife]
-{  311300,         UpgradePath::DemonSif }, // Greatsword of Artorias [Shortsword]
-{  311400,         UpgradePath::DemonSif }, // Greatsword of Artorias [Longsword]
-{  311500,         UpgradePath::DemonSif }, // Greatsword of Artorias [Broadsword]
-{  311600,         UpgradePath::DemonSif }, // Greatsword of Artorias [Balder Side Sword]
-{  311700,         UpgradePath::DemonSif }, // Greatsword of Artorias [Sunlight Straight Sword]
-{  311800,         UpgradePath::DemonSif }, // Greatsword of Artorias [Barbed Straight Sword]
-{  311900,         UpgradePath::DemonSif }, // Greatsword of Artorias [Astora's Straight Sword]
-{  312000,         UpgradePath::DemonSif }, // Greatsword of Artorias [Darksword]
-{  312100,         UpgradePath::DemonSif }, // Greatsword of Artorias [Bastard Sword]
-{  312200,         UpgradePath::DemonSif }, // Greatsword of Artorias [Claymore]
-{  312300,         UpgradePath::DemonSif }, // Greatsword of Artorias [Man-serpent Greatsword]
-{  312400,         UpgradePath::DemonSif }, // Greatsword of Artorias [Flamberge]
-{  312500,         UpgradePath::DemonSif }, // Greatsword of Artorias [Zweihander]
-{  312600,         UpgradePath::DemonSif }, // Greatsword of Artorias [Greatsword]
-{  312700,         UpgradePath::DemonSif }, // Greatsword of Artorias [Demon Great Machete]
-{  314000,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Dagger]
-{  314100,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Parrying Dagger]
-{  314200,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Bandit's Knife]
-{  314300,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Shortsword]
-{  314400,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Longsword]
-{  314500,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Broadsword]
-{  314600,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Balder Side Sword]
-{  314700,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Sunlight Straight Sword]
-{  314800,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Barbed Straight Sword]
-{  314900,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Astora's Straight Sword]
-{  315000,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Darksword]
-{  315100,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Bastard Sword]
-{  315200,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Claymore]
-{  315300,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Man-serpent Greatsword]
-{  315400,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Flamberge]
-{  315500,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Zweihander]
-{  315600,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Greatsword]
-{  315700,        UpgradePath::DemonGwyn }, // Great Lord Greatsword [Demon Great Machete]
+{  311000,        UpgradePath::Demon }, // Greatsword of Artorias [Dagger]
+{  311100,        UpgradePath::Demon }, // Greatsword of Artorias [Parrying Dagger]
+{  311200,        UpgradePath::Demon }, // Greatsword of Artorias [Bandit's Knife]
+{  311300,        UpgradePath::Demon }, // Greatsword of Artorias [Shortsword]
+{  311400,        UpgradePath::Demon }, // Greatsword of Artorias [Longsword]
+{  311500,        UpgradePath::Demon }, // Greatsword of Artorias [Broadsword]
+{  311600,        UpgradePath::Demon }, // Greatsword of Artorias [Balder Side Sword]
+{  311700,        UpgradePath::Demon }, // Greatsword of Artorias [Sunlight Straight Sword]
+{  311800,        UpgradePath::Demon }, // Greatsword of Artorias [Barbed Straight Sword]
+{  311900,        UpgradePath::Demon }, // Greatsword of Artorias [Astora's Straight Sword]
+{  312000,        UpgradePath::Demon }, // Greatsword of Artorias [Darksword]
+{  312100,        UpgradePath::Demon }, // Greatsword of Artorias [Bastard Sword]
+{  312200,        UpgradePath::Demon }, // Greatsword of Artorias [Claymore]
+{  312300,        UpgradePath::Demon }, // Greatsword of Artorias [Man-serpent Greatsword]
+{  312400,        UpgradePath::Demon }, // Greatsword of Artorias [Flamberge]
+{  312500,        UpgradePath::Demon }, // Greatsword of Artorias [Zweihander]
+{  312600,        UpgradePath::Demon }, // Greatsword of Artorias [Greatsword]
+{  312700,        UpgradePath::Demon }, // Greatsword of Artorias [Demon Great Machete]
+{  314000,        UpgradePath::Demon }, // Great Lord Greatsword [Dagger]
+{  314100,        UpgradePath::Demon }, // Great Lord Greatsword [Parrying Dagger]
+{  314200,        UpgradePath::Demon }, // Great Lord Greatsword [Bandit's Knife]
+{  314300,        UpgradePath::Demon }, // Great Lord Greatsword [Shortsword]
+{  314400,        UpgradePath::Demon }, // Great Lord Greatsword [Longsword]
+{  314500,        UpgradePath::Demon }, // Great Lord Greatsword [Broadsword]
+{  314600,        UpgradePath::Demon }, // Great Lord Greatsword [Balder Side Sword]
+{  314700,        UpgradePath::Demon }, // Great Lord Greatsword [Sunlight Straight Sword]
+{  314800,        UpgradePath::Demon }, // Great Lord Greatsword [Barbed Straight Sword]
+{  314900,        UpgradePath::Demon }, // Great Lord Greatsword [Astora's Straight Sword]
+{  315000,        UpgradePath::Demon }, // Great Lord Greatsword [Darksword]
+{  315100,        UpgradePath::Demon }, // Great Lord Greatsword [Bastard Sword]
+{  315200,        UpgradePath::Demon }, // Great Lord Greatsword [Claymore]
+{  315300,        UpgradePath::Demon }, // Great Lord Greatsword [Man-serpent Greatsword]
+{  315400,        UpgradePath::Demon }, // Great Lord Greatsword [Flamberge]
+{  315500,        UpgradePath::Demon }, // Great Lord Greatsword [Zweihander]
+{  315600,        UpgradePath::Demon }, // Great Lord Greatsword [Greatsword]
+{  315700,        UpgradePath::Demon }, // Great Lord Greatsword [Demon Great Machete]
 {  350000,         UpgradePath::Standard }, // Zweihander
 {  350100,          UpgradePath::Crystal }, // Zweihander [Crystal]
 {  350200,        UpgradePath::Lightning }, // Zweihander [Lightning]
@@ -675,12 +664,12 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 {  405700,           UpgradePath::Occult }, // Painting Guardian Sword [Occult]
 {  405800,             UpgradePath::Fire }, // Painting Guardian Sword [Fire]
 {  405900,            UpgradePath::Chaos }, // Painting Guardian Sword [Chaos]
-{  406000,     UpgradePath::DemonQuelaag }, // Quelaag's Furysword [Scimitar]
-{  406100,     UpgradePath::DemonQuelaag }, // Quelaag's Furysword [Falchion
-{  406200,     UpgradePath::DemonQuelaag }, // Quelaag's Furysword [Shotel]
-{  406300,     UpgradePath::DemonQuelaag }, // Quelaag's Furysword [Painting Guardian Sword]
-{  406400,     UpgradePath::DemonQuelaag }, // Quelaag's Furysword [Server]
-{  406500,     UpgradePath::DemonQuelaag }, // Quelaag's Furysword [Murakumo]
+{  406000,        UpgradePath::Demon }, // Quelaag's Furysword [Scimitar]
+{  406100,        UpgradePath::Demon }, // Quelaag's Furysword [Falchion
+{  406200,        UpgradePath::Demon }, // Quelaag's Furysword [Shotel]
+{  406300,        UpgradePath::Demon }, // Quelaag's Furysword [Painting Guardian Sword]
+{  406400,        UpgradePath::Demon }, // Quelaag's Furysword [Server]
+{  406500,        UpgradePath::Demon }, // Quelaag's Furysword [Murakumo]
 {  450000,         UpgradePath::Standard }, // Server
 {  450100,          UpgradePath::Crystal }, // Server [Crystal]
 {  450200,        UpgradePath::Lightning }, // Server [Lightning]
@@ -701,7 +690,7 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 {  451700,           UpgradePath::Occult }, // Murakumo [Occult]
 {  451800,             UpgradePath::Fire }, // Murakumo [Fire]
 {  451900,            UpgradePath::Chaos }, // Murakumo [Chaos]
-{  453000,     UpgradePath::DemonNonBoss }, // Gravelord Sword
+{  453000,            UpgradePath::Demon }, // Gravelord Sword
 {  498000,        UpgradePath::NoUpgrade }, // [Ghost] Curved Sword
 {  499000,        UpgradePath::NoUpgrade }, // [Ghost] Curved Greatsword
 {  500000,         UpgradePath::Standard }, // Uchigatana
@@ -734,9 +723,9 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 {  502700,           UpgradePath::Occult }, // Iaito [Occult]
 {  502800,             UpgradePath::Fire }, // Iaito [Fire]
 {  502900,            UpgradePath::Chaos }, // Iaito [Chaos]
-{  503000,     UpgradePath::DemonQuelaag }, // Chaos Blade [Uchigatana]
-{  503100,     UpgradePath::DemonQuelaag }, // Chaos Blade [Washing Pole]
-{  503200,     UpgradePath::DemonQuelaag }, // Chaos Blade [Iaito]
+{  503000,            UpgradePath::Demon }, // Chaos Blade [Uchigatana]
+{  503100,            UpgradePath::Demon }, // Chaos Blade [Washing Pole]
+{  503200,            UpgradePath::Demon }, // Chaos Blade [Iaito]
 {  599000,        UpgradePath::NoUpgrade }, // [Ghost] Katana
 {  600000,         UpgradePath::Standard }, // Mail Breaker
 {  600100,          UpgradePath::Crystal }, // Mail Breaker [Crystal]
@@ -811,13 +800,13 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 {  703700,           UpgradePath::Occult }, // Butcher Knife [Occult]
 {  703800,             UpgradePath::Fire }, // Butcher Knife [Fire]
 {  703900,            UpgradePath::Chaos }, // Butcher Knife [Chaos]
-{  704000,       UpgradePath::DemonGolem }, // Golem Axe [Hand Axe]
-{  704100,       UpgradePath::DemonGolem }, // Golem Axe [Battle Axe]
-{  704200,       UpgradePath::DemonGolem }, // Golem Axe [Crescent Axe]
-{  704300,       UpgradePath::DemonGolem }, // Golem Axe [Butcher Knife]
-{  704400,       UpgradePath::DemonGolem }, // Golem Axe [Gargoyle Tail Axe]
-{  704500,       UpgradePath::DemonGolem }, // Golem Axe [Greataxe
-{  704600,       UpgradePath::DemonGolem }, // Golem Axe [Demon's Greataxe
+{  704000,            UpgradePath::Demon }, // Golem Axe [Hand Axe]
+{  704100,            UpgradePath::Demon }, // Golem Axe [Battle Axe]
+{  704200,            UpgradePath::Demon }, // Golem Axe [Crescent Axe]
+{  704300,            UpgradePath::Demon }, // Golem Axe [Butcher Knife]
+{  704400,            UpgradePath::Demon }, // Golem Axe [Gargoyle Tail Axe]
+{  704500,            UpgradePath::Demon }, // Golem Axe [Greataxe
+{  704600,            UpgradePath::Demon }, // Golem Axe [Demon's Greataxe
 {  705000,         UpgradePath::Standard }, // Gargoyle Tail Axe
 {  705100,          UpgradePath::Crystal }, // Gargoyle Tail Axe [Crystal]
 {  705200,        UpgradePath::Lightning }, // Gargoyle Tail Axe [Lightning]
@@ -956,18 +945,18 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 {  855700,           UpgradePath::Occult }, // Large Club [Occult]
 {  855800,             UpgradePath::Fire }, // Large Club [Fire]
 {  855900,            UpgradePath::Chaos }, // Large Club [Chaos]
-{  856000,      UpgradePath::DemonSmough }, // Smough's Hammer [Club]
-{  856100,      UpgradePath::DemonSmough }, // Smough's Hammer [Mace]
-{  856200,      UpgradePath::DemonSmough }, // Smough's Hammer [Morning Star]
-{  856300,      UpgradePath::DemonSmough }, // Smough's Hammer [Warpick]
-{  856400,      UpgradePath::DemonSmough }, // Smough's Hammer [Pickaxe]
-{  856500,      UpgradePath::DemonSmough }, // Smough's Hammer [Reinforced Club]
-{  856600,      UpgradePath::DemonSmough }, // Smough's Hammer [Blacksmith Hammer]
-{  856700,      UpgradePath::DemonSmough }, // Smough's Hammer [Blacksmith Giant Hammer
-{  856800,      UpgradePath::DemonSmough }, // Smough's Hammer [Hammer of Vamos]
-{  856900,      UpgradePath::DemonSmough }, // Smough's Hammer [Great Club]
-{  857000,      UpgradePath::DemonSmough }, // Smough's Hammer [Demon's Great Hammer]
-{  857100,      UpgradePath::DemonSmough }, // Smough's Hammer [Large Club]
+{  856000,            UpgradePath::Demon }, // Smough's Hammer [Club]
+{  856100,            UpgradePath::Demon }, // Smough's Hammer [Mace]
+{  856200,            UpgradePath::Demon }, // Smough's Hammer [Morning Star]
+{  856300,            UpgradePath::Demon }, // Smough's Hammer [Warpick]
+{  856400,            UpgradePath::Demon }, // Smough's Hammer [Pickaxe]
+{  856500,            UpgradePath::Demon }, // Smough's Hammer [Reinforced Club]
+{  856600,            UpgradePath::Demon }, // Smough's Hammer [Blacksmith Hammer]
+{  856700,            UpgradePath::Demon }, // Smough's Hammer [Blacksmith Giant Hammer
+{  856800,            UpgradePath::Demon }, // Smough's Hammer [Hammer of Vamos]
+{  856900,            UpgradePath::Demon }, // Smough's Hammer [Great Club]
+{  857000,            UpgradePath::Demon }, // Smough's Hammer [Demon's Great Hammer]
+{  857100,            UpgradePath::Demon }, // Smough's Hammer [Large Club]
 {  898000,        UpgradePath::NoUpgrade }, // [Ghost] Hammer
 {  899000,        UpgradePath::NoUpgrade }, // [Ghost] Mallet
 {  900000,        UpgradePath::NoUpgrade }, // Fists
@@ -991,8 +980,8 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 {  902700,           UpgradePath::Occult }, // Claw [Occult]
 {  902800,             UpgradePath::Fire }, // Claw [Fire]
 {  902900,            UpgradePath::Chaos }, // Claw [Chaos]
-{  903000,      UpgradePath::DragonGolem }, // Dragon Bone Fist [Caestus]
-{  903100,      UpgradePath::DragonGolem }, // Dragon Bone Fist [Claw]
+{  903000,           UpgradePath::Dragon }, // Dragon Bone Fist [Caestus]
+{  903100,           UpgradePath::Dragon }, // Dragon Bone Fist [Claw]
 {  904000,        UpgradePath::NoUpgrade }, // Dark Hand
 {  999000,        UpgradePath::NoUpgrade }, // [Ghost] Fist
 { 1000000,         UpgradePath::Standard }, // Spear
@@ -1025,7 +1014,7 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 1002700,           UpgradePath::Occult }, // Partizan [Occult]
 { 1002800,             UpgradePath::Fire }, // Partizan [Fire]
 { 1002900,            UpgradePath::Chaos }, // Partizan [Chaos]
-{ 1003000,     UpgradePath::DemonNonBoss }, // Demon's Spear
+{ 1003000,            UpgradePath::Demon }, // Demon's Spear
 { 1004000,        UpgradePath::Twinkling }, // Channeler's Trident
 { 1006000,        UpgradePath::Twinkling }, // Silver Knight Spear
 { 1050000,         UpgradePath::Standard }, // Pike
@@ -1038,28 +1027,28 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 1050700,           UpgradePath::Occult }, // Pike [Occult]
 { 1050800,             UpgradePath::Fire }, // Pike [Fire]
 { 1050900,            UpgradePath::Chaos }, // Pike [Chaos]
-{ 1051000,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Mail Breaker]
-{ 1051100,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Rapier]
-{ 1051200,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Estoc]
-{ 1051300,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Spear]
-{ 1051400,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Winged Spear]
-{ 1051500,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Partizan]
-{ 1051600,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Demon's Spear
-{ 1051700,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Channeler's Trident]
-{ 1051800,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Pike]
-{ 1051900,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Ricard's Rapier]
-{ 1052000,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Mail Breaker]
-{ 1052100,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Rapier]
-{ 1052200,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Estoc]
-{ 1052300,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Spear]
-{ 1052400,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Winged Spear]
-{ 1052500,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Partizan]
-{ 1052600,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Demon's Spear]
-{ 1052700,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Channeler's Trident]
-{ 1052800,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Pike]
-{ 1052900,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Ricard's Rapier]
-{ 1053000,   UpgradePath::DemonButterfly }, // Moonlight Butterfly Horn [Four-pronged Plow]
-{ 1054000,    UpgradePath::DemonOrnstein }, // Dragonslayer Spear [Four-pronged Plow]
+{ 1051000,        UpgradePath::Demon }, // Dragonslayer Spear [Mail Breaker]
+{ 1051100,        UpgradePath::Demon }, // Dragonslayer Spear [Rapier]
+{ 1051200,        UpgradePath::Demon }, // Dragonslayer Spear [Estoc]
+{ 1051300,        UpgradePath::Demon }, // Dragonslayer Spear [Spear]
+{ 1051400,        UpgradePath::Demon }, // Dragonslayer Spear [Winged Spear]
+{ 1051500,        UpgradePath::Demon }, // Dragonslayer Spear [Partizan]
+{ 1051600,        UpgradePath::Demon }, // Dragonslayer Spear [Demon's Spear
+{ 1051700,        UpgradePath::Demon }, // Dragonslayer Spear [Channeler's Trident]
+{ 1051800,        UpgradePath::Demon }, // Dragonslayer Spear [Pike]
+{ 1051900,        UpgradePath::Demon }, // Dragonslayer Spear [Ricard's Rapier]
+{ 1052000,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Mail Breaker]
+{ 1052100,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Rapier]
+{ 1052200,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Estoc]
+{ 1052300,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Spear]
+{ 1052400,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Winged Spear]
+{ 1052500,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Partizan]
+{ 1052600,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Demon's Spear]
+{ 1052700,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Channeler's Trident]
+{ 1052800,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Pike]
+{ 1052900,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Ricard's Rapier]
+{ 1053000,        UpgradePath::Demon }, // Moonlight Butterfly Horn [Four-pronged Plow]
+{ 1054000,        UpgradePath::Demon }, // Dragonslayer Spear [Four-pronged Plow]
 { 1099000,        UpgradePath::NoUpgrade }, // [Ghost] Spear
 { 1100000,         UpgradePath::Standard }, // Halberd
 { 1100100,          UpgradePath::Crystal }, // Halberd [Crystal]
@@ -1114,15 +1103,15 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 1150700,           UpgradePath::Occult }, // Great Scythe [Occult]
 { 1150800,             UpgradePath::Fire }, // Great Scythe [Fire]
 { 1150900,            UpgradePath::Chaos }, // Great Scythe [Chaos]
-{ 1151000,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Halberd]
-{ 1151100,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Lucerne]
-{ 1151200,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Scythe]
-{ 1151300,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Giant's Halberd]
-{ 1151400,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Gargoyle's Halberd]
-{ 1151500,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Great Scythe]
-{ 1151600,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Whip]
-{ 1151700,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Notched Whip]
-{ 1151800,   UpgradePath::DemonPriscilla }, // Lifehunt Scythe [Guardian Tail]
+{ 1151000,            UpgradePath::Demon }, // Lifehunt Scythe [Halberd]
+{ 1151100,            UpgradePath::Demon }, // Lifehunt Scythe [Lucerne]
+{ 1151200,            UpgradePath::Demon }, // Lifehunt Scythe [Scythe]
+{ 1151300,            UpgradePath::Demon }, // Lifehunt Scythe [Giant's Halberd]
+{ 1151400,            UpgradePath::Demon }, // Lifehunt Scythe [Gargoyle's Halberd]
+{ 1151500,            UpgradePath::Demon }, // Lifehunt Scythe [Great Scythe]
+{ 1151600,            UpgradePath::Demon }, // Lifehunt Scythe [Whip]
+{ 1151700,            UpgradePath::Demon }, // Lifehunt Scythe [Notched Whip]
+{ 1151800,            UpgradePath::Demon }, // Lifehunt Scythe [Guardian Tail]
 { 1199000,        UpgradePath::NoUpgrade }, // [Ghost] Scythe
 { 1200000,         UpgradePath::Standard }, // Short Bow
 { 1200100,          UpgradePath::Crystal }, // Short Bow [Crystal]
@@ -1165,10 +1154,10 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 1204700,           UpgradePath::Occult }, // Composite Bow [Occult]
 { 1204800,             UpgradePath::Fire }, // Composite Bow [Fire]
 { 1204900,            UpgradePath::Chaos }, // Composite Bow [Chaos]
-{ 1205000,   UpgradePath::DemonGwyndolin }, // Darkmoon Bow [Short Bow]
-{ 1205100,   UpgradePath::DemonGwyndolin }, // Darkmoon Bow [Composite Bow]
-{ 1205200,   UpgradePath::DemonGwyndolin }, // Darkmoon Bow [Longbow]
-{ 1205300,   UpgradePath::DemonGwyndolin }, // Darkmoon Bow [Black Bow of Pharis]
+{ 1205000,            UpgradePath::Demon }, // Darkmoon Bow [Short Bow]
+{ 1205100,            UpgradePath::Demon }, // Darkmoon Bow [Composite Bow]
+{ 1205200,            UpgradePath::Demon }, // Darkmoon Bow [Longbow]
+{ 1205300,            UpgradePath::Demon }, // Darkmoon Bow [Black Bow of Pharis]
 { 1250000,         UpgradePath::Standard }, // Light Crossbow
 { 1250100,          UpgradePath::Crystal }, // Light Crossbow [Crystal]
 { 1250200,        UpgradePath::Lightning }, // Light Crossbow [Lightning]
@@ -1195,17 +1184,17 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 1253800,             UpgradePath::Fire }, // Sniper Crossbow [Fire]
 { 1298000,        UpgradePath::NoUpgrade }, // [Ghost] Bow
 { 1299000,        UpgradePath::NoUpgrade }, // [Ghost] Crossbow
-{ 1300000,         UpgradePath::Standard }, // Sorcerer's Catalyst
-{ 1301000,         UpgradePath::Standard }, // Beatrice's Catalyst
-{ 1302000,         UpgradePath::Standard }, // Tin Banishment Catalyst
-{ 1303000,         UpgradePath::Standard }, // Logan's Catalyst
-{ 1304000,   UpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Sorcerer's Catalyst]
-{ 1304100,   UpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Beatrice's Catalyst]
-{ 1304200,   UpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Tin Banishment Catalyst]
-{ 1304300,   UpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Logan's Catalyst]
-{ 1304400,   UpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Oolacile Ivory Catalyst]
-{ 1304500,   UpgradePath::DemonGwyndolin }, // Tin Darkmoon Catalyst [Oolacile Catalyst]
-{ 1305000,         UpgradePath::Standard }, // Oolacile Ivory Catalyst
+{ 1300000,        UpgradePath::NoUpgrade }, // Sorcerer's Catalyst
+{ 1301000,        UpgradePath::NoUpgrade }, // Beatrice's Catalyst
+{ 1302000,        UpgradePath::NoUpgrade }, // Tin Banishment Catalyst
+{ 1303000,        UpgradePath::NoUpgrade }, // Logan's Catalyst
+{ 1304000,        UpgradePath::NoUpgrade }, // Tin Darkmoon Catalyst [Sorcerer's Catalyst]
+{ 1304100,        UpgradePath::NoUpgrade }, // Tin Darkmoon Catalyst [Beatrice's Catalyst]
+{ 1304200,        UpgradePath::NoUpgrade }, // Tin Darkmoon Catalyst [Tin Banishment Catalyst]
+{ 1304300,        UpgradePath::NoUpgrade }, // Tin Darkmoon Catalyst [Logan's Catalyst]
+{ 1304400,        UpgradePath::NoUpgrade }, // Tin Darkmoon Catalyst [Oolacile Ivory Catalyst]
+{ 1304500,        UpgradePath::NoUpgrade }, // Tin Darkmoon Catalyst [Oolacile Catalyst]
+{ 1305000,        UpgradePath::NoUpgrade }, // Oolacile Ivory Catalyst
 { 1306000,        UpgradePath::NoUpgrade }, // Tin Crystallization Ctlyst.
 { 1307000,        UpgradePath::NoUpgrade }, // Demon's Catalyst
 { 1308000,        UpgradePath::NoUpgrade }, // Izalith Catalyst
@@ -1302,43 +1291,43 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 1410400,            UpgradePath::Magic }, // Caduceus Round Shield [Magic]
 { 1410600,           UpgradePath::Divine }, // Caduceus Round Shield [Divine]
 { 1410800,             UpgradePath::Fire }, // Caduceus Round Shield [Fire]
-{ 1411000,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [East-West Shield]
-{ 1411100,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Wooden Shield]
-{ 1411200,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Plank Shield]
-{ 1411300,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Large Leather Shield]
-{ 1411400,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Small Leather Shield]
-{ 1411500,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Leather Shield
-{ 1411600,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Target Shield]
-{ 1411700,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Buckler]
-{ 1411800,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Cracked Round Shield]
-{ 1411900,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Caduceus Round Shield]
-{ 1412000,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Heater Shield]
-{ 1412100,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Knight Shield]
-{ 1412200,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Tower Kite Shield]
-{ 1412300,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Grass Crest Shield]
-{ 1412400,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Hollow Soldier Shield]
-{ 1412500,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Balder Shield]
-{ 1412600,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Warrior's Round Shield]
-{ 1412700,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Iron Round Shield]
-{ 1412800,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Spider Shield]
-{ 1412900,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Spiked Shield]
-{ 1413000,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Pierce Shield]
-{ 1413100,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Sunlight Shield]
-{ 1413200,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Red and White Round Shield]
-{ 1413300,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Caduceus Kite Shield]
-{ 1413400,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Gargoyle's Shield]
-{ 1413500,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Eagle Shield]
-{ 1413600,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Tower Shield]
-{ 1413700,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Giant Shield]
-{ 1413800,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Bonewheel Shield]
-{ 1413900,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Effigy Shield]
-{ 1414000,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Sanctus]
-{ 1414100,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Bloodshield]
-{ 1414200,   UpgradePath::DemonButterfly }, // Crystal Ring Shield [Black Iron Greatshield]
-{ 1414300,   UpgradePath::DemonButterfly }, // Crystal Ring Shield
-{ 1414400,   UpgradePath::DemonButterfly }, // Crystal Ring Shield
-{ 1414500,   UpgradePath::DemonButterfly }, // Crystal Ring Shield
-{ 1414600,   UpgradePath::DemonButterfly }, // Crystal Ring Shield
+{ 1411000,            UpgradePath::Demon }, // Crystal Ring Shield [East-West Shield]
+{ 1411100,            UpgradePath::Demon }, // Crystal Ring Shield [Wooden Shield]
+{ 1411200,            UpgradePath::Demon }, // Crystal Ring Shield [Plank Shield]
+{ 1411300,            UpgradePath::Demon }, // Crystal Ring Shield [Large Leather Shield]
+{ 1411400,            UpgradePath::Demon }, // Crystal Ring Shield [Small Leather Shield]
+{ 1411500,            UpgradePath::Demon }, // Crystal Ring Shield [Leather Shield
+{ 1411600,            UpgradePath::Demon }, // Crystal Ring Shield [Target Shield]
+{ 1411700,            UpgradePath::Demon }, // Crystal Ring Shield [Buckler]
+{ 1411800,            UpgradePath::Demon }, // Crystal Ring Shield [Cracked Round Shield]
+{ 1411900,            UpgradePath::Demon }, // Crystal Ring Shield [Caduceus Round Shield]
+{ 1412000,            UpgradePath::Demon }, // Crystal Ring Shield [Heater Shield]
+{ 1412100,            UpgradePath::Demon }, // Crystal Ring Shield [Knight Shield]
+{ 1412200,            UpgradePath::Demon }, // Crystal Ring Shield [Tower Kite Shield]
+{ 1412300,            UpgradePath::Demon }, // Crystal Ring Shield [Grass Crest Shield]
+{ 1412400,            UpgradePath::Demon }, // Crystal Ring Shield [Hollow Soldier Shield]
+{ 1412500,            UpgradePath::Demon }, // Crystal Ring Shield [Balder Shield]
+{ 1412600,            UpgradePath::Demon }, // Crystal Ring Shield [Warrior's Round Shield]
+{ 1412700,            UpgradePath::Demon }, // Crystal Ring Shield [Iron Round Shield]
+{ 1412800,            UpgradePath::Demon }, // Crystal Ring Shield [Spider Shield]
+{ 1412900,            UpgradePath::Demon }, // Crystal Ring Shield [Spiked Shield]
+{ 1413000,            UpgradePath::Demon }, // Crystal Ring Shield [Pierce Shield]
+{ 1413100,            UpgradePath::Demon }, // Crystal Ring Shield [Sunlight Shield]
+{ 1413200,            UpgradePath::Demon }, // Crystal Ring Shield [Red and White Round Shield]
+{ 1413300,            UpgradePath::Demon }, // Crystal Ring Shield [Caduceus Kite Shield]
+{ 1413400,            UpgradePath::Demon }, // Crystal Ring Shield [Gargoyle's Shield]
+{ 1413500,            UpgradePath::Demon }, // Crystal Ring Shield [Eagle Shield]
+{ 1413600,            UpgradePath::Demon }, // Crystal Ring Shield [Tower Shield]
+{ 1413700,            UpgradePath::Demon }, // Crystal Ring Shield [Giant Shield]
+{ 1413800,            UpgradePath::Demon }, // Crystal Ring Shield [Bonewheel Shield]
+{ 1413900,            UpgradePath::Demon }, // Crystal Ring Shield [Effigy Shield]
+{ 1414000,            UpgradePath::Demon }, // Crystal Ring Shield [Sanctus]
+{ 1414100,            UpgradePath::Demon }, // Crystal Ring Shield [Bloodshield]
+{ 1414200,            UpgradePath::Demon }, // Crystal Ring Shield [Black Iron Greatshield]
+{ 1414300,            UpgradePath::Demon }, // Crystal Ring Shield [Unused - Design Content Shield E]
+{ 1414400,            UpgradePath::Demon }, // Crystal Ring Shield [Unused - Design Content Shield F]
+{ 1414500,            UpgradePath::Demon }, // Crystal Ring Shield [Unused - Design Content Shield G]
+{ 1414600,            UpgradePath::Demon }, // Crystal Ring Shield [Unused - Design Content Shield H]
 { 1450000,         UpgradePath::Standard }, // Heater Shield
 { 1450100,          UpgradePath::Crystal }, // Heater Shield [Crystal]
 { 1450200,        UpgradePath::Lightning }, // Heater Shield [Lightning]
@@ -1462,43 +1451,43 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 1506400,            UpgradePath::Magic }, // Bonewheel Shield [Magic]
 { 1506600,           UpgradePath::Divine }, // Bonewheel Shield [Divine]
 { 1506800,             UpgradePath::Fire }, // Bonewheel Shield [Fire]
-{ 1507000,         UpgradePath::DemonSif }, // Greatshield of Artorias [East-West Shield]
-{ 1507100,         UpgradePath::DemonSif }, // Greatshield of Artorias [Wooden Shield]
-{ 1507200,         UpgradePath::DemonSif }, // Greatshield of Artorias [Plank Shield]
-{ 1507300,         UpgradePath::DemonSif }, // Greatshield of Artorias [Large Leather Shield]
-{ 1507400,         UpgradePath::DemonSif }, // Greatshield of Artorias [Small Leather Shield]
-{ 1507500,         UpgradePath::DemonSif }, // Greatshield of Artorias [Leather Shield]
-{ 1507600,         UpgradePath::DemonSif }, // Greatshield of Artorias [Target Shield]
-{ 1507700,         UpgradePath::DemonSif }, // Greatshield of Artorias [Buckler]
-{ 1507800,         UpgradePath::DemonSif }, // Greatshield of Artorias [Cracked Round Shield]
-{ 1507900,         UpgradePath::DemonSif }, // Greatshield of Artorias [Caduceus Round Shield]
-{ 1508000,         UpgradePath::DemonSif }, // Greatshield of Artorias [Heater Shield]
-{ 1508100,         UpgradePath::DemonSif }, // Greatshield of Artorias [Knight Shield]
-{ 1508200,         UpgradePath::DemonSif }, // Greatshield of Artorias [Tower Kite Shield]
-{ 1508300,         UpgradePath::DemonSif }, // Greatshield of Artorias [Grass Crest Shield]
-{ 1508400,         UpgradePath::DemonSif }, // Greatshield of Artorias [Hollow Soldier Shield]
-{ 1508500,         UpgradePath::DemonSif }, // Greatshield of Artorias [Balder Shield]
-{ 1508600,         UpgradePath::DemonSif }, // Greatshield of Artorias [Warrior's Round Shield]
-{ 1508700,         UpgradePath::DemonSif }, // Greatshield of Artorias [Iron Round Shield]
-{ 1508800,         UpgradePath::DemonSif }, // Greatshield of Artorias [Spider Shield]
-{ 1508900,         UpgradePath::DemonSif }, // Greatshield of Artorias [Spiked Shield]
-{ 1509000,         UpgradePath::DemonSif }, // Greatshield of Artorias [Pierce Shield]
-{ 1509100,         UpgradePath::DemonSif }, // Greatshield of Artorias [Sunlight Shield]
-{ 1509200,         UpgradePath::DemonSif }, // Greatshield of Artorias [Red and White Round Shield
-{ 1509300,         UpgradePath::DemonSif }, // Greatshield of Artorias [Caduceus Kite Shield
-{ 1509400,         UpgradePath::DemonSif }, // Greatshield of Artorias [Gargoyle's Shield]
-{ 1509500,         UpgradePath::DemonSif }, // Greatshield of Artorias [Eagle Shield]
-{ 1509600,         UpgradePath::DemonSif }, // Greatshield of Artorias [Tower Shield]
-{ 1509700,         UpgradePath::DemonSif }, // Greatshield of Artorias [Giant Shield]
-{ 1509800,         UpgradePath::DemonSif }, // Greatshield of Artorias [Bonewheel Shield]
-{ 1509900,         UpgradePath::DemonSif }, // Greatshield of Artorias [Effigy Shield]
-{ 1510000,         UpgradePath::DemonSif }, // Greatshield of Artorias [Sanctus]
-{ 1510100,         UpgradePath::DemonSif }, // Greatshield of Artorias [Bloodshield]
-{ 1510200,         UpgradePath::DemonSif }, // Greatshield of Artorias [Black Iron Greatshield]
-{ 1510300,         UpgradePath::DemonSif }, // Greatshield of Artorias
-{ 1510400,         UpgradePath::DemonSif }, // Greatshield of Artorias
-{ 1510500,         UpgradePath::DemonSif }, // Greatshield of Artorias
-{ 1510600,         UpgradePath::DemonSif }, // Greatshield of Artorias
+{ 1507000,            UpgradePath::Demon }, // Greatshield of Artorias [East-West Shield]
+{ 1507100,            UpgradePath::Demon }, // Greatshield of Artorias [Wooden Shield]
+{ 1507200,            UpgradePath::Demon }, // Greatshield of Artorias [Plank Shield]
+{ 1507300,            UpgradePath::Demon }, // Greatshield of Artorias [Large Leather Shield]
+{ 1507400,            UpgradePath::Demon }, // Greatshield of Artorias [Small Leather Shield]
+{ 1507500,            UpgradePath::Demon }, // Greatshield of Artorias [Leather Shield]
+{ 1507600,            UpgradePath::Demon }, // Greatshield of Artorias [Target Shield]
+{ 1507700,            UpgradePath::Demon }, // Greatshield of Artorias [Buckler]
+{ 1507800,            UpgradePath::Demon }, // Greatshield of Artorias [Cracked Round Shield]
+{ 1507900,            UpgradePath::Demon }, // Greatshield of Artorias [Caduceus Round Shield]
+{ 1508000,            UpgradePath::Demon }, // Greatshield of Artorias [Heater Shield]
+{ 1508100,            UpgradePath::Demon }, // Greatshield of Artorias [Knight Shield]
+{ 1508200,            UpgradePath::Demon }, // Greatshield of Artorias [Tower Kite Shield]
+{ 1508300,            UpgradePath::Demon }, // Greatshield of Artorias [Grass Crest Shield]
+{ 1508400,            UpgradePath::Demon }, // Greatshield of Artorias [Hollow Soldier Shield]
+{ 1508500,            UpgradePath::Demon }, // Greatshield of Artorias [Balder Shield]
+{ 1508600,            UpgradePath::Demon }, // Greatshield of Artorias [Warrior's Round Shield]
+{ 1508700,            UpgradePath::Demon }, // Greatshield of Artorias [Iron Round Shield]
+{ 1508800,            UpgradePath::Demon }, // Greatshield of Artorias [Spider Shield]
+{ 1508900,            UpgradePath::Demon }, // Greatshield of Artorias [Spiked Shield]
+{ 1509000,            UpgradePath::Demon }, // Greatshield of Artorias [Pierce Shield]
+{ 1509100,            UpgradePath::Demon }, // Greatshield of Artorias [Sunlight Shield]
+{ 1509200,            UpgradePath::Demon }, // Greatshield of Artorias [Red and White Round Shield
+{ 1509300,            UpgradePath::Demon }, // Greatshield of Artorias [Caduceus Kite Shield
+{ 1509400,            UpgradePath::Demon }, // Greatshield of Artorias [Gargoyle's Shield]
+{ 1509500,            UpgradePath::Demon }, // Greatshield of Artorias [Eagle Shield]
+{ 1509600,            UpgradePath::Demon }, // Greatshield of Artorias [Tower Shield]
+{ 1509700,            UpgradePath::Demon }, // Greatshield of Artorias [Giant Shield]
+{ 1509800,            UpgradePath::Demon }, // Greatshield of Artorias [Bonewheel Shield]
+{ 1509900,            UpgradePath::Demon }, // Greatshield of Artorias [Effigy Shield]
+{ 1510000,            UpgradePath::Demon }, // Greatshield of Artorias [Sanctus]
+{ 1510100,            UpgradePath::Demon }, // Greatshield of Artorias [Bloodshield]
+{ 1510200,            UpgradePath::Demon }, // Greatshield of Artorias [Black Iron Greatshield]
+{ 1510300,            UpgradePath::Demon }, // Greatshield of Artorias [Unused - Design Content Shield E]
+{ 1510400,            UpgradePath::Demon }, // Greatshield of Artorias [Unused - Design Content Shield F]
+{ 1510500,            UpgradePath::Demon }, // Greatshield of Artorias [Unused - Design Content Shield G]
+{ 1510600,            UpgradePath::Demon }, // Greatshield of Artorias [Unused - Design Content Shield H]
 { 1599000,        UpgradePath::NoUpgrade }, // [Ghost] Greatshield
 { 1600000,         UpgradePath::Standard }, // Whip
 { 1600100,          UpgradePath::Crystal }, // Whip [Crystal]
@@ -1587,23 +1576,23 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 9007800,             UpgradePath::Fire }, // Unused - Design Content Shield H [Fire]
 { 9010000,        UpgradePath::Twinkling }, // Gold Tracer
 { 9011000,        UpgradePath::Twinkling }, // Dark Silver Tracer
-{ 9012000,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Dagger]
-{ 9012100,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Parrying Dagger]
-{ 9012200,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Bandit's Knife]
-{ 9012300,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Shortsword]
-{ 9012400,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Longsword]
-{ 9012500,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Broadsword]
-{ 9012600,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Balder Side Sword]
-{ 9012700,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Sunlight Straight Sword]
-{ 9012800,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Barbed Straight Sword]
-{ 9013000,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Darksword]
-{ 9013100,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Bastard Sword]
-{ 9013200,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Claymore]
-{ 9013300,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Man-serpent Greatsword]
-{ 9013400,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Flamberge]
-{ 9013500,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Zweihander]
-{ 9013600,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Greatsword]
-{ 9013700,    UpgradePath::DemonArtorias }, // Abyss Greatsword [Demon Great Machete]
+{ 9012000,            UpgradePath::Demon }, // Abyss Greatsword [Dagger]
+{ 9012100,            UpgradePath::Demon }, // Abyss Greatsword [Parrying Dagger]
+{ 9012200,            UpgradePath::Demon }, // Abyss Greatsword [Bandit's Knife]
+{ 9012300,            UpgradePath::Demon }, // Abyss Greatsword [Shortsword]
+{ 9012400,            UpgradePath::Demon }, // Abyss Greatsword [Longsword]
+{ 9012500,            UpgradePath::Demon }, // Abyss Greatsword [Broadsword]
+{ 9012600,            UpgradePath::Demon }, // Abyss Greatsword [Balder Side Sword]
+{ 9012700,            UpgradePath::Demon }, // Abyss Greatsword [Sunlight Straight Sword]
+{ 9012800,            UpgradePath::Demon }, // Abyss Greatsword [Barbed Straight Sword]
+{ 9013000,            UpgradePath::Demon }, // Abyss Greatsword [Darksword]
+{ 9013100,            UpgradePath::Demon }, // Abyss Greatsword [Bastard Sword]
+{ 9013200,            UpgradePath::Demon }, // Abyss Greatsword [Claymore]
+{ 9013300,            UpgradePath::Demon }, // Abyss Greatsword [Man-serpent Greatsword]
+{ 9013400,            UpgradePath::Demon }, // Abyss Greatsword [Flamberge]
+{ 9013500,            UpgradePath::Demon }, // Abyss Greatsword [Zweihander]
+{ 9013600,            UpgradePath::Demon }, // Abyss Greatsword [Greatsword]
+{ 9013700,            UpgradePath::Demon }, // Abyss Greatsword [Demon Great Machete]
 { 9014000,        UpgradePath::Twinkling }, // Cleansing Greatshield
 { 9015000,        UpgradePath::Twinkling }, // Stone Greataxe
 { 9016000,         UpgradePath::Standard }, // Four-pronged Plow
@@ -1616,13 +1605,13 @@ std::unordered_map<u32, UpgradePath> weapon_ids = {
 { 9016700,           UpgradePath::Occult }, // Four-pronged Plow [Occult]
 { 9016800,             UpgradePath::Fire }, // Four-pronged Plow [Fire]
 { 9016900,            UpgradePath::Chaos }, // Four-pronged Plow [Chaos]
-{ 9017000,       UpgradePath::DemonManus }, // Manus Catalyst [Sorcerer's Catalyst]
-{ 9017100,       UpgradePath::DemonManus }, // Manus Catalyst [Beatrice's Catalyst]
-{ 9017200,       UpgradePath::DemonManus }, // Manus Catalyst [Tin Banishment Catalyst]
-{ 9017300,       UpgradePath::DemonManus }, // Manus Catalyst [Logan's Catalyst]
-{ 9017400,       UpgradePath::DemonManus }, // Manus Catalyst [Oolacile Ivory Catalyst]
-{ 9017500,       UpgradePath::DemonManus }, // Manus Catalyst [Izalith Catalyst]
-{ 9018000,         UpgradePath::Standard }, // Oolacile Catalyst
+{ 9017000,        UpgradePath::NoUpgrade }, // Manus Catalyst [Sorcerer's Catalyst]
+{ 9017100,        UpgradePath::NoUpgrade }, // Manus Catalyst [Beatrice's Catalyst]
+{ 9017200,        UpgradePath::NoUpgrade }, // Manus Catalyst [Tin Banishment Catalyst]
+{ 9017300,        UpgradePath::NoUpgrade }, // Manus Catalyst [Logan's Catalyst]
+{ 9017400,        UpgradePath::NoUpgrade }, // Manus Catalyst [Oolacile Ivory Catalyst]
+{ 9017500,        UpgradePath::NoUpgrade }, // Manus Catalyst [Izalith Catalyst]
+{ 9018000,        UpgradePath::NoUpgrade }, // Oolacile Catalyst
 { 9019000,         UpgradePath::Standard }, // Guardian Tail
 { 9019100,          UpgradePath::Crystal }, // Guardian Tail [Crystal]
 { 9019200,        UpgradePath::Lightning }, // Guardian Tail [Lightning]

@@ -35,7 +35,7 @@ using f64 = double;
 
 // constants
 const wchar_t* EXE_NAME = L"DarkSoulsRemastered.exe";
-
+const u32 WEAPON_MAX_LEVEL = 210u; // Result from the weapon levels LCM(5, 10, 15, 21) 
 // enums
 enum class AppState{
     FindingGame,
@@ -209,8 +209,8 @@ WeaponType weapon_type_from_id(u32 weapon_id){
 
 UpgradePath get_weapon_path_from_id(u32 weapon_id){
     weapon_id = (weapon_id / 100) * 100;
-    auto f = weapon_ids.find(weapon_id);
-    if(f != weapon_ids.end()){
+    auto f = weapon_upgrade_paths.find(weapon_id);
+    if(f != weapon_upgrade_paths.end()){
         return f->second;
     }else{
         std::cout << "Weapon id not found\n";
@@ -231,138 +231,99 @@ UpgradePath get_armor_path_from_id(u32 armor_id){
     }
 }
 
+u32 get_weapon_path_level_range(UpgradePath path){
+    switch(path){
+        case UpgradePath::NoUpgrade: 
+            // Levels 0-0
+            return 0;
+        case UpgradePath::Standard:
+            // Levels 0-15
+            return 15;
+        case UpgradePath::Divine:
+        case UpgradePath::Magic:
+        case UpgradePath::Fire:
+            //Levels 0-10
+            return 10;
+        case UpgradePath::Pyromancy:
+            // Special, lookup the values on equipment table
+            // Normal pyro hand and ascended are the treated
+            // as the same weapon but at different levels
+            return 21;
+        case UpgradePath::Demon:
+        case UpgradePath::Crystal:
+        case UpgradePath::Lightning:
+        case UpgradePath::Raw:
+        case UpgradePath::Occult:
+        case UpgradePath::Enchanted:
+        case UpgradePath::Chaos:
+        case UpgradePath::Dragon:
+        case UpgradePath::Twinkling:
+            // Levels 0-5
+            return 5;
+        default:
+            return 0;
+    }
+
+}
+
 u32 get_weapon_id_for_level(u32 weapon_id, u32 level){
-
-    if(level > 30) level = 30;
-
     u32 base_id = (weapon_id / 100) * 100;
-    if(weapon_ids.find(base_id) != weapon_ids.end()){
+    if(weapon_upgrade_paths.find(base_id) != weapon_upgrade_paths.end()){
         u32 weapon_level_out = 0;
-        UpgradePath weapon_type = weapon_ids.at(base_id);
-        switch(weapon_type){
-            case UpgradePath::NoUpgrade: 
-                // Levels 0-0
-                weapon_level_out = 0;
-                break;
-            case UpgradePath::Standard:
-                // Levels 0-15
-                weapon_level_out = level / 2;
-                break;
-            case UpgradePath::Divine:
-            case UpgradePath::Magic:
-            case UpgradePath::Fire:
-                //Levels 0-10
-                weapon_level_out = level / 3;
-                break;
-            case UpgradePath::Pyromancy:
-                // Special, lookup the values on equipment table
-                if((weapon_id / 1000 == 1332)){
-                    // Ascended
-                    weapon_level_out = level / 6;
-                }else{
-                    // Regular
-                    weapon_level_out = level / 2;
-                }
-                break;
-            case UpgradePath::Demon:
-            case UpgradePath::Crystal:
-            case UpgradePath::Lightning:
-            case UpgradePath::Raw:
-            case UpgradePath::Occult:
-            case UpgradePath::Enchanted:
-            case UpgradePath::Chaos:
-            case UpgradePath::Dragon:
-            case UpgradePath::Twinkling:
-                // Levels 0-5
-                weapon_level_out = level / 6;
-                break;
-            default:
-                weapon_level_out = 0;
-                break;
+        UpgradePath path = weapon_upgrade_paths.at(base_id);
+
+        if(level > WEAPON_MAX_LEVEL) level = WEAPON_MAX_LEVEL;
+        u32 max_level = get_weapon_path_level_range(path);
+        u32 weapon_level_out = 0;
+        if(max_level != 0){
+            // Formula fails for weapons with max level 0
+            weapon_level_out = level / (WEAPON_MAX_LEVEL / max_level);
         }
+        // std::cout << "In: " << weapon_level << " Out: " << weapon_level_out << '\n';
+        if(weapon_level_out > WEAPON_MAX_LEVEL) weapon_level_out = WEAPON_MAX_LEVEL;
 
         // std::cout << "Weapon level In: " << level << "  Out: " << weapon_level_out << '\n';
         // std::cout << "Orignal level: " << weapon_level << '\n';
-        if(weapon_type == UpgradePath::Pyromancy){
+        if(path == UpgradePath::Pyromancy){
+            if(weapon_level_out > 15){
+                weapon_level_out += 4;
+            }
             return ((weapon_id / 1000) * 1000) + (weapon_level_out * 100); 
         }else{
             return base_id + weapon_level_out;
         }
     }
-    
     std::cout << "Unable to find matching id for weapon: " << weapon_id << "\n";
     return weapon_id;
 }
 
 u32 get_weapon_level_from_id(u32 weapon_id){
-    // Weapon levels are normalized between 0 and 30(mcm 5 10 15)
-    // So we dont lose values between transformations
-
-    u32 weapon_level = (weapon_id % 100);
-    if(weapon_level > 15) weapon_level = 15;
     u32 base_id = (weapon_id / 100) * 100;
-    auto find = weapon_ids.find(base_id);
-    if(find != weapon_ids.end()){
-
-        // Found base (+0) weapon, now determine infusion type to calculate level
-
-        UpgradePath weapon_type = find->second;
+    auto find = weapon_upgrade_paths.find(base_id);
+    if(find != weapon_upgrade_paths.end()){
+        UpgradePath path = find->second;
+        u32 weapon_level = (weapon_id % 100);
+        if(path == UpgradePath::Pyromancy){
+            // Pyro is special due to weapon level is not in the
+            // lower id, but rather all the levels of the flame
+            // are a different item id, kinda like infusion
+            weapon_level = (weapon_id / 100) % 100;
+            if(weapon_level > 15){
+                // Ascended pyro flame 0-5
+                // 1332000, 1332100, 1332200, 1332300, 1332400, 1332500
+                // Ascended+0 is considered +16 pyro flame
+                weapon_level -= 4;
+            }
+        }
+        u32 max_level = get_weapon_path_level_range(path);
+        if(weapon_level > max_level) weapon_level = max_level;
         u32 weapon_level_out = 0;
-
-        //Rare instance where cascading switch is nice(so im going to take it)
-        switch(weapon_type){
-            case UpgradePath::NoUpgrade: 
-                // Levels 0-0
-                weapon_level_out = 0;
-                break;
-            case UpgradePath::Standard:
-                // Levels 0-15
-                weapon_level_out = weapon_level * 2;
-                break;
-            case UpgradePath::Raw:
-                // Levels 0-5
-                // Raw infusion caps at +5 for 10 total levels
-                weapon_level_out = weapon_level * 6;
-                break;
-            case UpgradePath::Divine:
-            case UpgradePath::Magic:
-            case UpgradePath::Fire:
-                // Levels 0-10
-                // Infusions already effectively at +5
-                weapon_level_out = weapon_level * 3;
-                break;
-            case UpgradePath::Crystal: 
-            case UpgradePath::Lightning:
-            case UpgradePath::Occult:
-            case UpgradePath::Chaos:
-            case UpgradePath::Enchanted:
-                // Levels 0-5
-                // Infusions already effectively at +10
-                weapon_level_out = weapon_level * 6;
-                break;
-            case UpgradePath::Pyromancy:
-                // Pyro is special due to weapon level is not
-                // in the lower id, but rather all the levels of the
-                // flame are a different item id, kinda like
-                // infusion
-                weapon_level = (weapon_id / 100) % 100;
-                if(weapon_level > 15){
-                    // Ascended pyro flame 0-5
-                    // 1332000, 1332100, 1332200, 1332300, 1332400, 1332500
-                    weapon_level_out = (weapon_level - 20) * 6;
-                }else{
-                    // Regular pyro flame 0-15
-                    weapon_level_out = weapon_level * 2;
-                }
-                break;
-            default:
-                // Scale unique levels 0-5
-                weapon_level_out = weapon_level * 6;
-                break;
+        if(max_level != 0){
+            // Formula fails for weapons with max level 0
+            weapon_level_out = weapon_level * (WEAPON_MAX_LEVEL / max_level);
         }
         // std::cout << "In: " << weapon_level << " Out: " << weapon_level_out << '\n';
-
-        if(weapon_level_out > 30) weapon_level_out = 30;
+        if(weapon_level_out > WEAPON_MAX_LEVEL) weapon_level_out = WEAPON_MAX_LEVEL;
         return weapon_level_out;
     }
 

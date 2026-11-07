@@ -70,7 +70,7 @@ enum class WeaponType : u32{
 };
 
 enum class Change : u32{
-    Null=0,
+    Null = 0,
     EquipWeapon,
     EquipArmor,
     EquipRing,
@@ -1285,6 +1285,84 @@ bool wait_for_process_init(HANDLE process_handle, ULONGLONG ms_delay){
     return true;
 }
 
+void parse_confing_file(std::string& buffer, ConfigOptions& config){
+    std::string buffer_copy;
+    buffer_copy.reserve(buffer.size());
+    //Increase if need to fit larger variable names
+    char var_name[32] = {};
+    s32 var_value = -1;
+    std::cout << "Reading config file\n";
+    for(u64 i = 0; i < buffer.size(); i++){
+        
+        char c = buffer[i];
+        buffer_copy.push_back(c);
+
+        if(c == '\n' || i + 1 == buffer.size()){
+            //@CAUTION: scanf takes the size of the buffer, minus null at the end
+            static_assert(sizeof(var_name) == 32);
+            std::sscanf(buffer_copy.data(), "%31s %i", var_name, &var_value);
+
+            std::cout << "\"" << var_name << "\" " << var_value << '\n';
+            if(std::strcmp(var_name, "weapon") == 0){
+                config.equip_weapons = var_value;
+            }        
+            if(std::strcmp(var_name, "head") == 0){
+                config.equip_head = var_value;
+            }        
+            if(std::strcmp(var_name, "chest") == 0){
+                config.equip_chest = var_value;
+            }        
+            if(std::strcmp(var_name, "gloves") == 0){
+                config.equip_glove = var_value;
+            }        
+            if(std::strcmp(var_name, "pants") == 0){
+                config.equip_pants = var_value;
+            }        
+            if(std::strcmp(var_name, "ring") == 0){
+                config.equip_ring = var_value;
+            }        
+            if(std::strcmp(var_name, "keep_upgrades") == 0){
+                config.auto_upgrades = var_value;
+            }        
+            if(std::strcmp(var_name, "boss_defeated_count") == 0){
+                config.count_bosses_defeated = var_value;
+            }        
+            
+
+            buffer_copy.clear();
+            memset(var_name, 0, sizeof(var_name) * sizeof(*var_name));
+            var_value = -1;
+        }
+    }
+}
+
+bool read_config_file(State& state){
+    std::filesystem::path config_file_path = "autoequip_config.txt";
+    std::string file_contents = read_file_contents_binary(config_file_path);
+
+    if(file_contents.empty()){
+        std::cout << "Configuration file not loaded, using defaults\n";
+
+        //Default configuration file
+        ///////////////////////////////////////////
+        file_contents += "weapon 1\n";
+        file_contents += "head 1\n";
+        file_contents += "chest 1\n";
+        file_contents += "gloves 1\n";
+        file_contents += "pants 1\n";
+        file_contents += "ring 1\n";
+        file_contents += "keep_upgrades 0\n";
+        file_contents += "boss_defeated_count 0\n";
+        ///////////////////////////////////////////
+        if(!std::filesystem::exists(config_file_path)){
+            std::cout << "Writing configuration file\n";
+            write_file_contents_binary(config_file_path, file_contents);
+        }
+    }
+
+    parse_confing_file(file_contents, state.config);
+    return true;
+}
 
 
 // Program logic
@@ -1414,92 +1492,12 @@ void update_loop(State& state){
     }
 }
 
-void parse_confing_file(std::string& buffer, ConfigOptions& config){
-    std::string buffer_copy;
-    buffer_copy.reserve(buffer.size());
-    //Increase if need to fit larger variable names
-    char var_name[32] = {};
-    s32 var_value = -1;
-    std::cout << "Reading config file\n";
-    for(u64 i = 0; i < buffer.size(); i++){
-        
-        char c = buffer[i];
-        buffer_copy.push_back(c);
-
-        if(c == '\n' || i + 1 == buffer.size()){
-            //@CAUTION: scanf takes the size of the buffer, minus null at the end
-            static_assert(sizeof(var_name) == 32);
-            std::sscanf(buffer_copy.data(), "%31s %i", var_name, &var_value);
-
-            std::cout << "\"" << var_name << "\" " << var_value << '\n';
-            if(std::strcmp(var_name, "weapon") == 0){
-                config.equip_weapons = var_value;
-            }        
-            if(std::strcmp(var_name, "head") == 0){
-                config.equip_head = var_value;
-            }        
-            if(std::strcmp(var_name, "chest") == 0){
-                config.equip_chest = var_value;
-            }        
-            if(std::strcmp(var_name, "gloves") == 0){
-                config.equip_glove = var_value;
-            }        
-            if(std::strcmp(var_name, "pants") == 0){
-                config.equip_pants = var_value;
-            }        
-            if(std::strcmp(var_name, "ring") == 0){
-                config.equip_ring = var_value;
-            }        
-            if(std::strcmp(var_name, "keep_upgrades") == 0){
-                config.auto_upgrades = var_value;
-            }        
-            if(std::strcmp(var_name, "boss_defeated_count") == 0){
-                config.count_bosses_defeated = var_value;
-            }        
-            
-
-            buffer_copy.clear();
-            memset(var_name, 0, sizeof(var_name) * sizeof(*var_name));
-            var_value = -1;
-        }
-    }
-}
-
-bool read_config_file(State& state){
-    std::filesystem::path config_file_path = "autoequip_config.txt";
-    std::string file_contents = read_file_contents_binary(config_file_path);
-
-    if(file_contents.empty()){
-        std::cout << "Configuration file not loaded, using defaults\n";
-
-        //Default configuration file
-        ///////////////////////////////////////////
-        file_contents += "weapon 1\n";
-        file_contents += "head 1\n";
-        file_contents += "chest 1\n";
-        file_contents += "gloves 1\n";
-        file_contents += "pants 1\n";
-        file_contents += "ring 1\n";
-        file_contents += "keep_upgrades 0\n";
-        file_contents += "boss_defeated_count 0\n";
-        ///////////////////////////////////////////
-        if(!std::filesystem::exists(config_file_path)){
-            std::cout << "Writing configuration file\n";
-            write_file_contents_binary(config_file_path, file_contents);
-        }
-    }
-
-    parse_confing_file(file_contents, state.config);
-    return true;
-}
-
 int exit_with_error(std::string error_message){
         std::cout << error_message;
         std::cout << "This console will close in 5 seconds\n";
         Sleep(5000);
         return EXIT_FAILURE;
 }
-
 
 int main(){
 

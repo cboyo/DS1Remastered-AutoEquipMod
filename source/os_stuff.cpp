@@ -90,7 +90,7 @@ std::string protect_to_string(DWORD protect){
         case PAGE_READWRITE: return "PAGE_READWRITE";
         case PAGE_WRITECOPY: return "PAGE_WRITECOPY";
         case PAGE_TARGETS_INVALID: return "PAGE_TARGETS_INVALID";
-        default:return "PAGE_UNKNOWN:"+std::to_string(protect);
+        default: return "PAGE_UNKNOWN:" + std::to_string(protect);
     }
 }
 
@@ -144,7 +144,7 @@ MemBlock get_module_memory_block(Process& process, const wchar_t* module_name){
         module_entry.dwSize = sizeof(MODULEENTRY32W);
         if (Module32FirstW(snapshot_handle, &module_entry)){
             do{
-                if(CompareStringW(LOCALE_NAME_USER_DEFAULT,0, module_name, -1, module_entry.szModule, -1) == CSTR_EQUAL){
+                if(CompareStringW(NULL, 0, module_name, -1, module_entry.szModule, -1) == CSTR_EQUAL){
                     block.base = module_entry.modBaseAddr;
                     block.size = module_entry.modBaseSize;
                     // std::cout << "Module size: " << module_entry.modBaseSize << '\n';
@@ -155,15 +155,6 @@ MemBlock get_module_memory_block(Process& process, const wchar_t* module_name){
         CloseHandle(snapshot_handle);
     }
     return block;
-}
-
-bool is_searchable(MEMORY_BASIC_INFORMATION& info, void* module_start, void* module_end){
-    if (info.BaseAddress < module_start || info.BaseAddress >= module_end)
-        return false; 
-    if (info.Protect & (0x100 | 0x01)){ // PAGE_GUARD | PAGE_NOACCESS
-        return false; 
-    } 
-    return info.Protect & (0x20 | 0x40); // PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE
 }
 
 std::vector<void*> scan_process_module(Process& process, const Pattern& pattern, const wchar_t* module_name){
@@ -180,9 +171,6 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
 
     MemBlock module_mem = get_module_memory_block(process, module_name);
 
-    void* module_end = offset_address(module_mem.base, module_mem.size);
-    void* module_start = module_mem.base;
-
     s32 valid_blocks = 0;
     s32 total_blocks = 0;
 
@@ -191,7 +179,9 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
         total_size += info.RegionSize;
         total_blocks += 1;
 
-        if(is_searchable(info, module_start, module_end)){
+        // For the most part AllocationBase will match the module base
+        // it was allocated from
+        if(info.AllocationBase == module_mem.base){
             void* base = info.BaseAddress;
             // std::cout << "SCANNING: " << base << " " << offset_address(base, info.RegionSize) << '\r';
             buffer.resize(info.RegionSize);
@@ -209,7 +199,7 @@ std::vector<void*> scan_process_module(Process& process, const Pattern& pattern,
     }
     // I was confused at the beggining why total_size was so huge
     // Turns out Windows does whatever it wants in virtual space
-    std::cout << "\nSCANNED: " << beutify_bytes(scanned_size) << " out of " << beutify_bytes(total_size);
+    std::cout << "SCANNED: " << beutify_bytes(scanned_size) << " out of " << beutify_bytes(total_size);
     std::cout << " | " << valid_blocks << " out of " << total_blocks << " blocks\n";
     // std::cout << "Valid mem blocks: " << valid_blocks << '\n';
     return result_addresses;
@@ -237,7 +227,7 @@ std::vector<void*> scan_process(Process process,const Pattern& pattern){
         bool valid_mem_block = true;
 
         if(info.State != MEM_COMMIT) valid_mem_block = false;
-        if(!(info.Type==MEM_PRIVATE||info.Type==MEM_IMAGE)) valid_mem_block = false;
+        if(!(info.Type==MEM_PRIVATE || info.Type==MEM_IMAGE)) valid_mem_block = false;
 
         if(valid_mem_block){
             void* base = info.BaseAddress;
@@ -252,7 +242,7 @@ std::vector<void*> scan_process(Process process,const Pattern& pattern){
             }
 
             valid_blocks += 1;
-            scanned_size+=info.RegionSize;
+            scanned_size += info.RegionSize;
         }
         virtual_address = offset_address(virtual_address, info.RegionSize);
     }

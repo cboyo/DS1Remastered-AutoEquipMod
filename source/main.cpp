@@ -1,3 +1,9 @@
+#ifdef SAMURAI_DEBUG
+    #define DEBUG
+#else
+    #define NDEBUG
+#endif
+
 //Windows bullshit
 #include <Windows.h>
 #include <TlHelp32.h>
@@ -1630,8 +1636,7 @@ int exit_with_error(std::string error_message){
 
 int main(){
 
-    autoupgrade_testbench();
-    return 0;
+    #ifdef DEBUG
     //Cool ladder test
     assert(beutify_bytes(1) == "1B");
     assert(beutify_bytes(12) == "12B");
@@ -1644,6 +1649,8 @@ int main(){
     assert(beutify_bytes(123456789) == "123.45MB");
     assert(beutify_bytes(1234567890) == "1.23GB");
     pattern_tests();
+    autoupgrade_testbench();
+    #endif
 
 
     std::string logo = "AutoEquip for Dark Souls Remastered by chainsboyo\n";

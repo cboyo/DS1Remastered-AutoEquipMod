@@ -39,7 +39,6 @@ std::unordered_map<UpgradePath, std::string> upgrade_path_names = {
 };
 
 std::unordered_map<u32, UpgradePath> armor_upgrade_paths = {
-    {1,    UpgradePath::NoUpgrade}, //	None
     {1000, UpgradePath::NoUpgrade}, //	Shaved
     {1100, UpgradePath::NoUpgrade}, //	Receding
     {1200, UpgradePath::NoUpgrade}, //	Short

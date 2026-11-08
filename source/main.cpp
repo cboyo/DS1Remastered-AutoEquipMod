@@ -35,7 +35,8 @@ using f64 = double;
 
 // constants
 const wchar_t* EXE_NAME = L"DarkSoulsRemastered.exe";
-const u32 WEAPON_MAX_LEVEL = 210u; // Result from the weapon levels LCM(5, 10, 15, 21) 
+constexpr u32 EQUIPMENT_MAX_LEVEL = 210u; // Result from the differen equipment reinforcement limits LCM(5, 10, 15, 21)
+
 // enums
 enum class AppState{
     FindingGame,
@@ -231,7 +232,7 @@ UpgradePath get_armor_path_from_id(u32 armor_id){
     }
 }
 
-u32 get_weapon_path_level_range(UpgradePath path){
+u32 get_path_reinforcement_limit(UpgradePath path){
     switch(path){
         case UpgradePath::NoUpgrade: 
             // Levels 0-0
@@ -260,37 +261,74 @@ u32 get_weapon_path_level_range(UpgradePath path){
         case UpgradePath::Twinkling:
             // Levels 0-5
             return 5;
+        case UpgradePath::ArmorLight:
+        case UpgradePath::ArmorHeavy:
+            return 10;
+        case UpgradePath::ArmorSpecial:
+            return 5;
         default:
             return 0;
     }
 
 }
 
-u32 get_weapon_id_for_level(u32 weapon_id, u32 level){
+u32 get_equipment_reinforcement_from_id(UpgradePath path, u32 id){
+    u32 reinforcement = 0;
+    if(path == UpgradePath::Pyromancy){
+        // Pyro is special due to weapon level is not in the
+        // lower id, but rather all the levels of the flame
+        // are a different item id, kinda like infusion
+        reinforcement = (id / 100) % 100;
+        if(reinforcement > 15){
+            // Ascended pyro flame 0-5
+            // 1332000, 1332100, 1332200, 1332300, 1332400, 1332500
+            // Ascended+0 is considered +16 pyro flame
+            reinforcement -= 4;
+        }
+    }else{
+        reinforcement = id % 100;
+    }
+    return reinforcement;
+}
+
+u32 get_equipment_reinforcement_from_level(UpgradePath path, u32 level){
+    if(level > EQUIPMENT_MAX_LEVEL) level = EQUIPMENT_MAX_LEVEL;
+    u32 max_reinforcement = get_path_reinforcement_limit(path);
+    u32 reinforcement = 0;
+    if(max_reinforcement != 0){
+        // Formula fails for equipment with max level 0
+        reinforcement = level / (EQUIPMENT_MAX_LEVEL / max_reinforcement);
+    }
+    if(reinforcement > max_reinforcement) reinforcement = max_reinforcement;
+    return reinforcement;
+}
+
+u32 get_equipment_level_from_reinforcement(UpgradePath path, u32 reinforcement){
+    u32 max_reinforcement = get_path_reinforcement_limit(path);
+    if(reinforcement > max_reinforcement) reinforcement = max_reinforcement;
+    u32 level = 0;
+    if(max_reinforcement != 0){
+        // Formula fails for weapons with max level 0
+        level = reinforcement * (EQUIPMENT_MAX_LEVEL / max_reinforcement);
+    }
+    // std::cout << "In: " << weapon_level << " Out: " << weapon_level_out << '\n';
+    if(level > EQUIPMENT_MAX_LEVEL) level = EQUIPMENT_MAX_LEVEL;
+    return level;
+}
+
+u32 get_weapon_id_from_level(u32 weapon_id, u32 level){
     u32 base_id = (weapon_id / 100) * 100;
     if(weapon_upgrade_paths.find(base_id) != weapon_upgrade_paths.end()){
-        u32 weapon_level_out = 0;
         UpgradePath path = weapon_upgrade_paths.at(base_id);
-
-        if(level > WEAPON_MAX_LEVEL) level = WEAPON_MAX_LEVEL;
-        u32 max_level = get_weapon_path_level_range(path);
-        u32 weapon_level_out = 0;
-        if(max_level != 0){
-            // Formula fails for weapons with max level 0
-            weapon_level_out = level / (WEAPON_MAX_LEVEL / max_level);
-        }
-        // std::cout << "In: " << weapon_level << " Out: " << weapon_level_out << '\n';
-        if(weapon_level_out > WEAPON_MAX_LEVEL) weapon_level_out = WEAPON_MAX_LEVEL;
-
-        // std::cout << "Weapon level In: " << level << "  Out: " << weapon_level_out << '\n';
-        // std::cout << "Orignal level: " << weapon_level << '\n';
+        u32 reinforcement = get_equipment_reinforcement_from_level(path, level);
         if(path == UpgradePath::Pyromancy){
-            if(weapon_level_out > 15){
-                weapon_level_out += 4;
+            // Ascended pyro hand id jumps from ..1500 to ..2000
+            if(reinforcement > 15){
+                reinforcement += 4;
             }
-            return ((weapon_id / 1000) * 1000) + (weapon_level_out * 100); 
+            return ((weapon_id / 10000) * 10000) + (reinforcement * 100); 
         }else{
-            return base_id + weapon_level_out;
+            return base_id + reinforcement;
         }
     }
     std::cout << "Unable to find matching id for weapon: " << weapon_id << "\n";
@@ -302,98 +340,37 @@ u32 get_weapon_level_from_id(u32 weapon_id){
     auto find = weapon_upgrade_paths.find(base_id);
     if(find != weapon_upgrade_paths.end()){
         UpgradePath path = find->second;
-        u32 weapon_level = (weapon_id % 100);
-        if(path == UpgradePath::Pyromancy){
-            // Pyro is special due to weapon level is not in the
-            // lower id, but rather all the levels of the flame
-            // are a different item id, kinda like infusion
-            weapon_level = (weapon_id / 100) % 100;
-            if(weapon_level > 15){
-                // Ascended pyro flame 0-5
-                // 1332000, 1332100, 1332200, 1332300, 1332400, 1332500
-                // Ascended+0 is considered +16 pyro flame
-                weapon_level -= 4;
-            }
-        }
-        u32 max_level = get_weapon_path_level_range(path);
-        if(weapon_level > max_level) weapon_level = max_level;
-        u32 weapon_level_out = 0;
-        if(max_level != 0){
-            // Formula fails for weapons with max level 0
-            weapon_level_out = weapon_level * (WEAPON_MAX_LEVEL / max_level);
-        }
-        // std::cout << "In: " << weapon_level << " Out: " << weapon_level_out << '\n';
-        if(weapon_level_out > WEAPON_MAX_LEVEL) weapon_level_out = WEAPON_MAX_LEVEL;
-        return weapon_level_out;
+        u32 reinforcement = get_equipment_reinforcement_from_id(path, weapon_id);
+        return get_equipment_level_from_reinforcement(path, reinforcement);
     }
-
     std::cout << "Unable to find matching level for weapon: " << weapon_id << "\n";
     return 0;
 }
 
-u32 get_armor_id_for_level(u32 armor_id, u32 level){
-    if(level > 30) level = 30;
+u32 get_armor_id_from_level(u32 armor_id, u32 level){
     u32 base_id = (armor_id / 100) * 100;
     auto find = armor_upgrade_paths.find(base_id);
     if(find != armor_upgrade_paths.end()){
-        u32 level_out = 0;
         UpgradePath upgrade_path = find->second;
-
-        switch(upgrade_path){
-            case UpgradePath::ArmorLight:
-            case UpgradePath::ArmorHeavy:
-                // Levels 0-10
-                level_out = level / 3;
-                break;
-            case UpgradePath::ArmorSpecial:
-                // Levels 0-5
-                level_out = level / 6;
-                break;
-            default: 
-                // Levels 0-0
-                level_out = 0;
-                break;
-        }
-        return base_id + level_out;
+        u32 reinforcement = get_equipment_reinforcement_from_level(upgrade_path, level);
+        return base_id + reinforcement;
     }
     
     std::cout << "Unable to find matching id for armor: " << armor_id << "\n";
     return armor_id;
 }
 
-u32 get_armor_level_from_id(u32 armor){
-    // Equip levels are normalized between 0 and 30(mcm 5 10 15)
-    // So we dont lose values between transformations
-
-    u32 armor_level = armor % 100;
-    u32 base_id = (armor / 100) * 100;
+u32 get_armor_level_from_id(u32 armor_id){
+    u32 base_id = (armor_id / 100) * 100;
     auto find = armor_upgrade_paths.find(base_id);
     if(find != armor_upgrade_paths.end()){
-
         // Found base (+0) weapon, now determine infusion type to calculate level
         UpgradePath upgrade_path = find->second;
-        u32 level_out = 0;
-
-        switch(upgrade_path){
-            case UpgradePath::ArmorLight:
-            case UpgradePath::ArmorHeavy:
-                // Levels 0-10
-                level_out = armor_level * 3;
-                break;
-            case UpgradePath::ArmorSpecial:
-                // Levels 0-5
-                level_out = armor_level * 6;
-                break;
-            default: 
-                // Levels 0-0
-                level_out = 0;
-                break;
-        }
-        if(level_out > 30) level_out = 30;
-        return level_out;
+        u32 reinforcement = get_equipment_reinforcement_from_id(upgrade_path, armor_id);
+        return get_equipment_level_from_reinforcement(upgrade_path, reinforcement);
     }
 
-    std::cout << "Unable to find matching level for armor: " << armor << "\n";
+    std::cout << "Unable to find matching level for armor: " << armor_id << "\n";
     return 0;
 }
 
@@ -972,18 +949,8 @@ u32 upgrade_weapon(State& state, u32 weapon_id){
         if(path_level){
             upgrades = path_level[hand_offset];
         }
-        weapon_id = get_weapon_id_for_level(weapon_id, upgrades);
-        if(path == UpgradePath::Pyromancy){
-            if((weapon_id / 1000 == 1332)){
-                // Ascended
-                std::cout << "Level set to to +" << upgrades / 6 << '\n';
-            }else{
-                // Regular
-                std::cout << "Level set to to +" << upgrades / 2 << '\n';
-            }
-        }else{
-            std::cout << "Level set to to +" << weapon_id % 100 << '\n';
-        }
+        weapon_id = get_weapon_id_from_level(weapon_id, upgrades);
+        std::cout << "Level set to to +" << get_equipment_reinforcement_from_id(weapon_upgrade_paths[weapon_id], weapon_id) << '\n';
 
     }else if(state.config.auto_upgrades == 2){
         // System 2 keeps all the paths at the "same" level
@@ -1004,9 +971,8 @@ u32 upgrade_weapon(State& state, u32 weapon_id){
         make_max(upgrades, state.upg_levels.twinkling[hand_offset]);
         make_max(upgrades, state.upg_levels.demon[hand_offset]);
         make_max(upgrades, state.upg_levels.pyro[hand_offset]);
-
-        weapon_id = get_weapon_id_for_level(weapon_id, upgrades);
-        std::cout << "Level set to to +" << weapon_id % 100 << '\n';
+        weapon_id = get_weapon_id_from_level(weapon_id, upgrades);
+        std::cout << "Level set to to +" << get_equipment_reinforcement_from_id(weapon_upgrade_paths[weapon_id], weapon_id) << '\n';
     }
 
     return weapon_id;
@@ -1040,7 +1006,7 @@ u32 upgrade_armor(State& state, u32 armor_id){
         if(path_level){
             upgrades = path_level[bodypart_offset];
         }
-        armor_id = get_armor_id_for_level(armor_id, upgrades);
+        armor_id = get_armor_id_from_level(armor_id, upgrades);
         std::cout << "Level set to to +" << armor_id % 100 << '\n';
 
     }else if(state.config.auto_upgrades == 2){
@@ -1051,7 +1017,7 @@ u32 upgrade_armor(State& state, u32 armor_id){
         make_max(upgrades, state.upg_levels.armor_standard[bodypart_offset]);
         make_max(upgrades, state.upg_levels.armor_special[bodypart_offset]);
 
-        armor_id = get_weapon_id_for_level(armor_id, upgrades);
+        armor_id = get_weapon_id_from_level(armor_id, upgrades);
         std::cout << "Level set to to +" << armor_id % 100 << '\n';
     }
     return armor_id;
@@ -1320,12 +1286,17 @@ void autoupgrade_testbench(){
     // No autoupgrades keep all at the level it was picked up
     s.config.auto_upgrades = 0;
     s.upg_levels = {};
-    u32 dagger_id = 100000;
-    assert(upgrade_weapon(s, dagger_id) == dagger_id);
+    u32 dagger = 100000; // Dagger
+    u32 crystal_halberd = 1100100; // Halberd [Crystal]
+    u32 chaos_blade = 503000; // Chaos Blade [Uchigatana]
+    u32 pyro_hand = 1330000; // Pyromancy Hand
+    u32 no_upg_sword = 299000; // [Ghost] Straight Sword
+    u32 fire_claymore = 301800; // Claymore [Fire]
+    assert(upgrade_weapon(s, dagger) == dagger);
 
     // Should ignore the upgrade levels
     s.upg_levels.standard[0] = 6;
-    assert(upgrade_weapon(s, dagger_id) == dagger_id);
+    assert(upgrade_weapon(s, dagger) == dagger);
 
     // Infused with greatness
     for(u32 i = 0; i < 15; i++){
@@ -1369,15 +1340,158 @@ void autoupgrade_testbench(){
     assert(upgrade_weapon(s, 1332300) == 1332300); // Ascended Pyromancy Flame +3
     assert(upgrade_weapon(s, 1332400) == 1332400); // Ascended Pyromancy Flame +4
     assert(upgrade_weapon(s, 1332500) == 1332500); // Ascended Pyromancy Flame +5
+    
+    // id_for_level and level_from_id produces corresponding outputs
+    for(auto x: weapon_upgrade_paths){
+        UpgradePath path = x.second;
+        u32 level_limit = get_path_reinforcement_limit(path);
+        u32 weapon_id = x.first;
+        if(path == UpgradePath::Pyromancy){
+            assert(weapon_id == get_weapon_id_from_level(weapon_id, get_weapon_level_from_id(weapon_id)));
+        }else{
+            for(u32 i = 0; i <= level_limit; i++){
+                u32 upgraded_id = x.first + i;
+                assert(upgraded_id == get_weapon_id_from_level(weapon_id, get_weapon_level_from_id(upgraded_id)));
+            }
+        }
+    }
+    for(auto x: armor_upgrade_paths){
+        UpgradePath path = x.second;
+        u32 level_limit = get_path_reinforcement_limit(path);
+        u32 equip_id = x.first;
+        for(u32 i = 0; i <= level_limit; i++){
+            u32 upgraded_id = x.first + i;
+            assert(upgraded_id == get_armor_id_from_level(equip_id, get_armor_level_from_id(upgraded_id)));
+        }
+    }
 
     // Upgrades should keep the value across paths
     s.config.auto_upgrades = 2;
-    
-    // Test for each upg level that the output for each path is correct
     s.upg_levels = {};
+    
+    // In depth testing would require to just duplicate the functions
+    // so instead we are going by known good handmade tests
+    update_weapon_level(s, dagger + 4);
+    assert(s.upg_levels.standard[0] == 4 * 14);
+    s.upg_levels.standard[1] = s.upg_levels.standard[0];
+
+    // +4 standard
+    assert(upgrade_weapon(s, dagger) == dagger + 4);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 1);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade + 1);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore + 2);
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand + 500);
+    
+    // +4 crystal
+    update_weapon_level(s, crystal_halberd + 4);
+    assert(s.upg_levels.crystal[0] == 4 * 42);
+    
+    // Correct hand offset
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand + 500);
+    
+    s.upg_levels.crystal[1] = s.upg_levels.crystal[0];
+    assert(upgrade_weapon(s, dagger) == dagger + 12);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 4);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade + 4);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore + 8);
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand + 2000);
+
+    // +13 standard and + 4 crystal
+    update_weapon_level(s, dagger + 13);
+    assert(upgrade_weapon(s, dagger) == dagger + 13);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 4);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade + 4);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore + 8);
+
+    // +20 pyro hand
+    update_weapon_level(s, pyro_hand + 2400);
+    s.upg_levels.pyro[0] = s.upg_levels.pyro[1];
+
+    assert(upgrade_weapon(s, dagger) == dagger + 14);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 4);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade + 4);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore + 9);
+
+    // +21 pyro hand
+    update_weapon_level(s, pyro_hand + 2500);
+    assert(s.upg_levels.pyro[1] == EQUIPMENT_MAX_LEVEL);
+    s.upg_levels.pyro[0] = s.upg_levels.pyro[1];
+
+    assert(upgrade_weapon(s, dagger) == dagger + 15);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 5);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade + 5);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore + 10);
+
+    // Upgrades should keep individual value between paths
+    s.config.auto_upgrades = 1;
+    s.upg_levels = {};
+    
+    // In depth testing would require to just duplicate the functions
+    // so instead we are going by known good handmade tests
+    update_weapon_level(s, dagger + 4);
+    s.upg_levels.standard[1] = s.upg_levels.standard[0];
+
+    // +4 standard
+    assert(upgrade_weapon(s, dagger) == dagger + 4);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore);
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand);
+    
+    // +4 crystal
+    update_weapon_level(s, crystal_halberd + 4);
+    assert(s.upg_levels.crystal[0] == 4 * 42);
+    
+    // Correct hand offset
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand);
+    
+    s.upg_levels.crystal[1] = s.upg_levels.crystal[0];
+    assert(upgrade_weapon(s, dagger) == dagger + 4);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 4);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore);
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand);
+
+    // +13 standard and + 4 crystal
+    update_weapon_level(s, dagger + 13);
+    assert(upgrade_weapon(s, dagger) == dagger + 13);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 4);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore);
+
+    // +20 pyro hand
+    update_weapon_level(s, pyro_hand + 2400);
+    s.upg_levels.pyro[0] = s.upg_levels.pyro[1];
+
+    assert(upgrade_weapon(s, dagger) == dagger + 13);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 4);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore);
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand + 2400);
+
+    // +21 pyro hand
+    update_weapon_level(s, pyro_hand + 2500);
+    assert(s.upg_levels.pyro[1] == EQUIPMENT_MAX_LEVEL);
+    s.upg_levels.pyro[0] = s.upg_levels.pyro[1];
+
+    assert(upgrade_weapon(s, dagger) == dagger + 13);
+    assert(upgrade_weapon(s, crystal_halberd) == crystal_halberd + 4);
+    assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade);
+    assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
+    assert(upgrade_weapon(s, fire_claymore) == fire_claymore);
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand + 2500);
 
 
-
+    std::cout << "All autoupgrade tests passed\n";
 }
 
 // Program logic

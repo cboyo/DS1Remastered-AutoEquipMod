@@ -1023,7 +1023,7 @@ u32 upgrade_armor(State& state, u32 armor_id){
         make_max(upgrades, state.upg_levels.armor_standard[bodypart_offset]);
         make_max(upgrades, state.upg_levels.armor_special[bodypart_offset]);
 
-        armor_id = get_weapon_id_from_level(armor_id, upgrades);
+        armor_id = get_armor_id_from_level(armor_id, upgrades);
         std::cout << "Level set to to +" << armor_id % 100 << '\n';
     }
     return armor_id;
@@ -1298,6 +1298,10 @@ void autoupgrade_testbench(){
     u32 pyro_hand = 1330000; // Pyromancy Hand
     u32 no_upg_sword = 299000; // [Ghost] Straight Sword
     u32 fire_claymore = 301800; // Claymore [Fire]
+    u32 stone_armor = 121000; // Stone Armor (no upg)
+    u32 chain_armor = 171000; // Chain Armor (heavy)
+    u32 leather_armor = 241000; // Leather Armor (light)
+    u32 witch_cloak = 341000; // Witch Cloak (special)
     assert(upgrade_weapon(s, dagger) == dagger);
 
     // Should ignore the upgrade levels
@@ -1388,6 +1392,12 @@ void autoupgrade_testbench(){
     assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
     assert(upgrade_weapon(s, fire_claymore) == fire_claymore + 2);
     assert(upgrade_weapon(s, pyro_hand) == pyro_hand + 500);
+
+    // Armor should ignore weapon upgrades
+    assert(upgrade_armor(s, stone_armor) == stone_armor);
+    assert(upgrade_armor(s, leather_armor) == leather_armor);
+    assert(upgrade_armor(s, chain_armor) == chain_armor);
+    assert(upgrade_armor(s, witch_cloak) == witch_cloak);
     
     // +4 crystal
     update_weapon_level(s, crystal_halberd + 4);
@@ -1432,6 +1442,23 @@ void autoupgrade_testbench(){
     assert(upgrade_weapon(s, chaos_blade + 4) == chaos_blade + 5);
     assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
     assert(upgrade_weapon(s, fire_claymore) == fire_claymore + 10);
+
+    // standard armor + 4
+    update_armor_level(s, leather_armor + 4);
+    assert(s.upg_levels.armor_standard[1] == 21 * 4);
+    assert(upgrade_armor(s, stone_armor) == stone_armor);
+    assert(upgrade_armor(s, leather_armor) == leather_armor + 4);
+    assert(upgrade_armor(s, chain_armor) == chain_armor + 4);
+    assert(upgrade_armor(s, witch_cloak) == witch_cloak + 2);
+    update_armor_level(s, leather_armor + 5);
+    assert(upgrade_armor(s, witch_cloak) == witch_cloak + 2);
+
+    // Head equip should not be affected by chest upgrades
+    assert(upgrade_armor(s, stone_armor - 1000) == stone_armor - 1000);
+    assert(upgrade_armor(s, leather_armor - 1000) == leather_armor - 1000);
+    assert(upgrade_armor(s, chain_armor - 1000) == chain_armor - 1000);
+    assert(upgrade_armor(s, witch_cloak - 1000) == witch_cloak - 1000);
+
 
     // Upgrades should keep individual value between paths
     s.config.auto_upgrades = 1;
@@ -1495,6 +1522,25 @@ void autoupgrade_testbench(){
     assert(upgrade_weapon(s, no_upg_sword) == no_upg_sword);
     assert(upgrade_weapon(s, fire_claymore) == fire_claymore);
     assert(upgrade_weapon(s, pyro_hand) == pyro_hand + 2500);
+
+
+    assert(upgrade_weapon(s, pyro_hand) == pyro_hand + 2500);
+
+    // standard armor + 4
+    update_armor_level(s, leather_armor + 4);
+    assert(s.upg_levels.armor_standard[1] == 21 * 4);
+    assert(upgrade_armor(s, stone_armor) == stone_armor);
+    assert(upgrade_armor(s, leather_armor) == leather_armor + 4);
+    assert(upgrade_armor(s, chain_armor) == chain_armor + 4);
+    assert(upgrade_armor(s, witch_cloak) == witch_cloak);
+    update_armor_level(s, leather_armor + 5);
+    assert(upgrade_armor(s, witch_cloak) == witch_cloak);
+
+    // Head equip should not be affected by chest upgrades
+    assert(upgrade_armor(s, stone_armor - 1000) == stone_armor - 1000);
+    assert(upgrade_armor(s, leather_armor - 1000) == leather_armor - 1000);
+    assert(upgrade_armor(s, chain_armor - 1000) == chain_armor - 1000);
+    assert(upgrade_armor(s, witch_cloak - 1000) == witch_cloak - 1000);
 
 
     std::cout << "All autoupgrade tests passed\n";
@@ -1636,7 +1682,7 @@ int exit_with_error(std::string error_message){
 
 int main(){
 
-    #ifdef DEBUG
+#ifdef DEBUG
     //Cool ladder test
     assert(beutify_bytes(1) == "1B");
     assert(beutify_bytes(12) == "12B");
@@ -1650,7 +1696,7 @@ int main(){
     assert(beutify_bytes(1234567890) == "1.23GB");
     pattern_tests();
     autoupgrade_testbench();
-    #endif
+#endif
 
 
     std::string logo = "AutoEquip for Dark Souls Remastered by chainsboyo\n";

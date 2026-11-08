@@ -81,7 +81,8 @@ enum class Change : u32{
     EquipWeapon,
     EquipArmor,
     EquipRing,
-    UpgradedWeapon
+    UpgradedWeapon,
+    UpgradedArmor
 };
 
 enum class SpEffects : u32{
@@ -748,6 +749,9 @@ Change identify_change(const InvSlot& old,const InvSlot& current){
             //Upgraded weapon most likely
             std::cout << "Detected weapon upgrade\n";
             return Change::UpgradedWeapon;
+        }else if(current.type == ItemType::Armor && old.type == current.type){
+            std::cout << "Detected armor upgrade\n";
+            return Change::UpgradedArmor;
         }
     }
     //Default to null
@@ -1145,6 +1149,8 @@ void execute_change(Change change, State& state, u32 inv_index){
         write_rings_slots(state, ring_slots); 
     }else if(change == Change::UpgradedWeapon){
         update_weapon_level(state, item_id);
+    }else if(change == Change::UpgradedArmor){
+        update_armor_level(state, item_id);
     }
 }
 
@@ -1164,7 +1170,9 @@ bool initial_inv_read(State& state){
                 }
             }
         }
+        #ifdef DEBUG
         print_equip_levels(state);
+        #endif
         return true;
     }
     return false;
@@ -1272,7 +1280,7 @@ bool read_config_file(State& state){
         file_contents += "gloves 1\n";
         file_contents += "pants 1\n";
         file_contents += "ring 1\n";
-        file_contents += "keep_upgrades 0\n";
+        file_contents += "keep_upgrades 1\n";
         file_contents += "boss_defeated_count 0\n";
         ///////////////////////////////////////////
         if(!std::filesystem::exists(config_file_path)){
